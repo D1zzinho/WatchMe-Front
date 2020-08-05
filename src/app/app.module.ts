@@ -1,16 +1,25 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { AppRoutingModule } from './app-routing.module';
+import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
+import { TopNavigationComponent } from './top-navigation/top-navigation.component';
+import { VideosComponent } from './videos/videos.component';
+import { FinderComponent } from './finder/finder.component';
+import { PlayerComponent } from './player/player.component';
+
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    VideosComponent,
+    FinderComponent,
+    PlayerComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    TopNavigationComponent,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

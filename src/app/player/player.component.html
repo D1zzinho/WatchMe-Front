@@ -1,0 +1,79 @@
+<div class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-md-center">
+            <div class="col-12 col-lg-8 col-xl-9">
+                <!-- LEFT SIDE [VIDEO/COMMENTS] -->
+                <div class="vid-com-section">
+                    <div class="video-section">
+                        <div #player class="player">
+                            <video #playerVideo id="video" poster="http://192.168.100.2:3000/{{ cover }}">
+                                <source #playerSource id="source" src="http://192.168.100.2:3000/{{ path }}" type="video/mp4" />
+                            </video>
+
+                            <div #playerControls class="player-controls">
+                                <div #progress class="progress">
+                                    <div #filledProgress class="filled-progress"></div>
+                                    <div #filledBufferProgress class="filled-buffer-progress"></div>
+                                </div>
+
+                                <div #playPauseBtn class="ply-btn">
+                                    <button #togglePlay class="player-btn toggle-play" title="Toggle Play">
+                                        <i class="fa fa-play"></i>
+                                    </button>
+                                </div>
+
+                                <div #sliders class="sliders">
+                                    <div #volumeIcon id="vol"><i class="fa fa-volume-down"></i></div>
+                                    <input #volumeSlider type="range" id="volume" name="volume" title="Change volume"
+                                        class="player-slider" min="0" max="1" step="0.05" value="{{ volume }}" />
+
+                                    <div #speedIcon class="speed"><i class="fa fa-fast-forward"></i></div>
+                                    <input #speedSlider type="range" id="playbackRate" name="playbackRate" title="Change speed"
+                                        class="player-slider" min="0.5" max="8" step="0.5" value="{{ playbackRate }}"/>
+                                    <div #speedValue id="playbackRate_value">x{{ playbackRate }}</div>
+                                </div>
+
+                                <div #timeHolder class="time">00:00 / 00:00</div>
+
+                                <button #fullScreenBtn id="full-screen" class="player-btn" title="Toggle FullScreen">
+                                    <i class="fa fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="top-info-holder">
+
+                            <div class="title-views-section">
+                                <h2 class="video-title" id="vtitle">{{ title }}</h2>
+                                <div class="views" id="vvisit">{{ visits }} wyświetleń</div>
+                            </div>
+
+                        </div>
+
+                        <div class="info">
+                            <div class="add-by">
+                                <!-- <div class="avatar"><a href="#"><img src="" /></a></div> -->
+                                <div class="uploaded">
+                                    <a href="#"></a>
+                                    <p id="date"></p>
+                                    <div #descriptionDiv class="desc">
+                                        {{ description }}
+                                        <br><br><p class="pb-0 mb-0">Tags:</p>
+                                        <a *ngFor="let tag of tags" class="tag mr-1 px-1" [routerLink]="['/finder']" [queryParams]="{ q: tag, page: 1 }">{{ tag }}</a>
+                                    </div>
+                                    <a href="javascript:void(0)" id="sh_desc">Pokaż więcej</a>
+                                </div> 
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4 col-xl-3">
+                <div id="similar-vids" class="row mb-4"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
