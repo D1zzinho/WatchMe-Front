@@ -71,6 +71,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.initPlayer(this._id)
       this.titleService.setTitle(this.title + ' - WatchMe')
+      import('src/app/player/mediaSession.js')
     }, 1000)
   }
 

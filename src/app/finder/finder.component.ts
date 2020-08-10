@@ -21,7 +21,7 @@ export class FinderComponent implements OnInit {
   ngOnInit(): void {
     this.currentRoute.queryParams.subscribe(params => {
       this.q = params.q
-      this.http.get<any>(this.VIDEOS_URL + '?q=' + params.q + '&page=' + params.page).subscribe(res => {
+      this.http.get<any>(this.VIDEOS_URL + '?query=' + params.q + '&page=' + params.page).subscribe(res => {
         this.pages = res.pages
         this.videos = res.videosOnPage
         this.message = res.message
