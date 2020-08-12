@@ -31,12 +31,14 @@
                         <a [routerLink]="['/player']" [queryParams]="{vid: video._id}">
                             <video
                                 preload="none"
+                                (mouseover)="loadPreview($event)"
+                                (mouseleave)="unloadPreview($event)"
                                 poster="http://192.168.100.2:3000/{{ video.cover }}"
                                 muted
                                 loop
                                 class="img-fluid covers"
                                 id="{{ video._id }}"
-                                alt="{{ video.title }}" 
+                                alt="{{ video.title }}"
                             >
                                 <source src="http://192.168.100.2:3000/{{ video.thumb }}" type="video/mp4">
                             </video>

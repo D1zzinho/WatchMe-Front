@@ -8,8 +8,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   collapsed = true;
-     toggleCollapsed(): void {
-       this.collapsed = !this.collapsed;
-     }
-  title = 'SkyVideoAngular';
+  title = 'WatchMe';
+
+  toggleCollapsed(): void {
+    this.collapsed = !this.collapsed;
+  }
 }

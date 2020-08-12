@@ -7,6 +7,8 @@ import { TopNavigationComponent } from './top-navigation/top-navigation.componen
 import { VideosComponent } from './videos/videos.component';
 import { FinderComponent } from './finder/finder.component';
 import { PlayerComponent } from './player/player.component';
+import { UploadvideoComponent } from './uploadvideo/uploadvideo.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 
 @NgModule({
@@ -14,12 +16,15 @@ import { PlayerComponent } from './player/player.component';
     AppComponent,
     VideosComponent,
     FinderComponent,
-    PlayerComponent
+    PlayerComponent,
+    UploadvideoComponent
   ],
   imports: [
     BrowserModule,
     TopNavigationComponent,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
