@@ -9,6 +9,8 @@ import { FinderComponent } from './finder/finder.component';
 import { PlayerComponent } from './player/player.component';
 import { UploadvideoComponent } from './uploadvideo/uploadvideo.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login.component';
 
 
 @NgModule({
@@ -17,7 +19,9 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     VideosComponent,
     FinderComponent,
     PlayerComponent,
-    UploadvideoComponent
+    UploadvideoComponent,
+    HomeComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

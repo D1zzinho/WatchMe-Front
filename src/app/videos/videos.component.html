@@ -1,5 +1,5 @@
 <div class="container py-4">
-    <div class="card text-center my-4">
+    <div class="card bg-secondary text-center text-white my-4">
 
         <div class="card-header">
             <h3 class="pb-2">All videos ({{ pages.totalPages }} pages)</h3>
@@ -27,7 +27,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-xs-12 col-md-6 col-lg-4 col-xl-3 mb-4 video" *ngFor="let video of videos">
-                    <div class="card bg-light h-100">
+                    <div class="card bg-dark text-light h-100">
                         <a [routerLink]="['/player']" [queryParams]="{vid: video._id}">
                             <video
                                 preload="none"

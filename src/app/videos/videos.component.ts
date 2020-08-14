@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-videos',
@@ -14,13 +14,23 @@ export class VideosComponent implements OnInit {
   videos: any = [];
   pages: any = {};
 
-  constructor(private http: HttpClient, private currentRoute: ActivatedRoute) { }
+  constructor(private http: HttpClient, private currentRoute: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
-    this.currentRoute.queryParams.subscribe(params => {
-      this.http.get<any>(this.VIDEOS_URL + '?page=' + params.page).subscribe(res => this.pages = res.pages);
-      this.http.get<any>(this.VIDEOS_URL + '?page=' + params.page).subscribe(res => this.videos = res.videosOnPage);
-    });
+    const token = localStorage.getItem('token');
+    if (token !== null) {
+      this.currentRoute.queryParams.subscribe(params => {
+        this.http.get<any>(this.VIDEOS_URL + '?page=' + params.page,
+          {headers: {authorization: `Bearer ${localStorage.getItem('token')}`}}
+        ).subscribe(res => {
+          this.pages = res.pages;
+          this.videos = res.videosOnPage;
+        });
+      });
+    }
+    else {
+      this.router.navigate(['/login']);
+    }
   }
 
   private loadPreview(event: any): void {
