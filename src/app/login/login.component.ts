@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
-import {UploadVideoDto} from '../models/UploadVideoDto';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
+import {AuthService} from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,14 +12,29 @@ import {Router} from '@angular/router';
 export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
-  private readonly SERVER_URL = 'http://192.168.100.2:3000/auth';
+  error: boolean;
 
-  constructor(private formBuilder: FormBuilder, private http: HttpClient, private router: Router) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private http: HttpClient,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       username: new FormControl('', Validators.required),
       password: new FormControl('', Validators.required)
+    });
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params.error) {
+        this.error = true;
+      }
+      else {
+        this.error = false;
+      }
     });
   }
 
@@ -29,21 +44,7 @@ export class LoginComponent implements OnInit {
       password: this.loginForm.value.password
     };
 
-    this.http.post<any>(`${this.SERVER_URL}/login`, user).subscribe(
-      (res) => {
-        if (res.user !== null && res.token !== null) {
-          localStorage.setItem('user', JSON.stringify(res.user));
-          localStorage.setItem('token', res.token);
-
-          setTimeout(() => {
-            this.router.navigate(['/videos']);
-          });
-        }
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
+    this.authService.login(user);
   }
 
 }

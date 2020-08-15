@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute} from '@angular/router';
 import {UploadVideoDto} from '../models/UploadVideoDto';
+import {AuthService} from '../auth.service';
 
 @Component({
   selector: 'app-uploadvideo',
@@ -15,7 +15,10 @@ export class UploadvideoComponent implements OnInit {
   uploadForm: FormGroup;
   selectedFile: File;
 
-  constructor(private formBuilder: FormBuilder, private http: HttpClient, private currentRoute: ActivatedRoute) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private http: HttpClient,
+    private authService: AuthService) { }
 
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
@@ -51,7 +54,7 @@ export class UploadvideoComponent implements OnInit {
     formData.append('file', this.uploadForm.get('file').value);
     formData.append('video', JSON.stringify(videoBody));
 
-    this.http.post<any>(this.SERVER_URL, formData).subscribe(
+    this.authService.postResource(this.SERVER_URL, formData).subscribe(
       (res) => {
         console.log(res);
       },

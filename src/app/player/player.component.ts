@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import {VideoDto} from '../models/VideoDto';
+import {AuthService} from '../auth.service';
 
 @Component({
   selector: 'app-player',
@@ -50,12 +51,19 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   similarVideos: Array<VideoDto> = new Array<VideoDto>();
   similarOnPage = 8;
 
+  isLoggedIn = false;
 
-  constructor(private http: HttpClient, private currentRoute: ActivatedRoute, private titleService: Title) { }
+
+  constructor(
+    private http: HttpClient,
+    private currentRoute: ActivatedRoute,
+    private titleService: Title,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.currentRoute.queryParams.subscribe(params => {
-      this.http.get<any>(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
+      this.authService.getResource(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
         this.id = res._id;
         this.title = res.title;
         this.description = res.desc;
@@ -68,12 +76,30 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         this.thdown = res.thdown;
         this.stat = res.stat;
       });
+
+      setTimeout(() => {
+        if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
+          if (localStorage.getItem(params.vid) === null) {
+            this.authService.patchResource(
+              `${this.VIDEOS_URL}/views`,
+              {id: params.vid}
+            ).subscribe(res => {
+              console.log(res);
+            });
+          }
+        }
+      }, 200);
     });
 
     setTimeout(() => {
-      this.http.post<any>(`${this.VIDEOS_URL}/similar`, { tags: this.tags }).subscribe(res => {
+      this.authService.postResource(`${this.VIDEOS_URL}/similar`, { tags: this.tags }).subscribe(res => {
         this.similarVideos = res;
       });
+
+      if (!this.authService.isLoggedIn()) {
+        window.location.href = '/login?error=unauthorized&requested=player?vid=' + this.id;
+      }
+
     }, 200);
   }
 

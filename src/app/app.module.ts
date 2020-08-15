@@ -11,11 +11,15 @@ import { UploadvideoComponent } from './uploadvideo/uploadvideo.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
+import {AuthService} from './auth.service';
+import {AppRoutingModule} from './app-routing.module';
+import {AuthGuardService} from './auth-guard.service';
 
 
 @NgModule({
   declarations: [
     AppComponent,
+    TopNavigationComponent,
     VideosComponent,
     FinderComponent,
     PlayerComponent,
@@ -25,12 +29,12 @@ import { LoginComponent } from './login/login.component';
   ],
   imports: [
     BrowserModule,
-    TopNavigationComponent,
     HttpClientModule,
     FormsModule,
+    AppRoutingModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [AuthService, AuthGuardService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

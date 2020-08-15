@@ -1,6 +1,7 @@
 import {Component, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
+import {AuthService} from '../auth.service';
 
 @Component({
   selector: 'app-videos',
@@ -13,24 +14,25 @@ export class VideosComponent implements OnInit {
 
   videos: any = [];
   pages: any = {};
+  isLoggedIn = false;
 
-  constructor(private http: HttpClient, private currentRoute: ActivatedRoute, private router: Router) { }
+  constructor(
+    private http: HttpClient,
+    private currentRoute: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService) { }
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
-    if (token !== null) {
-      this.currentRoute.queryParams.subscribe(params => {
-        this.http.get<any>(this.VIDEOS_URL + '?page=' + params.page,
-          {headers: {authorization: `Bearer ${localStorage.getItem('token')}`}}
-        ).subscribe(res => {
+    this.currentRoute.queryParams.subscribe(params => {
+      const page = params.page;
+      this.authService.getResource(`${this.VIDEOS_URL}?page=${page}`)
+        .subscribe(res => {
           this.pages = res.pages;
           this.videos = res.videosOnPage;
+          }, err => {
+          this.router.navigateByUrl(`/login?error=${(err.error.message).toLowerCase()}&requested=videos`);
         });
-      });
-    }
-    else {
-      this.router.navigate(['/login']);
-    }
+    });
   }
 
   private loadPreview(event: any): void {
@@ -50,7 +52,6 @@ export class VideosComponent implements OnInit {
         console.log(err);
       });
     }
-
   }
 
 }

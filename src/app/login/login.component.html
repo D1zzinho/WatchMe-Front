@@ -1,3 +1,7 @@
+<div *ngIf="error">
+  <div class="alert alert-danger">You have to login before access!</div>
+</div>
+
 <form (ngSubmit)="onSubmit()" [formGroup]="loginForm" enctype="multipart/form-data">
   <input type="text" name="username" formControlName="username" placeholder="Login" required />
   <input type="password" name="password" formControlName="password" placeholder="Password" required />
