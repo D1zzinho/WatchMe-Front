@@ -5,7 +5,7 @@ video.addEventListener('loadedmetadata', () => {
 
         navigator.mediaSession.metadata = new MediaMetadata({
           title: document.getElementById("vtitle").innerHTML,
-          artist: "Anonymous",
+          artist: document.getElementById("author").innerHTML,
           album: "Best album",
           artwork: [
             { src: video.getAttribute("poster"), sizes: '96x96',   type: 'image/png' },

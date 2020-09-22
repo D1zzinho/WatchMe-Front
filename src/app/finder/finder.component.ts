@@ -34,14 +34,14 @@ export class FinderComponent implements OnInit {
     });
   }
 
-  private loadPreview(event: any): void {
+  loadPreview(event: any): void {
     event.path[0].muted = true;
     event.path[0].loop = true;
     event.path[0].download = false;
     event.path[0].play();
   }
 
-  private unloadPreview(event: any): void {
+  unloadPreview(event: any): void {
     const playPromise = event.path[0].play();
 
     if (playPromise !== undefined) {

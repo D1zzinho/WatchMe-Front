@@ -50,9 +50,10 @@ export class PlayerComponent implements OnInit, AfterViewInit {
 
   similarVideos: Array<VideoDto> = new Array<VideoDto>();
   similarOnPage = 8;
+  similarVideosColumnLimit = 14;
 
   isLoggedIn = false;
-
+  pageType = 'classic';
 
   constructor(
     private http: HttpClient,
@@ -88,19 +89,10 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             });
           }
         }
+
+        this.getSimilarVideos().then(videos => { this.similarVideos = videos; });
       }, 200);
     });
-
-    setTimeout(() => {
-      this.authService.postResource(`${this.VIDEOS_URL}/similar`, { tags: this.tags }).subscribe(res => {
-        this.similarVideos = res;
-      });
-
-      if (!this.authService.isLoggedIn()) {
-        window.location.href = '/login?error=unauthorized&requested=player?vid=' + this.id;
-      }
-
-    }, 200);
   }
 
 
@@ -109,7 +101,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
       this.initPlayer(this.id);
       this.titleService.setTitle(this.title + ' - WatchMe');
       import('src/app/player/mediaSession.js');
-    }, 1000);
+    }, 500);
   }
 
 
@@ -118,7 +110,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
     const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
     if (document.documentElement.scrollTop === max) {
-      if (this.similarOnPage < 14) {
+      if (this.similarOnPage < this.similarVideosColumnLimit) {
         this.similarOnPage += 2;
       }
     }
@@ -153,6 +145,12 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   //     import('src/app/player/mediaSession.js');
   //   }, 1000);
   // }
+
+
+  private async getSimilarVideos(): Promise<Array<VideoDto>> {
+    return await this.authService.postResource(`${this.VIDEOS_URL}/similar`, {tags: this.tags, id: this.id}).toPromise();
+  }
+
 
     private initPlayer(vid: string): void {
         const video = this.videoElement?.nativeElement;
@@ -545,6 +543,15 @@ export class PlayerComponent implements OnInit, AfterViewInit {
 
         video.play();
       });
+  }
+
+  changePageType(): void {
+    if (this.pageType === 'classic') {
+      this.pageType = 'big';
+    }
+    else {
+      this.pageType = 'classic';
+    }
   }
 
 }
