@@ -1,5 +1,5 @@
 export interface VideoDto {
-  _id: string;
+  id: string;
   title: string;
   desc: string;
   tags: Array<string>;
@@ -8,4 +8,5 @@ export interface VideoDto {
   cover: string;
   visits: number;
   stat: number;
+  author: string;
 }

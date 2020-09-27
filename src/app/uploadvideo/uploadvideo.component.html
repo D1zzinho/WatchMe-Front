@@ -1,10 +1,10 @@
-<form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
-  <input type="file" (change)="onFileSelect($event)" accept="video/mp4" required />
+<form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+  <input type="file" class="form-control-file" (change)="onFileSelect($event)" accept="video/mp4" required />
 
   <div class="options">
-    <input type="text" name="title" formControlName="title" placeholder="Title" maxlength="200" required />
-    <input type="text" name="desc" formControlName="desc" placeholder="Description" maxlength="300" />
-    <input type="text" name="tags" formControlName="tags" placeholder="Tags" />
+    <input type="text" class="form-control" name="title" formControlName="title" placeholder="Title" maxlength="200" required />
+    <input type="text" class="form-control" name="desc" formControlName="desc" placeholder="Description" maxlength="300" />
+    <input type="text" class="form-control" name="tags" formControlName="tags" placeholder="Tags" />
   </div>
 
 

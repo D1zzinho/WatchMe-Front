@@ -2,6 +2,7 @@ import {Component, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
+import {VideoDto} from '../models/VideoDto';
 
 @Component({
   selector: 'app-videos',
@@ -12,7 +13,7 @@ export class VideosComponent implements OnInit {
 
   readonly VIDEOS_URL = 'http://192.168.100.2:3000/videos';
 
-  videos: any = [];
+  videos: Array<VideoDto>;
   pages: any = {};
   isLoggedIn = false;
 

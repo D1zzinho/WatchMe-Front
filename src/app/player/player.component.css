@@ -583,20 +583,20 @@ h1.page-header {
 
 .video-section .info .add-by .avatar {
     margin-top: 0;
-    width: 43px;
-    height: 43px;
+    width: 70px;
+    height: 70px;
 }
 
 .video-section .info .add-by .avatar img {
-    width: 43px;
-    height: 43px;
+    width: 70px;
+    height: 70px;
 }
 
 .uploaded {
     width: 100%;
 }
 
-.uploaded a {
+.uploaded #author {
     color: darkturquoise;
     font-weight: bold;
     letter-spacing: 1px;
@@ -636,7 +636,7 @@ h1.page-header {
     text-align: left;
     width: 100%;
     border-top: 1px solid;
-    border-top-color: rgba(100,100,100,0.5); 
+    border-top-color: rgba(100,100,100,0.5);
 }
 
 .comment-section h3 {
@@ -751,7 +751,7 @@ button.de:hover {
     font-weight: bold;
     font-size: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-} 
+}
 
 .comment .author .date {
     margin-left: 10px;
@@ -789,10 +789,8 @@ button.de:hover {
 .avatar img {
     margin: 0;
     padding: 0;
-    height: 35px;
-    width: 35px;
-    border-radius: 100px;
-    border: 1px solid black;
+    height: 43px;
+    width: 43px;
 }
 
 /* sekcja podobnych filmów podczas oglądania konkretnego */
@@ -864,7 +862,7 @@ button.de:hover {
         width: 90%;
         display: block;
     }
-    
+
     .others-section .latest {
         margin-bottom: 40px;
     }
@@ -897,4 +895,55 @@ button.de:hover {
 
 #vol {
     width: 45px;
+}
+
+
+
+/* NEW OTHERS */
+.video {
+  background-color: #373b69;
+  border-radius: 3px;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: relative;
+}
+
+.video video {
+  width: 100%;
+}
+
+.movie-info {
+  color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.movie-info h3 {
+  margin: 0;
+}
+
+.movie-info span {
+  background-color: #22254b;
+  border-radius: 3px;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+}
+.movie-info span.green {
+  color: rgb(39, 189, 39);
+}
+
+.movie-info span.orange {
+  color: orange;
+}
+
+.movie-info span.red {
+  color: rgb(189, 42, 42);
+}
+
+.video:hover {
+  transition-duration: .2s;
+  background: rgba(50,100,200,0.8);
 }

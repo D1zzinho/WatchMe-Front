@@ -3,8 +3,8 @@
 
         <div class="card-header">
             <h3>{{ message }}</h3>
-            <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 pt-3">
-                <ul class="pagination justify-content-center">
+            <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 pt-3 w-100 overflow-auto">
+                <ul class="pagination justify-content-md-center">
                     <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
                         <a [routerLink]="['/finder']" [queryParams]="{q: q, page: 1}" class="page-link">First</a>
                     </li>
@@ -28,7 +28,7 @@
             <div class="row">
                 <div class="col-xs-12 col-md-6 col-lg-4 col-xl-3 mb-4 video" *ngFor="let video of videos">
                     <div class="card bg-dark text-light h-100">
-                        <a [routerLink]="['/player']" [queryParams]="{vid: video._id}">
+                        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
                             <video
                                 preload="none"
                                 poster="http://192.168.100.2:3000/{{ video.cover }}"
@@ -37,7 +37,7 @@
                                 muted
                                 loop
                                 class="img-fluid covers"
-                                id="{{ video._id }}"
+                                id="{{ video.id }}"
                                 alt="{{ video.title }}"
                             >
                                 <source src="http://192.168.100.2:3000/{{ video.thumb }}" type="video/mp4">
@@ -54,8 +54,8 @@
             </div>
         </div>
 
-        <div *ngIf="pages.pages && pages.pages.length > 0" class="card-footer pb-0 pt-3 w-100">
-            <ul class="pagination justify-content-center w-auto">
+        <div *ngIf="pages.pages && pages.pages.length > 0" class="card-footer pb-0 pt-3 w-100 overflow-auto">
+            <ul class="pagination justify-content-md-center">
                 <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
                     <a [routerLink]="['/finder']" [queryParams]="{q: q, page: 1}" class="page-link">First</a>
                 </li>

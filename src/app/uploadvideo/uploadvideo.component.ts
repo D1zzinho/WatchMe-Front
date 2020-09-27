@@ -45,7 +45,7 @@ export class UploadvideoComponent implements OnInit {
       path: `uploads/${this.selectedFile.name}`,
       stat: 1,
       tags: this.uploadForm.value.tags,
-      thumb: `uploads/${this.selectedFile.name.slice(0, -4)}_preview.mp4`,
+      thumb: `uploads/${this.selectedFile.name.slice(0, -4)}_preview.webm`,
       title: this.uploadForm.value.title,
       visits: 0
     };

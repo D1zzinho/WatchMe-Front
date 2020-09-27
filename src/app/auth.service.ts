@@ -10,6 +10,7 @@ import {Observable, Subject} from 'rxjs';
 })
 export class AuthService {
 
+  err: string = null;
   private readonly SERVER_URL = 'http://192.168.100.2:3000/auth';
   private isLogged = new Subject<boolean>();
 
@@ -29,6 +30,30 @@ export class AuthService {
         });
       }
     }
+  }
+
+
+  register(user): void {
+    this.http.post<any>(`${this.SERVER_URL}/register`, user).subscribe(
+      (res) => {
+        if (res.user !== null && res.token !== null) {
+          localStorage.setItem('user', JSON.stringify(res.user));
+          localStorage.setItem('token', res.token);
+          localStorage.setItem(
+            'expires_at',
+            String((this.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
+          );
+
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 100);
+        }
+      },
+      (err) => {
+        this.err = err.error.message;
+        throw new Error(err.error.message);
+      }
+    );
   }
 
 
@@ -55,11 +80,11 @@ export class AuthService {
               }, 100);
             }
           });
-
         }
       },
       (err) => {
-        console.log(err);
+        this.err = err.error.message;
+        throw new Error(err.error.message);
       }
     );
   }
@@ -166,6 +191,19 @@ export class AuthService {
       .append('Authorization', 'Bearer ' + this.getAccessToken());
 
     return this.http.put(resourceUrl, body, {headers: newHeaders});
+  }
+
+
+  getUserFromToken(token: string = localStorage.getItem('token')): string {
+    try {
+      const tokenInfo = jwt_decode(token);
+      const username = tokenInfo.username;
+
+      return username;
+    }
+    catch (error) {
+      return null;
+    }
   }
 
 

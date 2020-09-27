@@ -12,7 +12,8 @@ import {AuthService} from '../auth.service';
 })
 export class PlayerComponent implements OnInit, AfterViewInit {
 
-  readonly VIDEOS_URL = 'http://192.168.100.2:3000/videos';
+  readonly VIDEOS_URL: string = 'http://192.168.100.2:3000/videos';
+  error: string = null;
 
   @ViewChild('player') playerElement: ElementRef;
   @ViewChild('playerVideo') videoElement: ElementRef;
@@ -32,6 +33,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   @ViewChild('timeHolder') timeHolder: ElementRef;
   @ViewChild('fullScreenBtn') fullScreenBtn: ElementRef;
   @ViewChild('descriptionDiv') descriptionDiv: ElementRef;
+  @ViewChild('editPanel') editPanel: ElementRef;
 
   id = '';
   title = '';
@@ -41,18 +43,22 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   cover = '';
   thumb = '';
   visits = 0;
-  thup = 0;
-  thdown = 0;
+  // thUp = 0;
+  // thDown = 0;
   stat = 1;
+  author = '';
 
   playbackRate = 1;
   volume = 0.5;
+  videoIsMuted = false;
 
   similarVideos: Array<VideoDto> = new Array<VideoDto>();
-  similarOnPage = 8;
+  similarOnPage = 6;
   similarVideosColumnLimit = 14;
 
   isLoggedIn = false;
+  isAdmin = false;
+  isOwner = false;
   pageType = 'classic';
 
   constructor(
@@ -65,53 +71,105 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.currentRoute.queryParams.subscribe(params => {
       this.authService.getResource(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
-        this.id = res._id;
-        this.title = res.title;
-        this.description = res.desc;
-        this.tags = res.tags;
-        this.path = res.path;
-        this.cover = res.cover;
-        this.thumb = res.thumb;
-        this.visits = res.visits;
-        this.thup = res.thup;
-        this.thdown = res.thdown;
-        this.stat = res.stat;
+        if (res !== null) {
+          if (res.err) {
+            this.error = 'Video not found!';
+            throw new Error(res.err);
+          }
+          else {
+            this.id = res.id;
+            this.title = res.title;
+            this.description = res.desc;
+            this.tags = res.tags;
+            this.path = res.path;
+            this.cover = res.cover;
+            this.thumb = res.thumb;
+            this.visits = res.visits;
+            // this.thUp = res.thUp;
+            // this.thDown = res.thDown;
+            this.stat = res.stat;
+            this.author = res.author;
+          }
+        }
+        else {
+          this.error = 'Video not found!';
+          throw new Error('Video not found!');
+        }
       });
 
       setTimeout(() => {
-        if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
-          if (localStorage.getItem(params.vid) === null) {
-            this.authService.patchResource(
-              `${this.VIDEOS_URL}/views`,
-              {id: params.vid}
-            ).subscribe(res => {
-              console.log(res);
-            });
+        if (this.error === null) {
+          if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
+            const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
+            if (watchedVideos !== null) {
+              const result = watchedVideos.findIndex(v => v.vid === this.id);
+              if (result === -1) {
+                this.authService.patchResource(
+                  `${this.VIDEOS_URL}/views`,
+                  {id: params.vid}
+                ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
+              }
+            }
+            else {
+              this.authService.patchResource(
+                `${this.VIDEOS_URL}/views`,
+                {id: params.vid}
+              ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
+            }
           }
-        }
 
-        this.getSimilarVideos().then(videos => { this.similarVideos = videos; });
-      }, 200);
+          this.getSimilarVideos().then(videos => {
+            let currentIndex = videos.length;
+            let temporaryValue;
+            let randomIndex;
+
+            // While there remain elements to shuffle...
+            while (0 !== currentIndex) {
+
+              // Pick a remaining element...
+              randomIndex = Math.floor(Math.random() * currentIndex);
+              currentIndex -= 1;
+
+              // And swap it with the current element.
+              temporaryValue = videos[currentIndex];
+              videos[currentIndex] = videos[randomIndex];
+              videos[randomIndex] = temporaryValue;
+            }
+
+            this.similarVideos = videos;
+          });
+        }
+        }, 200);
     });
+
+    this.isAdmin = this.authService.isAdmin();
+
+    if (this.author === this.authService.getUserFromToken()) {
+      this.isOwner = true;
+    }
   }
 
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.initPlayer(this.id);
-      this.titleService.setTitle(this.title + ' - WatchMe');
-      import('src/app/player/mediaSession.js');
-    }, 500);
+      if (this.error === null) {
+          this.initPlayer(this.id);
+          this.titleService.setTitle(this.title + ' - WatchMe');
+          import('src/app/player/mediaSession.js');
+        }
+      }, 500);
   }
 
 
   @HostListener('window:scroll', ['$event'])
   onWindowScroll(): void {
-    const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    if (this.error === null) {
+      const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
-    if (document.documentElement.scrollTop === max) {
-      if (this.similarOnPage < this.similarVideosColumnLimit) {
-        this.similarOnPage += 2;
+      if (document.documentElement.scrollTop === max) {
+        if (this.similarOnPage < this.similarVideosColumnLimit) {
+          this.similarOnPage += 2;
+        }
       }
     }
   }
@@ -163,11 +221,11 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         shDescBtn.addEventListener('click', () => {
             if (desc.style.height === 'auto') {
                 desc.removeAttribute('style');
-                shDescBtn.innerHTML = 'Pokaż więcej';
+                shDescBtn.innerHTML = 'Show more';
             }
             else {
                 desc.style.height = 'auto';
-                shDescBtn.innerHTML = 'Pokaż mniej';
+                shDescBtn.innerHTML = 'Show less';
             }
         });
 
@@ -198,9 +256,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         }
 
 
-        document.onclick = () => { video.muted = false; };
-
-
         function rangeUpdate(): void {
             video[this.name] = this.value;
 
@@ -223,13 +278,38 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             }
         }
 
+        let watchedVideos;
+        let result;
+        if (localStorage.getItem('watchedVideos') === null) {
+          watchedVideos = new Array<{ vid: string, vct: number }>();
+          result = 0;
+          watchedVideos.push({ vid, vct: 0 });
+
+          localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
+        }
+        else {
+          watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
+          result = watchedVideos.findIndex(v => v.vid === vid);
+
+          if (result === -1) {
+            watchedVideos.push({ vid, vct: 0 });
+
+            localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
+          }
+        }
+
 
         function progressUpdate(): void {
-            localStorage.setItem(String(vid), String(parseInt(video.currentTime, 10)));
+          if (localStorage.getItem('watchedVideos') !== null) {
+            if (result === -1) {
+              result = watchedVideos.findIndex(v => v.vid === vid);
+            }
+            watchedVideos[result].vct = parseInt(video.currentTime, 10);
+            localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
+          }
 
-
-            const percent = (video.currentTime / video.duration) * 100;
-            progressFilled.style.flexBasis = `${percent}%`;
+          const percent = (video.currentTime / video.duration) * 100;
+          progressFilled.style.flexBasis = `${percent}%`;
         }
 
 
@@ -481,49 +561,48 @@ export class PlayerComponent implements OnInit, AfterViewInit {
 
         const duration = video.duration;
 
-        const videodata = localStorage.getItem(String(vid));
-        if (videodata !== null) {
-            if (videodata !== '') {
-                const videotime = Number(videodata);
-                // var videodur = videodata.dr;
+        if (watchedVideos.length > 0 && result !== -1) {
+          const videoTime = watchedVideos[result].vct;
 
-                if (videotime === parseInt(duration, 10)) {
-                    video.currentTime = 0;
-                    console.log('Replay for ' + vid);
-                }
-                else if (videotime === 0) {
-                    console.log('No saved videotime for ' + vid + '!');
-                }
-                else {
-                    video.currentTime = videotime;
-                    console.log('Saved videotime for ' + vid + ': ' + videotime);
-                }
-            }
+          if (videoTime === parseInt(duration, 10)) {
+            video.currentTime = 0;
+            console.log('Replay for ' + vid);
+          }
+          else if (videoTime === 0) {
+            console.log('No saved videotime for ' + vid + '!');
+          }
+          else {
+            video.currentTime = videoTime;
+            console.log('Saved videotime for ' + vid + ': ' + videoTime);
+          }
         }
         else {
-            console.log('No saved data for ' + vid + '!');
+          console.log('No saved data for ' + vid + '!');
         }
 
 
-        const mute = localStorage.getItem('volume');
-        if (mute !== null) {
+        setTimeout(() => {
+          const mute = localStorage.getItem('volume');
+          if (mute !== null) {
             if (Number(mute) === 0) {
-                video.volume = mute;
-                this.volumeSlider.nativeElement.value = mute;
-                console.log('Last video was muted!');
+              video.volume = mute;
+              this.volumeSlider.nativeElement.value = mute;
+              console.log('Last video was muted!');
             }
             else {
-                video.volume = mute;
-                this.volumeSlider.nativeElement.value = mute;
-                console.log('Last video was unmuted at volume = ' + mute + '!');
+              video.volume = mute;
+              this.volumeSlider.nativeElement.value = mute;
+              console.log('Last video was unmuted at volume = ' + mute + '!');
             }
-        }
-        else {
+          }
+          else {
             localStorage.setItem('volume', String(0.5));
             console.log('No saved status for sound!');
             this.volumeSlider.nativeElement.value = 0.5;
             video.volume = 0.5;
-        }
+          }
+        }, 100);
+
 
 
         const vplaybackrate = localStorage.getItem('playbackRate');
@@ -541,9 +620,23 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             this.speedValue.nativeElement.innerHTML = 'x' + 1;
         }
 
-        video.play();
+        video.oncanplay = () => {
+            const promise = video.play();
+
+            if (promise !== undefined) {
+              promise.then(() => {
+                // Autoplay started!
+              }).catch((error) => {
+                video.muted = true;
+                this.videoIsMuted = true;
+                video.play();
+              });
+            }
+          };
+
       });
   }
+
 
   changePageType(): void {
     if (this.pageType === 'classic') {
@@ -551,6 +644,101 @@ export class PlayerComponent implements OnInit, AfterViewInit {
     }
     else {
       this.pageType = 'classic';
+    }
+  }
+
+
+  showEditPanel(): void {
+    if (this.editPanel.nativeElement.style.display === 'none') {
+      this.editPanel.nativeElement.removeAttribute('style');
+    }
+    else {
+      this.editPanel.nativeElement.style.display = 'none';
+    }
+  }
+
+
+  deleteCurrentVideo(): void {
+    if (this.authService.isAdmin()) {
+      const c = confirm('Do you want to delete ' + this.title + '?');
+
+      if (c) {
+        this.authService.deleteResource(`http://192.168.100.2:3000/videos/${this.id}`).subscribe(result => {
+          if (!result.deleteVideo.deleted) {
+            console.log('There was an error when deleting video! Message: ' + result.message);
+          } else {
+            window.location.href = '/videos';
+          }
+        });
+      }
+    }
+  }
+
+
+  async editTitle(title: string): Promise<void> {
+    try {
+      const editTitle = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/title`, {title}).toPromise();
+
+      if (editTitle.updated) {
+        window.location.reload();
+      }
+      else {
+        console.log(editTitle.message);
+      }
+    }
+    catch (err) {
+      console.log(err.message);
+    }
+  }
+
+
+  async editDesc(desc: string): Promise<void> {
+    try {
+      const editDesc = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/desc`, {desc}).toPromise();
+
+      if (editDesc.updated) {
+        window.location.reload();
+      }
+      else {
+        console.log(editDesc.message);
+      }
+    }
+    catch (err) {
+      console.log(err.message);
+    }
+  }
+
+
+  async editTags(tags: string): Promise<void> {
+    try {
+      const editTags = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/tags`, {tags}).toPromise();
+
+      if (editTags.updated) {
+        window.location.reload();
+      }
+      else {
+        console.log(editTags.message);
+      }
+    }
+    catch (err) {
+      console.log(err.message);
+    }
+  }
+
+
+  async editStat(): Promise<void> {
+    try {
+      const editStat = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/stat`, {id: this.id}).toPromise();
+
+      if (editStat.updated) {
+        window.location.reload();
+      }
+      else {
+        console.log(editStat.message);
+      }
+    }
+    catch (err) {
+      console.log(err.message);
     }
   }
 
