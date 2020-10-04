@@ -11,7 +11,7 @@ import {Observable, Subject} from 'rxjs';
 export class AuthService {
 
   err: string = null;
-  private readonly SERVER_URL = 'http://192.168.100.2:3000/auth';
+  private readonly SERVER_URL = 'http://localhost:3000/auth';
   private isLogged = new Subject<boolean>();
 
   constructor(protected http: HttpClient, protected router: Router, private activatedRoute: ActivatedRoute) {
@@ -21,12 +21,15 @@ export class AuthService {
           `${this.SERVER_URL}/checkToken`,
           {
             user: jwt_decode(this.getAccessToken()).username,
-            permiss: jwt_decode(this.getAccessToken()).permissions
+            permission: jwt_decode(this.getAccessToken()).permissions
           }
           ).subscribe(res => {
             if (res) {
               this.isLoggedIn();
             }
+        }, err => {
+            console.log(err)
+            this.logout();
         });
       }
     }
@@ -87,6 +90,16 @@ export class AuthService {
         throw new Error(err.error.message);
       }
     );
+  }
+
+
+  async checkCredentials(email: string, username: string): Promise<{ usernameExists: boolean, emailExists: boolean }> {
+    try {
+      return await this.http.post<any>(`${this.SERVER_URL}/checkCredentials`, { email, username }).toPromise();
+    }
+    catch (err) {
+      throw new Error(err.error.message);
+    }
   }
 
 

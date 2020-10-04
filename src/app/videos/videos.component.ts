@@ -11,7 +11,7 @@ import {VideoDto} from '../models/VideoDto';
 })
 export class VideosComponent implements OnInit {
 
-  readonly VIDEOS_URL = 'http://192.168.100.2:3000/videos';
+  readonly VIDEOS_URL = 'http://localhost:3000/videos';
 
   videos: Array<VideoDto>;
   pages: any = {};
@@ -31,7 +31,9 @@ export class VideosComponent implements OnInit {
           this.pages = res.pages;
           this.videos = res.videosOnPage;
           }, err => {
-          this.router.navigateByUrl(`/login?error=${(err.error.message).toLowerCase()}&requested=videos`);
+            if (err.statusText === 'Unauthorized') {
+              this.authService.logout();
+            }
         });
     });
   }

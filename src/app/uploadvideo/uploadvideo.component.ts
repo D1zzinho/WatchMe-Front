@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {UploadVideoDto} from '../models/UploadVideoDto';
@@ -9,9 +9,9 @@ import {AuthService} from '../auth.service';
   templateUrl: './uploadvideo.component.html',
   styleUrls: ['./uploadvideo.component.css']
 })
-export class UploadvideoComponent implements OnInit {
+export class UploadvideoComponent implements OnInit, AfterContentInit {
 
-  private readonly SERVER_URL = 'http://192.168.100.2:3000/videos/upload';
+  private readonly SERVER_URL = 'http://localhost:3000/videos/upload';
   uploadForm: FormGroup;
   selectedFile: File;
 
@@ -29,12 +29,72 @@ export class UploadvideoComponent implements OnInit {
     });
   }
 
-  onFileSelect(event): void {
-    if (event.target.files.length > 0) {
-      const file = event.target.files[0];
-      this.selectedFile = file;
+  ngAfterContentInit(): void {
+    document.querySelectorAll('.drop-zone__input').forEach((inputElement: HTMLInputElement) => {
+      const dropZoneElement = inputElement.closest('.drop-zone');
 
-      this.uploadForm.get('file').setValue(file);
+      dropZoneElement.addEventListener('click', (e) => {
+        inputElement.click();
+      });
+
+      inputElement.addEventListener('change', (e) => {
+        if (inputElement.files.length) {
+          this.selectedFile = inputElement.files[0];
+          this.uploadForm.get('file').setValue(inputElement.files[0]);
+
+          updateThumbnail(dropZoneElement, inputElement.files[0]);
+        }
+      });
+
+      dropZoneElement.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZoneElement.classList.add('drop-zone--over');
+      });
+
+      ['dragleave', 'dragend'].forEach((type) => {
+        dropZoneElement.addEventListener(type, () => {
+          dropZoneElement.classList.remove('drop-zone--over');
+        });
+      });
+
+      dropZoneElement.addEventListener('drop', (e: DragEvent) => {
+        e.preventDefault();
+
+        if (e.dataTransfer.files.length) {
+          inputElement.files = e.dataTransfer.files;
+          this.selectedFile = inputElement.files[0];
+          this.uploadForm.get('file').setValue(inputElement.files[0]);
+
+          updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+        }
+
+        dropZoneElement.classList.remove('drop-zone--over');
+      });
+
+    });
+
+
+    function updateThumbnail(dropZoneElement, file): void {
+      const textInputs = document.querySelector('.text-inputs');
+      let thumbnailElement = dropZoneElement.querySelector('.drop-zone__thumb');
+
+      if (dropZoneElement.querySelector('.drop-zone__prompt')) {
+        dropZoneElement.querySelector('.drop-zone__prompt').remove();
+      }
+
+      if (!thumbnailElement) {
+        thumbnailElement = document.createElement('div');
+        thumbnailElement.classList.add('drop-zone__thumb');
+        dropZoneElement.appendChild(thumbnailElement);
+      }
+
+      thumbnailElement.dataset.label = file.name;
+
+      if (file.type.startsWith('video/')) {
+        thumbnailElement.innerHTML = `<div class="p-2" style="word-break: break-word;">${file.name}</div>`;
+
+        textInputs.removeAttribute('style');
+      }
     }
   }
 

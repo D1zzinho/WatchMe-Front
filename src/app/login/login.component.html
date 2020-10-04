@@ -1,17 +1,18 @@
 <div class="login-page">
   <div class="form">
 
-    <div #ERROR *ngIf="error !== null">
+    <div #ERROR *ngIf="error.length !== 0">
       <div class="alert alert-danger">
         <a href="javascript:void(0)" class="close" (click)="ERROR.style.display = 'none'" aria-label="close">&times;</a>
-        {{ error }}
+        <p class="p-0 m-0" *ngFor="let err of error">{{ err }}</p>
       </div>
     </div>
 
     <form class="register-form" (ngSubmit)="onRegisterSubmit()" [formGroup]="registerForm" enctype="multipart/form-data">
-      <input type="text" name="username" formControlName="username" placeholder="Login" required />
-      <input type="password" name="password" formControlName="password" placeholder="Password" required />
-      <input type="email" name="email" formControlName="email" placeholder="E-mail address" required />
+      <input #username type="text" name="username" formControlName="username" placeholder="Login" required />
+      <input #password type="password" name="password" formControlName="password" placeholder="Password" required />
+      <input #repeatPassword type="password" name="repeatPassword" formControlName="repeatPassword" placeholder="Repeat password" required />
+      <input #email type="email" name="email" formControlName="email" placeholder="E-mail address" required />
       <button type="submit" class="btn btn-outline-success" [disabled]="registerForm.invalid">Create account</button>
       <p class="message">Already registered? <a href="javascript:void(0)" class="text-info">Sign in</a></p>
     </form>

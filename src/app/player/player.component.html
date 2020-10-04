@@ -8,8 +8,8 @@
                     <div class="video-section">
                         <div #player class="player">
                           <button *ngIf="videoIsMuted" (click)="videoIsMuted = false;" class="btn btn-danger position-absolute w-100 h-100 rounded-0" style="opacity: 0.5;"><strong style="font-size: 20px;" class="text-white">Click to unmute</strong></button>
-                            <video #playerVideo [muted]="videoIsMuted" id="video" poster="http://192.168.100.2:3000/{{ cover }}">
-                                <source #playerSource id="source" src="http://192.168.100.2:3000/{{ path }}" type="video/mp4" />
+                            <video #playerVideo [muted]="videoIsMuted" id="video" poster="http://localhost:3000/{{ cover }}">
+                                <source #playerSource id="source" src="http://localhost:3000/{{ path }}" type="video/mp4" />
                             </video>
 
                             <div #playerControls class="player-controls">
@@ -67,12 +67,12 @@
 
                         <div class="info">
                             <div class="add-by">
-                                <div class="avatar border-0"><a href="http://192.168.100.2:3000/imgs/av.jpg"><img class="rounded-circle border border-white" src="http://192.168.100.2:3000/imgs/av.jpg" /></a></div>
+                                <div class="avatar border-0"><a href="#"><img class="rounded-circle border border-white" src="#" /></a></div>
                                 <div class="uploaded">
                                     <a href="#" id="author">{{ author }}</a>
                                     <p id="date">Added on 00.00.0000 at 00:00</p>
                                     <div #descriptionDiv class="desc">
-                                      <span class="description">{{ description }}</span>
+                                      <span class="description" style="white-space: pre-wrap;">{{ description }}</span>
                                         <br><br><hr class="mt-4 mb-0 pb-2 border-secondary"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
                                         <a *ngFor="let tag of tags" class="btn btn-sm btn-outline-info mr-1 my-1 px-1" [routerLink]="['/finder']" [queryParams]="{ q: tag, page: 1 }">{{ tag }}</a>
                                     </div>
@@ -95,7 +95,7 @@
                     <div class="card video h-100">
                       <a href="/player?vid={{ similarVideo.id }}">
 
-                        <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="img-fluid">
+                        <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">
                         <div class="movie-info">
                           <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
                           <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="Author">{{ similarVideo.author }}</span>
@@ -129,7 +129,7 @@
                   <div class="card video h-100">
                     <a href="/player?vid={{ similarVideo.id }}">
 
-                      <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="img-fluid">
+                      <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">
                       <div class="movie-info">
                         <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
                         <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="Author">{{ similarVideo.author }}</span>
@@ -157,7 +157,7 @@
                   <div class="card video h-100">
                     <a href="/player?vid={{ similarVideo.id }}">
 
-                      <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="img-fluid">
+                      <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">
                       <div class="movie-info">
                         <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
                         <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="Author">{{ similarVideo.author }}</span>
@@ -188,7 +188,7 @@
               <div class="card video h-100">
                 <a href="/player?vid={{ similarVideo.id }}">
 
-                  <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="img-fluid">
+                  <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">
                   <div class="movie-info">
                     <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
                     <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="Author">{{ similarVideo.author }}</span>
@@ -209,7 +209,7 @@
               <div class="card video h-100">
                 <a href="/player?vid={{ similarVideo.id }}">
 
-                  <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="img-fluid">
+                  <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">
                   <div class="movie-info">
                     <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
                     <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="Author">{{ similarVideo.author }}</span>

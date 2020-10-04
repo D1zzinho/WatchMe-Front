@@ -12,9 +12,14 @@ import {AuthService} from '../auth.service';
 export class LoginComponent implements OnInit, AfterViewInit {
 
   @ViewChild('ERROR') ERROR: ElementRef;
+  @ViewChild('username') usernameInput: ElementRef;
+  @ViewChild('password') passwordInput: ElementRef;
+  @ViewChild('repeatPassword') repeatPasswordInput: ElementRef;
+  @ViewChild('email') emailInput: ElementRef;
+
   loginForm: FormGroup;
   registerForm: FormGroup;
-  error: string = null;
+  error: Array<string> = new Array<string>();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -38,6 +43,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.registerForm = this.formBuilder.group({
       username: new FormControl('', Validators.required),
       password: new FormControl('', Validators.required),
+      repeatPassword: new FormControl('', Validators.required),
       email: new FormControl('', [Validators.required, Validators.email])
     });
   }
@@ -45,46 +51,100 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      import('src/app/login/login.switch.js');
+      $('.message a').on('click', () => {
+        $('form').animate({height: 'toggle', opacity: 'toggle'}, 'slow');
+      });
     }, 500);
   }
 
 
-  onRegisterSubmit(): void {
-    const user = {
-      username: this.registerForm.value.username,
-      password: this.registerForm.value.password,
-      email: this.registerForm.value.email
-    };
+  async onRegisterSubmit(): Promise<void> {
+    if (this.error.length > 0) {
+      this.error = new Array<string>();
+    }
 
-    this.authService.register(user);
-    this.errorHandlingMessageWithAlert();
+    const { usernameExists, emailExists } = await this.authService.checkCredentials(
+      this.registerForm.value.email,
+      this.registerForm.value.username
+    );
+
+    if (usernameExists) {
+      this.usernameInput.nativeElement.style.border = '1px solid';
+      this.usernameInput.nativeElement.style.borderColor = 'rgba(255,0,0,0.75)';
+      this.error.push('Username already exists!');
+    }
+    else {
+      if (this.usernameInput.nativeElement.hasAttribute('style')) {
+        this.usernameInput.nativeElement.removeAttribute('style');
+      }
+    }
+
+    if (emailExists) {
+      this.emailInput.nativeElement.style.border = '1px solid';
+      this.emailInput.nativeElement.style.borderColor = 'rgba(255,0,0,0.75)';
+      this.error.push('E-mail already exists!');
+    }
+    else {
+      if (this.emailInput.nativeElement.hasAttribute('style')) {
+        this.emailInput.nativeElement.removeAttribute('style');
+      }
+    }
+
+    if (this.passwordInput.nativeElement.hasAttribute('style')) {
+      this.passwordInput.nativeElement.removeAttribute('style');
+    }
+    if (this.repeatPasswordInput.nativeElement.hasAttribute('style')) {
+      this.repeatPasswordInput.nativeElement.removeAttribute('style');
+    }
+
+    if (this.registerForm.value.password !== this.registerForm.value.repeatPassword) {
+      this.passwordInput.nativeElement.style.border = this.repeatPasswordInput.nativeElement.style.border = '1px solid';
+      this.passwordInput.nativeElement.style.borderColor = this.repeatPasswordInput.nativeElement.style.borderColor = 'rgba(255,0,0,0.75)';
+      this.error.push('Passwords don\'t match each other!');
+    }
+    else {
+      const user = {
+        username: this.registerForm.value.username,
+        password: this.registerForm.value.password,
+        email: this.registerForm.value.email
+      };
+
+      this.authService.register(user);
+    }
+
+    this.errorHandlingMessageWithAlert('register');
   }
 
 
   onLoginSubmit(): void {
+    if (this.error.length > 0) {
+      this.error = new Array<string>();
+    }
+
     const user = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
     };
 
     this.authService.login(user);
-    this.errorHandlingMessageWithAlert();
+    this.errorHandlingMessageWithAlert('login');
   }
 
 
-  private errorHandlingMessageWithAlert(): void {
+  private errorHandlingMessageWithAlert(action: string): void {
     setTimeout(() => {
       if (this.authService.err !== null) {
-        this.error = this.authService.err;
-
-        setTimeout(() => {
-          if (this.ERROR.nativeElement.style.display === 'none') {
-            this.ERROR.nativeElement.removeAttribute('style');
-          }
-        }, 50);
-
+        if (action === 'login') { this.error.push(this.authService.err); }
       }
+
+      setTimeout(() => {
+        if (this.authService.err !== null) {
+          this.authService.err = null;
+        }
+
+        if (this.ERROR.nativeElement.style.display === 'none') {
+          this.ERROR.nativeElement.removeAttribute('style');
+        }}, 50);
     }, 100);
   }
 

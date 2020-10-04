@@ -12,7 +12,7 @@ import {AuthService} from '../auth.service';
 })
 export class PlayerComponent implements OnInit, AfterViewInit {
 
-  readonly VIDEOS_URL: string = 'http://192.168.100.2:3000/videos';
+  readonly VIDEOS_URL: string = 'http://localhost:3000/videos';
   error: string = null;
 
   @ViewChild('player') playerElement: ElementRef;
@@ -105,15 +105,15 @@ export class PlayerComponent implements OnInit, AfterViewInit {
               const result = watchedVideos.findIndex(v => v.vid === this.id);
               if (result === -1) {
                 this.authService.patchResource(
-                  `${this.VIDEOS_URL}/views`,
-                  {id: params.vid}
+                  `${this.VIDEOS_URL}/${params.vid}/views`,
+                  null
                 ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
               }
             }
             else {
               this.authService.patchResource(
-                `${this.VIDEOS_URL}/views`,
-                {id: params.vid}
+                `${this.VIDEOS_URL}/${params.vid}/views`,
+                null
               ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
             }
           }
@@ -155,7 +155,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
       if (this.error === null) {
           this.initPlayer(this.id);
           this.titleService.setTitle(this.title + ' - WatchMe');
-          import('src/app/player/mediaSession.js');
+          this.loadMediaSessionData();
         }
       }, 500);
   }
@@ -200,13 +200,12 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   //   setTimeout(() => {
   //     this.initPlayer(this.id);
   //     this.titleService.setTitle(this.title + ' - WatchMe');
-  //     import('src/app/player/mediaSession.js');
   //   }, 1000);
   // }
 
 
   private async getSimilarVideos(): Promise<Array<VideoDto>> {
-    return await this.authService.postResource(`${this.VIDEOS_URL}/similar`, {tags: this.tags, id: this.id}).toPromise();
+    return await this.authService.getResource(`${this.VIDEOS_URL}/${this.id}/similar`).toPromise();
   }
 
 
@@ -214,7 +213,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         const video = this.videoElement?.nativeElement;
 
         video.load();
-
 
         const shDescBtn = document.getElementById('sh_desc');
         const desc = this.descriptionDiv.nativeElement;
@@ -254,7 +252,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             togglePlayBtn.innerHTML = `<i class="fa fa-pause"></i>`;
             }
         }
-
 
         function rangeUpdate(): void {
             video[this.name] = this.value;
@@ -298,7 +295,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
           }
         }
 
-
         function progressUpdate(): void {
           if (localStorage.getItem('watchedVideos') !== null) {
             if (result === -1) {
@@ -337,7 +333,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             currentTime.textContent += ' / ' + mins + ':' + secs;
         }
 
-
         function scrub(e): void {
             const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
             video.currentTime = scrubTime;
@@ -368,7 +363,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             }
         }
 
-
         if ('orientation' in screen) {
             screen.orientation.addEventListener('change', () => {
                 if (screen.orientation.type.startsWith('landscape')) {
@@ -395,7 +389,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             });
         }
 
-
         // Event listeners
         // video.addEventListener('click', togglePlay);
         video.addEventListener('play', updateButton);
@@ -415,7 +408,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
         progress.addEventListener('mousedown', () => mousedown = true);
         progress.addEventListener('mouseup', () => mousedown = false);
-
 
         // controls show or hide on mousemove or click
         let timeout = 0;
@@ -454,7 +446,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             timeout2 = 0;
         });
 
-
         // events on mobile browser
         const tout = null;
         let lastTap = 0;
@@ -480,8 +471,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             }
             lastTap = currentTime;
         });
-
-
 
         const sp = this.speedIcon.nativeElement;
         const pbr = this.speedSlider.nativeElement;
@@ -509,11 +498,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
                 }
             });
 
-
-
-
         const vd = video.duration;
-
 
         video.addEventListener('timeupdate', () => {
             let range = 0;
@@ -528,9 +513,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
 
             this.bufferProgressBar.nativeElement.style.width = `${loadEndPercentage}%`;
         });
-
-
-
 
         document.onkeydown = (e) => {
             if (e.keyCode === 37) {
@@ -557,8 +539,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             }
         };
 
-
-
         const duration = video.duration;
 
         if (watchedVideos.length > 0 && result !== -1) {
@@ -579,7 +559,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         else {
           console.log('No saved data for ' + vid + '!');
         }
-
 
         setTimeout(() => {
           const mute = localStorage.getItem('volume');
@@ -602,7 +581,6 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             video.volume = 0.5;
           }
         }, 100);
-
 
 
         const vplaybackrate = localStorage.getItem('playbackRate');
@@ -663,7 +641,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
       const c = confirm('Do you want to delete ' + this.title + '?');
 
       if (c) {
-        this.authService.deleteResource(`http://192.168.100.2:3000/videos/${this.id}`).subscribe(result => {
+        this.authService.deleteResource(`${this.VIDEOS_URL}/${this.id}`).subscribe(result => {
           if (!result.deleteVideo.deleted) {
             console.log('There was an error when deleting video! Message: ' + result.message);
           } else {
@@ -740,6 +718,37 @@ export class PlayerComponent implements OnInit, AfterViewInit {
     catch (err) {
       console.log(err.message);
     }
+  }
+
+
+  loadMediaSessionData(): void {
+    const video = document.getElementById('video') as HTMLVideoElement;
+
+    video.addEventListener('loadedmetadata', () => {
+      if ('mediaSession' in window.navigator) {
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: document.getElementById('vtitle').innerHTML,
+          artist: document.getElementById('author').innerHTML,
+          album: 'Best album',
+          artwork: [
+            { src: video.getAttribute('poster'), sizes: '96x96',   type: 'image/png' },
+            { src: video.getAttribute('poster'), sizes: '128x128', type: 'image/png' },
+            { src: video.getAttribute('poster'), sizes: '192x192', type: 'image/png' },
+            { src: video.getAttribute('poster'), sizes: '256x256', type: 'image/png' },
+            { src: video.getAttribute('poster'), sizes: '384x384', type: 'image/png' },
+            { src: video.getAttribute('poster'), sizes: '512x512', type: 'image/png' },
+          ]
+        });
+
+        // navigator.mediaSession.setActionHandler('play', function() {});
+        // navigator.mediaSession.setActionHandler('pause', function() {});
+        navigator.mediaSession.setActionHandler('seekbackward', () => { video.currentTime -= 10; });
+        navigator.mediaSession.setActionHandler('seekforward', () => { video.currentTime += 10; });
+        // navigator.mediaSession.setActionHandler('previoustrack', function() { video.currentTime -= 10;});
+        // navigator.mediaSession.setActionHandler('nexttrack', function() { video.currentTime += 10; });
+      }
+    });
   }
 
 }

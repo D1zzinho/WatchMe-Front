@@ -31,7 +31,7 @@
                         <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
                             <video
                                 preload="none"
-                                poster="http://192.168.100.2:3000/{{ video.cover }}"
+                                poster="http://localhost:3000/{{ video.cover }}"
                                 (mouseover)="loadPreview($event)"
                                 (mouseleave)="unloadPreview($event)"
                                 muted
@@ -40,7 +40,7 @@
                                 id="{{ video.id }}"
                                 alt="{{ video.title }}"
                             >
-                                <source src="http://192.168.100.2:3000/{{ video.thumb }}" type="video/mp4">
+                                <source src="http://localhost:3000/{{ video.thumb }}" type="video/mp4">
                             </video>
                             <div class="card-body" title="{{ video.title }}">
                                 <h4 class="card-title">

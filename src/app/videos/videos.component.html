@@ -4,7 +4,8 @@
 
 <!--        <div class="card-header">-->
             <h3 class="pb-2 text-center">All videos ({{ pages.totalPages }} pages)</h3>
-            <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 py-3 w-100 overflow-auto">
+<!--            <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 py-3 w-100 overflow-auto">-->
+              <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">
                 <ul class="pagination justify-content-md-center">
                     <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
                         <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>
@@ -26,15 +27,18 @@
 <!--        </div>-->
 
 <!--        <div class="card-body">-->
-          <div class="row px-lg-3">
-            <div class="col-xs-12 col-md-6 col-lg-4 col-xl-3 text-left mb-4 h-100" *ngFor="let video of videos">
+<!--          <div class="row px-lg-3">-->
+            <div class="videos">
+<!--            <div class="col-xs-12 col-md-6 col-lg-4 col-xl-3 text-left mb-4 h-100" *ngFor="let video of videos">-->
+            <div class="text-left h-100" *ngFor="let video of videos">
 
-              <div class="card video h-100">
+<!--              <div class="card video h-100">-->
+                <div class="video h-100">
                 <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
 
                   <video
                     preload="auto"
-                    poster="http://192.168.100.2:3000/{{ video.cover }}"
+                    poster="http://localhost:3000/{{ video.cover }}"
                     (mouseover)="loadPreview($event)"
                     (mouseleave)="unloadPreview($event)"
                     muted
@@ -43,9 +47,9 @@
                     id="{{ video.id }}"
                     alt="{{ video.title }}"
                   >
-                    <source src="http://192.168.100.2:3000/{{ video.thumb }}" type="video/mp4">
+                    <source src="http://localhost:3000/{{ video.thumb }}" type="video/mp4">
                   </video>
-<!--<img src="http://192.168.100.2:3000/{{ video.cover }}" class="img-fluid">-->
+
                   <div class="movie-info pt-0">
                     <strong style="font-size: 12px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</strong>
                     <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
@@ -53,7 +57,7 @@
 
                   <div class="overview text-white">
                     <h5>About:</h5>
-                    <span style="font-size: 13px;">{{ video.desc }}</span>
+                    <span style="font-size: 13px; white-space: pre-wrap;">{{ video.desc }}</span>
                   </div>
 
                 </a>

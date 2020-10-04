@@ -10,7 +10,7 @@ import {AuthService} from '../auth.service';
 })
 export class FinderComponent implements OnInit {
 
-  readonly VIDEOS_URL = 'http://192.168.100.2:3000/videos/search';
+  readonly VIDEOS_URL = 'http://localhost:3000/videos/search';
 
   videos: any = [];
   pages: any = {};
