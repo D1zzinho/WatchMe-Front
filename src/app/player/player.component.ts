@@ -53,13 +53,12 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   videoIsMuted = false;
 
   similarVideos: Array<VideoDto> = new Array<VideoDto>();
-  similarOnPage = 6;
-  similarVideosColumnLimit = 14;
+  similarOnPage = 10;
+  similarVideosColumnLimit = 20;
 
-  isLoggedIn = false;
+  // isLoggedIn = false;
   isAdmin = false;
   isOwner = false;
-  pageType = 'classic';
 
   constructor(
     private http: HttpClient,
@@ -118,26 +117,28 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             }
           }
 
-          this.getSimilarVideos().then(videos => {
-            let currentIndex = videos.length;
-            let temporaryValue;
-            let randomIndex;
+          if (this.id !== '') {
+              this.getSimilarVideos().then(videos => {
+                  let currentIndex = videos.length;
+                  let temporaryValue;
+                  let randomIndex;
 
-            // While there remain elements to shuffle...
-            while (0 !== currentIndex) {
+                  // While there remain elements to shuffle...
+                  while (0 !== currentIndex) {
 
-              // Pick a remaining element...
-              randomIndex = Math.floor(Math.random() * currentIndex);
-              currentIndex -= 1;
+                      // Pick a remaining element...
+                      randomIndex = Math.floor(Math.random() * currentIndex);
+                      currentIndex -= 1;
 
-              // And swap it with the current element.
-              temporaryValue = videos[currentIndex];
-              videos[currentIndex] = videos[randomIndex];
-              videos[randomIndex] = temporaryValue;
-            }
+                      // And swap it with the current element.
+                      temporaryValue = videos[currentIndex];
+                      videos[currentIndex] = videos[randomIndex];
+                      videos[randomIndex] = temporaryValue;
+                  }
 
-            this.similarVideos = videos;
-          });
+                  this.similarVideos = videos;
+              });
+          }
         }
         }, 200);
     });
@@ -202,6 +203,11 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   //     this.titleService.setTitle(this.title + ' - WatchMe');
   //   }, 1000);
   // }
+
+
+    play(id: string): void {
+      window.location.href = `/player?vid=${id}`;
+    }
 
 
   private async getSimilarVideos(): Promise<Array<VideoDto>> {
@@ -616,14 +622,14 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   }
 
 
-  changePageType(): void {
-    if (this.pageType === 'classic') {
-      this.pageType = 'big';
-    }
-    else {
-      this.pageType = 'classic';
-    }
-  }
+  // changePageType(): void {
+  //   if (this.pageType === 'classic') {
+  //     this.pageType = 'big';
+  //   }
+  //   else {
+  //     this.pageType = 'classic';
+  //   }
+  // }
 
 
   showEditPanel(): void {
@@ -751,4 +757,11 @@ export class PlayerComponent implements OnInit, AfterViewInit {
     });
   }
 
+  onBeforeUnload(): void {
+    const video = document.getElementById('video') as HTMLVideoElement;
+    video.addEventListener('unload', (e: BeforeUnloadEvent) => {
+      e.stopPropagation();
+      this.videoSource.nativeElement.src = null;
+    });
+  }
 }

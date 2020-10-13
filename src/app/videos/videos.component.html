@@ -1,124 +1,87 @@
-<div class="container-fluid py-4">
-<!--<div class="container py-4">-->
-<!--    <div class="card bg-secondary text-center text-white my-4">-->
+<div class="container py-4">
 
-<!--        <div class="card-header">-->
-            <h3 class="pb-2 text-center">All videos ({{ pages.totalPages }} pages)</h3>
-<!--            <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 py-3 w-100 overflow-auto">-->
-              <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">
-                <ul class="pagination justify-content-md-center">
-                    <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
-                        <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>
-                    </li>
-                    <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
-                        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>
-                    </li>
-                    <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
-                        <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>
-                    </li>
-                    <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
-                        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>
-                    </li>
-                    <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
-                        <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>
-                    </li>
-                </ul>
-            </div>
-<!--        </div>-->
+  <h3 class="pb-2 text-center">All videos ({{ pages.totalPages }} pages)</h3>
 
-<!--        <div class="card-body">-->
-<!--          <div class="row px-lg-3">-->
-            <div class="videos">
-<!--            <div class="col-xs-12 col-md-6 col-lg-4 col-xl-3 text-left mb-4 h-100" *ngFor="let video of videos">-->
-            <div class="text-left h-100" *ngFor="let video of videos">
+  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">
+    <ul class="pagination justify-content-md-center">
+      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
+        <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>
+      </li>
+      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
+        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>
+      </li>
+      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
+        <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>
+      </li>
+      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
+        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>
+      </li>
+      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
+        <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>
+      </li>
+    </ul>
+  </div>
 
-<!--              <div class="card video h-100">-->
-                <div class="video h-100">
-                <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
 
-                  <video
-                    preload="auto"
-                    poster="http://localhost:3000/{{ video.cover }}"
-                    (mouseover)="loadPreview($event)"
-                    (mouseleave)="unloadPreview($event)"
-                    muted
-                    loop
-                    class="img-fluid covers"
-                    id="{{ video.id }}"
-                    alt="{{ video.title }}"
-                  >
-                    <source src="http://localhost:3000/{{ video.thumb }}" type="video/mp4">
-                  </video>
+  <div class="videos">
 
-                  <div class="movie-info pt-0">
-                    <strong style="font-size: 12px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</strong>
-                    <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
-                  </div>
+    <div class="text-left h-100" *ngFor="let video of videos">
+      <div class="video h-100" [title]="video.title">
+        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
+          <div class="preview">
 
-                  <div class="overview text-white">
-                    <h5>About:</h5>
-                    <span style="font-size: 13px; white-space: pre-wrap;">{{ video.desc }}</span>
-                  </div>
+            <img
+              src="http://localhost:3000/{{ video.cover }}"
+              class="img-fluid"
+              (mouseover)="loadPreview($event)"
+              (mouseleave)="unloadPreview($event)"
+            >
 
-                </a>
-              </div>
+            <video
+              preload="auto"
+              poster="http://localhost:3000/{{ video.cover }}"
+              muted
+              loop
+              class="img-fluid"
+              id="{{ video.id }}"
+            >
+              <source src="http://localhost:3000/{{ video.thumb }}" type="video/webm">
+            </video>
 
-            </div>
           </div>
-<!--        </div>-->
 
-<!--        <div class="card-body">-->
-<!--            <div class="row">-->
-<!--                <div class="col-xs-12 col-md-6 col-lg-4 col-xl-3 mb-4 video" *ngFor="let video of videos">-->
-<!--                    <div class="card bg-dark text-light h-100">-->
-<!--                        <a class="text-light" [routerLink]="['/player']" [queryParams]="{vid: video.id}">-->
-<!--                            <video-->
-<!--                                preload="none"-->
-<!--                                (mouseover)="loadPreview($event)"-->
-<!--                                (mouseleave)="unloadPreview($event)"-->
-<!--                                poster="http://192.168.100.2:3000/{{ video.cover }}"-->
-<!--                                muted-->
-<!--                                loop-->
-<!--                                class="img-fluid covers"-->
-<!--                                id="{{ video.id }}"-->
-<!--                                alt="{{ video.title }}"-->
-<!--                            >-->
-<!--                                <source src="http://192.168.100.2:3000/{{ video.thumb }}" type="video/mp4">-->
-<!--                            </video>-->
-<!--                            <div class="card-body" title="{{ video.title }}">-->
-<!--                                <h4 class="card-title">-->
-<!--                                    {{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}-->
-<!--                                </h4>-->
-<!--                                <p class="card-text">Views: {{ video.visits }}</p>-->
-<!--                            </div>-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-
-<!--        <div *ngIf="pages.pages && pages.pages.length > 0" class="card-footer">-->
-        <div *ngIf="pages.pages && pages.pages.length > 0">
-          <div class="pb-0 py-3 w-100 overflow-auto">
-            <ul class="pagination justify-content-md-center">
-                <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
-                    <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>
-                </li>
-                <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
-                    <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>
-                </li>
-                <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
-                    <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>
-                </li>
-                <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
-                    <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>
-                </li>
-                <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
-                    <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>
-                </li>
-            </ul>
+          <div class="movie-info">
+            <strong style="font-size: 12px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</strong>
+            <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
           </div>
-        </div>
-<!--    </div>-->
-<!--</div>-->
+
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div *ngIf="pages.pages && pages.pages.length > 0">
+    <div class="pb-0 py-3 w-100 overflow-auto">
+      <ul class="pagination justify-content-md-center">
+        <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
+          <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>
+        </li>
+        <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
+          <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>
+        </li>
+        <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
+          <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>
+        </li>
+        <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
+          <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>
+        </li>
+        <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
+          <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
 </div>

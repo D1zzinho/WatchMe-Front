@@ -1,0 +1,52 @@
+<div class="container my-4">
+  <div *ngIf="isLoggedIn">
+
+    <h1 class="mt-2">Latest {{ limit }} videos</h1>
+
+    <div class="videos">
+
+      <div class="text-left h-100" *ngFor="let video of latestVideos">
+        <div class="video h-100" [title]="video.title">
+          <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
+            <div class="preview">
+
+              <img
+                src="http://localhost:3000/{{ video.cover }}"
+                class="img-fluid"
+                (mouseover)="loadPreview($event)"
+                (mouseleave)="unloadPreview($event)"
+              >
+
+              <video
+                preload="auto"
+                poster="http://localhost:3000/{{ video.cover }}"
+                muted
+                loop
+                class="img-fluid"
+                id="{{ video.id }}"
+              >
+                <source src="http://localhost:3000/{{ video.thumb }}" type="video/webm">
+              </video>
+
+            </div>
+
+            <div class="movie-info">
+              <strong style="font-size: 12px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</strong>
+              <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
+            </div>
+
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="text-center mt-4">
+      <a role="button" class="btn btn-lg btn-outline-secondary" [routerLink]="['/videos']">View all</a>
+    </div>
+
+    <hr class="mt-4">
+
+  </div>
+</div>
+

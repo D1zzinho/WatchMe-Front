@@ -899,6 +899,31 @@ button.de:hover {
 
 
 
+.video-section {
+  grid-area: video;
+}
+
+.similar-videos-section {
+  grid-area: similar;
+}
+
+.nVideo-section {
+  display: grid;
+  /*grid-template-columns: repeat(2,1fr);*/
+  grid-template-areas:
+    'video'
+    'similar';
+  grid-gap: 20px;
+}
+
+@media screen and (min-width: 992px) {
+  .nVideo-section {
+    grid-template-areas:
+    'video video video video similar similar';
+  }
+}
+
+
 /* NEW OTHERS */
 .video {
   background-color: #373b69;
@@ -906,9 +931,17 @@ button.de:hover {
   box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   position: relative;
+  z-index: 1;
+  cursor: pointer;
 }
 
 .video video {
+  width: 100%;
+}
+
+.video img {
+  position: relative;
+  z-index: -1;
   width: 100%;
 }
 
@@ -919,6 +952,7 @@ button.de:hover {
   justify-content: space-between;
   padding: 0.5rem;
   letter-spacing: 0.5px;
+  backface-visibility: hidden;
 }
 
 .movie-info h3 {
@@ -946,4 +980,42 @@ button.de:hover {
 .video:hover {
   transition-duration: .2s;
   background: rgba(50,100,200,0.8);
+}
+
+.similar-container {
+  display: grid;
+  grid-template-columns: repeat(1,1fr);
+  grid-template-rows: auto;
+  grid-gap: 15px;
+  margin-bottom: 25px;
+}
+
+/*@media screen and (min-width: 1200px) {*/
+/*  .similar-container {*/
+/*    grid-template-columns: repeat(2,1fr);*/
+/*  }*/
+/*}*/
+
+@media screen and (min-width: 480px) {
+  .similar-container {
+    grid-template-columns: repeat(2,1fr);
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .similar-container {
+    grid-template-columns: repeat(3,1fr);
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .similar-container {
+    grid-template-columns: repeat(1,1fr);
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .similar-container {
+    grid-template-columns: repeat(2,1fr);
+  }
 }

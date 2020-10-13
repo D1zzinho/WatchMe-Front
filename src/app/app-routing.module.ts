@@ -10,7 +10,10 @@ import {LoginComponent} from './login/login.component';
 import {AuthGuardService} from './auth-guard.service';
 
 const routes: Routes = [
-  { path: 'videos', component: VideosComponent, data: { title: 'Videos - WatchMe' }, canActivate: [AuthGuardService] },
+  { path: 'videos', component: VideosComponent, data: { title: 'Videos - WatchMe' }, children: [{
+    component: VideosComponent,
+    path: 'viewed', data: { title: 'Most viewed videos - WatchMe' }
+  }], canActivate: [AuthGuardService] },
   { path: 'player', component: PlayerComponent, data: { title: 'Player - WatchMe' }, canActivate: [AuthGuardService] },
   { path: 'finder', component: FinderComponent, data: { title: 'Search - WatchMe' }, canActivate: [AuthGuardService] },
   { path: 'uploadVideo', component: UploadvideoComponent, data: { title: 'Upload new video - WatchMe' }, canActivate: [AuthGuardService] },

@@ -1,7 +1,8 @@
 <div class="login-page">
   <div class="form">
 
-    <div #ERROR *ngIf="error.length !== 0">
+    <div #ERROR [ngStyle]="{'display': (error.length > 0 ? 'block' : 'none') }">
+<!--    <div #ERROR *ngIf="error.length > 0">-->
       <div class="alert alert-danger">
         <a href="javascript:void(0)" class="close" (click)="ERROR.style.display = 'none'" aria-label="close">&times;</a>
         <p class="p-0 m-0" *ngFor="let err of error">{{ err }}</p>

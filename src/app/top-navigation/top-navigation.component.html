@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
-  <div class="container-fluid">
+  <div class="container">
     <a class="navbar-brand" routerLink="/">WatchMe</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" (click)="toggleCollapsed()" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -8,31 +8,31 @@
     <div [ngClass]="{'collapse': collapsed, 'navbar-collapse': true}" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li *ngIf="isLoggedIn" class="nav-item">
-          <a class="nav-link" routerLink="/videos">Videos</a>
+          <a class="nav-link" [href]="['/videos']">Videos</a>
         </li>
         <li *ngIf="isLoggedIn" class="nav-item">
-          <a class="nav-link" routerLink="/uploadVideo">Upload</a>
+          <a class="nav-link" [href]="['/uploadVideo']">Upload</a>
         </li>
         <li *ngIf="isLoggedIn" class="nav-item">
-          <a class="nav-link" routerLink="/finder"><i class="fas fa-search"></i> Find</a>
+          <a class="nav-link" [href]="['/finder']"><i class="fas fa-search"></i> Find</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Dropdown
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="#">Action</a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Something else here</a>
-          </div>
-        </li>
+<!--        <li class="nav-item dropdown">-->
+<!--          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+<!--            Dropdown-->
+<!--          </a>-->
+<!--          <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+<!--            <a class="dropdown-item" href="#">Action</a>-->
+<!--            <a class="dropdown-item" href="#">Another action</a>-->
+<!--            <div class="dropdown-divider"></div>-->
+<!--            <a class="dropdown-item" href="#">Something else here</a>-->
+<!--          </div>-->
+<!--        </li>-->
         <li class="nav-item">
-          <a *ngIf="!isLoggedIn" class="nav-link" routerLink="/login">Login</a>
+          <a *ngIf="!isLoggedIn" class="nav-link" [href]="['/login']">Login</a>
           <a *ngIf="isLoggedIn" class="nav-link" style="cursor: pointer;" (click)="logout()">Logout</a>
         </li>
       </ul>
-      <form *ngIf="isLoggedIn" #form class="form-inline my-2 my-lg-0" action="/finder" enctype="multipart/form-data">
+      <form *ngIf="isLoggedIn" #form class="form-inline my-2 my-lg-0" [action]="['/finder']" enctype="multipart/form-data">
         <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search">
         <input type="hidden" name="page" value="1" />
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit" (click)="form.submit()">Search</button>
