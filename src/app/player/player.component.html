@@ -1,7 +1,7 @@
-<div class="content">
-    <div class="container" *ngIf="error === null">
+<div class="content" *ngIf="visible">
+  <div class="container" *ngIf="error === null">
 <!--      <div class="row justify-content-md-center">-->
-        <div class="nVideo-section justify-content-md-center">
+        <div [ngClass]="(similarVideos.length === 0 ? 'noSimilarVideos' : '') + ' nVideo-section justify-content-md-center'">
 
 <!--            <div [ngClass]="pageType === 'classic' ? 'col-12 col-lg-9 col-xl-7' : 'col-12 col-lg-10 col-xl-9'">-->
                 <!-- LEFT SIDE [VIDEO/COMMENTS] -->
@@ -94,7 +94,7 @@
 
                 <div *ngFor="let similarVideo of similarVideos.slice(0, similarOnPage)" class="" title="Play: {{ similarVideo.title }}">
 
-                  <div class="video h-100" (click)="play(similarVideo.id)">
+                  <div class="suggestedVideo h-100" (click)="play(similarVideo.id)">
 
                       <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">
                       <div class="movie-info">

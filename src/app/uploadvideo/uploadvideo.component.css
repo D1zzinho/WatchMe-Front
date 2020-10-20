@@ -67,3 +67,8 @@
 .text-inputs textarea {
   min-height: 70px;
 }
+
+
+mat-progress-bar {
+  height: 50px;
+}

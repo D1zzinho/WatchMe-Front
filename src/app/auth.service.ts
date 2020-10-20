@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpEventType, HttpHeaders} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as moment from 'moment';
 import * as jwt_decode from 'jwt-decode';
 import {Observable, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -206,6 +207,22 @@ export class AuthService {
     return this.http.put(resourceUrl, body, {headers: newHeaders});
   }
 
+
+  uploadResource(resourceUrl: string, body: any, httpHeader = new HttpHeaders()): Observable<any> {
+    const header = httpHeader
+      .append('Authorization', 'Bearer ' + this.getAccessToken());
+
+    return this.http.post<any>(resourceUrl, body, { headers: header, reportProgress: true, observe: 'events' }).pipe(map((event) => {
+        if (event.type === HttpEventType.Response) {
+          return event.body;
+        }
+        if (event.type === HttpEventType.UploadProgress) {
+          const percentDone = Math.round(100 * event.loaded / event.total);
+          return { status: 'progress', message: percentDone };
+        }
+      })
+    );
+  }
 
   getUserFromToken(token: string = localStorage.getItem('token')): string {
     try {

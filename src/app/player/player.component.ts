@@ -1,7 +1,7 @@
-import {Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
-import { Title } from '@angular/platform-browser';
+import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Title} from '@angular/platform-browser';
 import {VideoDto} from '../models/VideoDto';
 import {AuthService} from '../auth.service';
 
@@ -10,13 +10,22 @@ import {AuthService} from '../auth.service';
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.css']
 })
-export class PlayerComponent implements OnInit, AfterViewInit {
+export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  constructor(
+    private http: HttpClient,
+    private currentRoute: ActivatedRoute,
+    private router: Router,
+    private titleService: Title,
+    private authService: AuthService
+  ) {}
 
   readonly VIDEOS_URL: string = 'http://localhost:3000/videos';
   error: string = null;
+  visible: boolean;
 
   @ViewChild('player') playerElement: ElementRef;
-  @ViewChild('playerVideo') videoElement: ElementRef;
+  @ViewChild('playerVideo') videoElement: ElementRef<HTMLVideoElement>;
   @ViewChild('playerSource') videoSource: ElementRef;
   @ViewChild('playerControls') playerControls: ElementRef;
   @ViewChild('progress') progressSection: ElementRef;
@@ -45,6 +54,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   visits = 0;
   // thUp = 0;
   // thDown = 0;
+  // comments: Array<CommentDto> = new Array<CommentDto>();
   stat = 1;
   author = '';
 
@@ -56,16 +66,9 @@ export class PlayerComponent implements OnInit, AfterViewInit {
   similarOnPage = 10;
   similarVideosColumnLimit = 20;
 
-  // isLoggedIn = false;
   isAdmin = false;
   isOwner = false;
 
-  constructor(
-    private http: HttpClient,
-    private currentRoute: ActivatedRoute,
-    private titleService: Title,
-    private authService: AuthService
-  ) { }
 
   ngOnInit(): void {
     this.currentRoute.queryParams.subscribe(params => {
@@ -76,6 +79,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             throw new Error(res.err);
           }
           else {
+            this.visible = true;
             this.id = res.id;
             this.title = res.title;
             this.description = res.desc;
@@ -95,6 +99,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
           throw new Error('Video not found!');
         }
       });
+
 
       setTimeout(() => {
         if (this.error === null) {
@@ -153,6 +158,8 @@ export class PlayerComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
+      this.createVideoElement();
+
       if (this.error === null) {
           this.initPlayer(this.id);
           this.titleService.setTitle(this.title + ' - WatchMe');
@@ -238,7 +245,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         const progress = this.progressSection.nativeElement;
         const progressFilled = this.progressBar.nativeElement;
         const toggle = this.playButton.nativeElement;
-        const fullscrbtn = this.fullScreenBtn.nativeElement;
+        const fullscreenButton = this.fullScreenBtn.nativeElement;
         const controls = this.playerControls.nativeElement;
         const currentTime = this.timeHolder.nativeElement;
         const ranges = document.querySelectorAll('.player-slider');
@@ -306,7 +313,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             if (result === -1) {
               result = watchedVideos.findIndex(v => v.vid === vid);
             }
-            watchedVideos[result].vct = parseInt(video.currentTime, 10);
+            watchedVideos[result].vct = Math.floor(video.currentTime);
             localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
           }
 
@@ -340,8 +347,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         }
 
         function scrub(e): void {
-            const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
-            video.currentTime = scrubTime;
+          video.currentTime = (e.offsetX / progress.offsetWidth) * video.duration;
         }
 
         function toggleFullScreen(): void {
@@ -363,7 +369,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             else {
                 document.getElementById('full-screen').innerHTML = '<i class="fa fa-expand"></i>';
                 if (document.exitFullscreen) {
-                    document.exitFullscreen();
+                    document.exitFullscreen().then();
                 }
 
             }
@@ -390,7 +396,7 @@ export class PlayerComponent implements OnInit, AfterViewInit {
                     }
                 }
                 else if (document.fullscreenElement) {
-                    document.exitFullscreen();
+                    document.exitFullscreen().then();
                 }
             });
         }
@@ -402,10 +408,9 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         video.addEventListener('timeupdate', progressUpdate);
         video.addEventListener('timeupdate', currentTimeUpdate);
         video.addEventListener('dblclick', toggleFullScreen);
-        fullscrbtn.addEventListener('click', toggleFullScreen);
+        fullscreenButton.addEventListener('click', toggleFullScreen);
 
         toggle.addEventListener('click', togglePlay);
-        // skippers.forEach(button => button.addEventListener('click', skip));
         ranges.forEach(range => range.addEventListener('change', rangeUpdate));
         ranges.forEach(range => range.addEventListener('mousemove', rangeUpdate));
 
@@ -452,6 +457,11 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             timeout2 = 0;
         });
 
+        progress.addEventListener('mouseover', () => {
+          controls.style.transform = 'translateY(0)';
+          player.style.cursor = 'default';
+        });
+
         // events on mobile browser
         const tout = null;
         let lastTap = 0;
@@ -478,31 +488,27 @@ export class PlayerComponent implements OnInit, AfterViewInit {
             lastTap = currentTime;
         });
 
-        const sp = this.speedIcon.nativeElement;
-        const pbr = this.speedSlider.nativeElement;
-        const pbrv = this.speedValue.nativeElement;
-        if (window.innerWidth < 768) {
-                sp.style.display = 'none';
-                pbr.style.display = 'none';
-                pbrv.style.display = 'none';
-            }
-            else {
-                sp.removeAttribute('style');
-                pbr.removeAttribute('style');
-                pbrv.removeAttribute('style');
-            }
+        const speedIcon = this.speedIcon.nativeElement;
+        const playbackRateSlider = this.speedSlider.nativeElement;
+        const playbackRateSpeedValue = this.speedValue.nativeElement;
+
+        function resize(): void {
+          if (window.innerWidth < 768) {
+            speedIcon.style.display = 'none';
+            playbackRateSlider.style.display = 'none';
+            playbackRateSpeedValue.style.display = 'none';
+          }
+          else {
+            speedIcon.removeAttribute('style');
+            playbackRateSlider.removeAttribute('style');
+            playbackRateSpeedValue.removeAttribute('style');
+          }
+        }
+        resize();
+
         window.addEventListener('resize', () => {
-                if (window.innerWidth < 768) {
-                    sp.style.display = 'none';
-                    pbr.style.display = 'none';
-                    pbrv.style.display = 'none';
-                }
-                else {
-                    sp.removeAttribute('style');
-                    pbr.removeAttribute('style');
-                    pbrv.removeAttribute('style');
-                }
-            });
+          resize();
+        });
 
         const vd = video.duration;
 
@@ -521,27 +527,22 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         });
 
         document.onkeydown = (e) => {
-            if (e.keyCode === 37) {
+            if (e.key === 'ArrowLeft') {
                 video.currentTime -= 10;
             }
-            else if (e.keyCode === 39) {
+            else if (e.key === 'ArrowRight') {
                 video.currentTime += 10;
             }
-            else if (e.keyCode === 80) {
+            else if (e.key === 'p') {
                 if (video.paused) {
-                    video.play();
+                    video.play().then();
                 }
                 else {
                     video.pause();
                 }
             }
-            else if (e.keyCode === 77) {
-                if (video.muted) {
-                    video.muted = false;
-                }
-                else {
-                    video.muted = true;
-                }
+            else if (e.key === 'm') {
+                video.muted = !video.muted;
             }
         };
 
@@ -550,16 +551,16 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         if (watchedVideos.length > 0 && result !== -1) {
           const videoTime = watchedVideos[result].vct;
 
-          if (videoTime === parseInt(duration, 10)) {
+          if (videoTime === Math.floor(duration)) {
             video.currentTime = 0;
             console.log('Replay for ' + vid);
           }
           else if (videoTime === 0) {
-            console.log('No saved videotime for ' + vid + '!');
+            console.log('No saved time for ' + vid + '!');
           }
           else {
             video.currentTime = videoTime;
-            console.log('Saved videotime for ' + vid + ': ' + videoTime);
+            console.log('Saved time for ' + vid + ': ' + videoTime);
           }
         }
         else {
@@ -570,14 +571,14 @@ export class PlayerComponent implements OnInit, AfterViewInit {
           const mute = localStorage.getItem('volume');
           if (mute !== null) {
             if (Number(mute) === 0) {
-              video.volume = mute;
+              video.volume = Number(mute);
               this.volumeSlider.nativeElement.value = mute;
               console.log('Last video was muted!');
             }
             else {
-              video.volume = mute;
+              video.volume = Number(mute);
               this.volumeSlider.nativeElement.value = mute;
-              console.log('Last video was unmuted at volume = ' + mute + '!');
+              console.log('Last video was not muted at volume = ' + mute + '!');
             }
           }
           else {
@@ -589,13 +590,13 @@ export class PlayerComponent implements OnInit, AfterViewInit {
         }, 100);
 
 
-        const vplaybackrate = localStorage.getItem('playbackRate');
-        if (vplaybackrate !== null) {
-            video.playbackRate = vplaybackrate;
-            this.speedSlider.nativeElement.value = vplaybackrate;
+        const playbackRate = localStorage.getItem('playbackRate');
+        if (playbackRate !== null) {
+            video.playbackRate = Number(playbackRate);
+            this.speedSlider.nativeElement.value = playbackRate;
             this.speedValue.nativeElement.innerHTML =
-                'x' + vplaybackrate;
-            console.log('Video playbackRate = ' + vplaybackrate);
+                'x' + playbackRate;
+            console.log('Video playbackRate = ' + playbackRate);
         }
         else {
             console.log('No saved rate for video playback!');
@@ -609,27 +610,19 @@ export class PlayerComponent implements OnInit, AfterViewInit {
 
             if (promise !== undefined) {
               promise.then(() => {
-                // Autoplay started!
+
               }).catch((error) => {
+                console.log(error);
                 video.muted = true;
                 this.videoIsMuted = true;
-                video.play();
+                video.play().then();
               });
             }
           };
 
       });
+
   }
-
-
-  // changePageType(): void {
-  //   if (this.pageType === 'classic') {
-  //     this.pageType = 'big';
-  //   }
-  //   else {
-  //     this.pageType = 'classic';
-  //   }
-  // }
 
 
   showEditPanel(): void {
@@ -729,39 +722,48 @@ export class PlayerComponent implements OnInit, AfterViewInit {
 
   loadMediaSessionData(): void {
     const video = document.getElementById('video') as HTMLVideoElement;
+    const artwork = `http://localhost:3000/${this.cover}`;
 
     video.addEventListener('loadedmetadata', () => {
       if ('mediaSession' in window.navigator) {
 
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: document.getElementById('vtitle').innerHTML,
-          artist: document.getElementById('author').innerHTML,
-          album: 'Best album',
+          title: this.title,
+          artist: this.author,
           artwork: [
-            { src: video.getAttribute('poster'), sizes: '96x96',   type: 'image/png' },
-            { src: video.getAttribute('poster'), sizes: '128x128', type: 'image/png' },
-            { src: video.getAttribute('poster'), sizes: '192x192', type: 'image/png' },
-            { src: video.getAttribute('poster'), sizes: '256x256', type: 'image/png' },
-            { src: video.getAttribute('poster'), sizes: '384x384', type: 'image/png' },
-            { src: video.getAttribute('poster'), sizes: '512x512', type: 'image/png' },
+            { src: artwork, sizes: '96x96',   type: 'image/png' },
+            { src: artwork, sizes: '128x128', type: 'image/png' },
+            { src: artwork, sizes: '192x192', type: 'image/png' },
+            { src: artwork, sizes: '256x256', type: 'image/png' },
+            { src: artwork, sizes: '384x384', type: 'image/png' },
+            { src: artwork, sizes: '512x512', type: 'image/png' },
           ]
         });
 
-        // navigator.mediaSession.setActionHandler('play', function() {});
-        // navigator.mediaSession.setActionHandler('pause', function() {});
+        navigator.mediaSession.setActionHandler('play', () => { video.play().then(); });
+        navigator.mediaSession.setActionHandler('pause', () => { video.pause(); });
         navigator.mediaSession.setActionHandler('seekbackward', () => { video.currentTime -= 10; });
         navigator.mediaSession.setActionHandler('seekforward', () => { video.currentTime += 10; });
-        // navigator.mediaSession.setActionHandler('previoustrack', function() { video.currentTime -= 10;});
-        // navigator.mediaSession.setActionHandler('nexttrack', function() { video.currentTime += 10; });
       }
     });
   }
 
-  onBeforeUnload(): void {
-    const video = document.getElementById('video') as HTMLVideoElement;
-    video.addEventListener('unload', (e: BeforeUnloadEvent) => {
-      e.stopPropagation();
-      this.videoSource.nativeElement.src = null;
-    });
+
+  private createVideoElement(): void {
+    const video = document.createElement('video');
+    video.muted = this.videoIsMuted;
+    video.id = 'video';
+    video.poster = `http://localhost:3000/${this.cover}`;
+    video.src = `http://localhost:3000/${this.path}`;
+
+    this.videoElement.nativeElement.appendChild(video);
   }
+
+
+  ngOnDestroy(): void {
+    if (!this.router.isActive('/player', true)) {
+      window.location.reload();
+    }
+  }
+
 }

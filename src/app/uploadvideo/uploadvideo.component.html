@@ -25,7 +25,7 @@
             <input type="file" class="drop-zone__input" accept="video/mp4" required />
           </div>
 
-          <div class="text-inputs" style="display: none;">
+          <div *ngIf="uploadResponse.status !== 'progress'" class="text-inputs" style="display: none;">
             <input type="text" class="form-control bg-transparent text-light mb-2" name="title" formControlName="title" placeholder="Video title" maxlength="200" required />
             <textarea class="form-control bg-transparent text-light mb-2" name="desc" formControlName="desc" placeholder="Video description" maxlength="600"></textarea>
             <input type="text" class="form-control bg-transparent text-light mb-2" name="tags" formControlName="tags" placeholder="Video tags" />
@@ -33,6 +33,23 @@
           </div>
 
         </form>
+      </div>
+
+      <div #ERROR class="alert alert-danger mx-2" *ngIf="error">
+        <a href="javascript:void(0)" class="close" (click)="ERROR.style.display = 'none'" aria-label="close">&times;</a>
+        <p class="p-0 m-0">{{ error }}</p>
+      </div>
+      <div #UPLOAD_ERROR class="alert alert-danger mx-2" *ngIf="uploadResponse.status === 'error'">
+        <a href="javascript:void(0)" class="close" (click)="UPLOAD_ERROR.style.display = 'none'" aria-label="close">&times;</a>
+        <p class="p-0 m-0">{{ uploadResponse.message }}</p>
+      </div>
+      <div *ngIf="uploadResponse.status === 'progress'" class="mx-2">
+        <mat-progress-bar [value]="uploadResponse.message"></mat-progress-bar>
+
+<!--        <div role="progressbar" [ngStyle]="{'width': uploadResponse.message + '%' }" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">-->
+<!--          <p class="p-0 m-0">{{ uploadResponse.message }}%</p>-->
+<!--        </div>-->
+      </div>
     </div>
   </div>
 </div>

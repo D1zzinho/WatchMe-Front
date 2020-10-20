@@ -12,6 +12,7 @@ export class HomeComponent implements OnInit, AfterContentInit {
   limit = 12;
   latestVideos: Array<VideoDto>;
   isLoggedIn = false;
+  videosExist: boolean;
 
   constructor(private authService: AuthService) {
   }
@@ -26,6 +27,13 @@ export class HomeComponent implements OnInit, AfterContentInit {
     setTimeout(() => {
       if (this.isLoggedIn) {
         this.authService.getResource(`http://localhost:3000/videos/latest?limit=${this.limit}`).subscribe(res => {
+          if (res.message) {
+            this.videosExist = false;
+          }
+          else {
+            this.videosExist = true;
+          }
+
           this.latestVideos = res;
         });
       }

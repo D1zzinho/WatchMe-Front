@@ -909,7 +909,6 @@ button.de:hover {
 
 .nVideo-section {
   display: grid;
-  /*grid-template-columns: repeat(2,1fr);*/
   grid-template-areas:
     'video'
     'similar';
@@ -918,14 +917,15 @@ button.de:hover {
 
 @media screen and (min-width: 992px) {
   .nVideo-section {
+    grid-template-columns: 4fr 2fr;
     grid-template-areas:
-    'video video video video similar similar';
+    'video similar';
   }
 }
 
 
 /* NEW OTHERS */
-.video {
+.suggestedVideo {
   background-color: #373b69;
   border-radius: 3px;
   box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
@@ -935,11 +935,11 @@ button.de:hover {
   cursor: pointer;
 }
 
-.video video {
+.suggestedVideo video {
   width: 100%;
 }
 
-.video img {
+.suggestedVideo img {
   position: relative;
   z-index: -1;
   width: 100%;
@@ -977,7 +977,7 @@ button.de:hover {
   color: rgb(189, 42, 42);
 }
 
-.video:hover {
+.suggestedVideo:hover {
   transition-duration: .2s;
   background: rgba(50,100,200,0.8);
 }
@@ -1018,4 +1018,8 @@ button.de:hover {
   .similar-container {
     grid-template-columns: repeat(2,1fr);
   }
+}
+
+.noSimilarVideos {
+  display: unset !important;
 }

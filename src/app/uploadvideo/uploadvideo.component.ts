@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterContentInit, Component, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {UploadVideoDto} from '../models/UploadVideoDto';
@@ -14,6 +14,8 @@ export class UploadvideoComponent implements OnInit, AfterContentInit {
   private readonly SERVER_URL = 'http://localhost:3000/videos/upload';
   uploadForm: FormGroup;
   selectedFile: File;
+  error: string;
+  uploadResponse = { status: '', message: '' };
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,11 +35,11 @@ export class UploadvideoComponent implements OnInit, AfterContentInit {
     document.querySelectorAll('.drop-zone__input').forEach((inputElement: HTMLInputElement) => {
       const dropZoneElement = inputElement.closest('.drop-zone');
 
-      dropZoneElement.addEventListener('click', (e) => {
+      dropZoneElement.addEventListener('click', (e: Event) => {
         inputElement.click();
       });
 
-      inputElement.addEventListener('change', (e) => {
+      inputElement.addEventListener('change', (e: Event) => {
         if (inputElement.files.length) {
           this.selectedFile = inputElement.files[0];
           this.uploadForm.get('file').setValue(inputElement.files[0]);
@@ -114,12 +116,12 @@ export class UploadvideoComponent implements OnInit, AfterContentInit {
     formData.append('file', this.uploadForm.get('file').value);
     formData.append('video', JSON.stringify(videoBody));
 
-    this.authService.postResource(this.SERVER_URL, formData).subscribe(
+    this.authService.uploadResource(this.SERVER_URL, formData).subscribe(
       (res) => {
-        console.log(res);
+        this.uploadResponse = res;
       },
       (err) => {
-        console.log(err);
+        this.error = err.error.message;
       }
     );
   }

@@ -2,6 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {Title} from '@angular/platform-browser';
 import {NavigationEnd, Router} from '@angular/router';
+import {FormControl} from '@angular/forms';
+import {map, startWith} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-top-navigation',
@@ -10,9 +13,14 @@ import {NavigationEnd, Router} from '@angular/router';
 })
 export class TopNavigationComponent implements OnInit {
 
+  searchControl: FormControl = new FormControl();
+  searchOptions: Array<string> = new Array<string>();
+  filteredSearchOptions: Observable<Array<string>>;
+
   collapsed = true;
   isLoggedIn: boolean;
   isAdmin = false;
+
 
   constructor(private authService: AuthService, private titleService: Title, private router: Router) {
     this.authService.getLoginStatus().subscribe((status: boolean) => this.isLoggedIn = status);
@@ -25,19 +33,45 @@ export class TopNavigationComponent implements OnInit {
     });
   }
 
+
   logout(): void {
     this.authService.logout();
   }
+
 
   toggleCollapsed(): void {
     this.collapsed = !this.collapsed;
   }
 
+
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.authService.getResource(`http://localhost:3000/videos/mostUsedTags`).subscribe(res => {
+        if (res.found) {
+          this.searchOptions = res.options;
+        }
+      }, err => {
+        console.log(err);
+      });
+    }
+
     setTimeout(() => {
       this.isAdmin = this.authService.isAdmin();
     }, 100);
+
+    this.filteredSearchOptions = this.searchControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value))
+    );
   }
+
+
+  private _filter(value: string): Array<string> {
+    const filterValue = value.toLowerCase();
+
+    return this.searchOptions.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
+  }
+
 
   private getTitle(state, parent): Array<any> {
     const data = new Array<any>();

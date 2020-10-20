@@ -35,23 +35,24 @@ export class FinderComponent implements OnInit {
   }
 
   loadPreview(event: any): void {
-    event.path[0].muted = true;
-    event.path[0].loop = true;
-    event.path[0].download = false;
-    event.path[0].play();
+    const video = event.target.nextSibling;
+    video.muted = true;
+    video.loop = true;
+    video.download = false;
+    video.play();
   }
 
   unloadPreview(event: any): void {
-    const playPromise = event.path[0].play();
+    const video = event.target.nextSibling;
+    const playPromise = video.play();
 
     if (playPromise !== undefined) {
       playPromise.then(() => {
-        event.path[0].load();
+        video.load();
       }).catch(err => {
         console.log(err);
       });
     }
-
   }
 
 }

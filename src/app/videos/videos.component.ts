@@ -15,9 +15,10 @@ export class VideosComponent implements OnInit {
 
   readonly VIDEOS_URL = 'http://localhost:3000/videos';
 
-  videos: Array<VideoDto>;
+  videos: Array<VideoDto> = new Array<VideoDto>();
+  loading = true;
   pages: any = {};
-  isLoggedIn = false;
+  noVideos = false;
 
   constructor(
     private http: HttpClient,
@@ -27,11 +28,18 @@ export class VideosComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentRoute.queryParams.subscribe(params => {
+      this.loading = true;
       const page = params.page;
       this.authService.getResource(`${this.VIDEOS_URL}?page=${page}`)
         .subscribe(res => {
           this.pages = res.pages;
           this.videos = res.videosOnPage;
+
+          this.loading = false;
+
+          if (res.videosOnPage.length === 0) {
+            this.noVideos = true;
+          }
           }, err => {
             if (err.statusText === 'Unauthorized') {
               this.authService.logout();
@@ -46,10 +54,6 @@ export class VideosComponent implements OnInit {
     video.loop = true;
     video.download = false;
     video.play();
-    // event.path[0].muted = true;
-    // event.path[0].loop = true;
-    // event.path[0].download = false;
-    // event.path[0].play();
   }
 
   unloadPreview(event: any): void {
@@ -63,16 +67,6 @@ export class VideosComponent implements OnInit {
         console.log(err);
       });
     }
-
-    // const playPromise = event.path[0].play();
-    //
-    // if (playPromise !== undefined) {
-    //   playPromise.then(() => {
-    //     event.path[0].load();
-    //   }).catch(err => {
-    //     console.log(err);
-    //   });
-    // }
   }
 
 }
