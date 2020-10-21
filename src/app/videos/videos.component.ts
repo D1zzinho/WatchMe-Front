@@ -3,8 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
 import {VideoDto} from '../models/VideoDto';
-import MouseOverEvent = JQuery.MouseOverEvent;
-import MouseOutEvent = JQuery.MouseOutEvent;
 
 @Component({
   selector: 'app-videos',
