@@ -3,6 +3,7 @@ import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {UploadVideoDto} from '../models/UploadVideoDto';
 import {AuthService} from '../auth.service';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-uploadvideo',
@@ -11,7 +12,7 @@ import {AuthService} from '../auth.service';
 })
 export class UploadvideoComponent implements OnInit, AfterContentInit {
 
-  private readonly SERVER_URL = 'http://localhost:3000/videos/upload';
+  private readonly SERVER_URL = `${environment.baseUrl}/videos/upload`;
   uploadForm: FormGroup;
   selectedFile: File;
   error: string;

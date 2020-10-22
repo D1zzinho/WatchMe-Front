@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
 import {VideoDto} from '../models/VideoDto';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-videos',
@@ -11,7 +12,7 @@ import {VideoDto} from '../models/VideoDto';
 })
 export class VideosComponent implements OnInit {
 
-  readonly VIDEOS_URL = 'http://localhost:3000/videos';
+  readonly VIDEOS_URL = `${environment.baseUrl}/videos`;
 
   videos: Array<VideoDto> = new Array<VideoDto>();
   loading = true;

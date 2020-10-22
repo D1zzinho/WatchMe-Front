@@ -33,7 +33,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/']);
     }

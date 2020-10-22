@@ -5,6 +5,7 @@ import {NavigationEnd, Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {map, startWith} from 'rxjs/operators';
 import {Observable} from 'rxjs';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-top-navigation',
@@ -46,7 +47,7 @@ export class TopNavigationComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.authService.getResource(`http://localhost:3000/videos/mostUsedTags`).subscribe(res => {
+      this.authService.getResource(`${environment.baseUrl}/videos/mostUsedTags`).subscribe(res => {
         if (res.found) {
           this.searchOptions = res.options;
         }

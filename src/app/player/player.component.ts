@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Title} from '@angular/platform-browser';
 import {VideoDto} from '../models/VideoDto';
 import {AuthService} from '../auth.service';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-player',
@@ -20,7 +21,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     private authService: AuthService
   ) {}
 
-  readonly VIDEOS_URL: string = 'http://localhost:3000/videos';
+  readonly VIDEOS_URL: string = `${environment.baseUrl}/videos`;
   error: string = null;
   visible: boolean;
 

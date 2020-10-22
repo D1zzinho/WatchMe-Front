@@ -2,6 +2,7 @@ import {AfterViewInit, Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import {AuthService} from '../auth.service';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-finder',
@@ -10,7 +11,7 @@ import {AuthService} from '../auth.service';
 })
 export class FinderComponent implements OnInit {
 
-  readonly VIDEOS_URL = 'http://localhost:3000/videos/search';
+  readonly VIDEOS_URL = `${environment.baseUrl}/videos/search`;
 
   videos: any = [];
   pages: any = {};

@@ -1,6 +1,7 @@
 import {AfterContentInit, Component, OnInit} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {VideoDto} from '../models/VideoDto';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -26,7 +27,7 @@ export class HomeComponent implements OnInit, AfterContentInit {
   ngAfterContentInit(): void {
     setTimeout(() => {
       if (this.isLoggedIn) {
-        this.authService.getResource(`http://localhost:3000/videos/latest?limit=${this.limit}`).subscribe(res => {
+        this.authService.getResource(`${environment.baseUrl}/videos/latest?limit=${this.limit}`).subscribe(res => {
           if (res.message) {
             this.videosExist = false;
           }

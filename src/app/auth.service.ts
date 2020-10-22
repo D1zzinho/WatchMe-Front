@@ -5,15 +5,12 @@ import * as moment from 'moment';
 import * as jwt_decode from 'jwt-decode';
 import {Observable, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
+import {environment} from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
-  err: string = null;
-  private readonly SERVER_URL = 'http://localhost:3000/auth';
-  private isLogged = new Subject<boolean>();
 
   constructor(protected http: HttpClient, protected router: Router, private activatedRoute: ActivatedRoute) {
     if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
@@ -21,19 +18,39 @@ export class AuthService {
         this.postResource(
           `${this.SERVER_URL}/checkToken`,
           {
-            user: jwt_decode(this.getAccessToken()).username,
-            permission: jwt_decode(this.getAccessToken()).permissions
+            user: jwt_decode(AuthService.getAccessToken()).username,
+            permission: jwt_decode(AuthService.getAccessToken()).permissions
           }
           ).subscribe(res => {
             if (res) {
               this.isLoggedIn();
             }
         }, err => {
-            console.log(err)
+            console.log(err);
             this.logout();
         });
       }
     }
+  }
+
+  err: string = null;
+  private readonly SERVER_URL = `${environment.baseUrl}/auth`;
+  private isLogged = new Subject<boolean>();
+
+
+  private static getDecodedAccessToken(token: string): any {
+    try {
+      const tokenInfo = jwt_decode(token);
+      return tokenInfo.exp;
+    }
+    catch (error) {
+      return null;
+    }
+  }
+
+
+  private static getAccessToken(): string {
+    return localStorage.getItem('token');
   }
 
 
@@ -45,7 +62,7 @@ export class AuthService {
           localStorage.setItem('token', res.token);
           localStorage.setItem(
             'expires_at',
-            String((this.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
+            String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
           );
 
           setTimeout(() => {
@@ -69,7 +86,7 @@ export class AuthService {
           localStorage.setItem('token', res.token);
           localStorage.setItem(
             'expires_at',
-            String((this.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
+            String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
           );
 
           this.activatedRoute.queryParams.subscribe(params => {
@@ -130,14 +147,14 @@ export class AuthService {
   }
 
 
-  isLoggedOut(): boolean {
-    return !this.isLoggedIn();
-  }
+  // isLoggedOut(): boolean {
+  //   return !this.isLoggedIn();
+  // }
 
 
   isAdmin(): boolean {
     if (localStorage.getItem('token') !== null) {
-      const tokenInfo = jwt_decode(this.getAccessToken());
+      const tokenInfo = jwt_decode(AuthService.getAccessToken());
       const permissions = tokenInfo.permissions;
 
       if (permissions === 0) {
@@ -156,16 +173,11 @@ export class AuthService {
   }
 
 
-  private getAccessToken(): string {
-    return localStorage.getItem('token');
-  }
-
-
   getResource(resourceUrl: string, httpHeader = new HttpHeaders()): Observable<any> {
     let newHeaders = httpHeader;
     newHeaders.append('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
     if (this.isLoggedIn()) {
-      newHeaders = newHeaders.append('Authorization', 'Bearer ' + this.getAccessToken());
+      newHeaders = newHeaders.append('Authorization', 'Bearer ' + AuthService.getAccessToken());
     }
 
     return this.http.get(resourceUrl, {headers: newHeaders});
@@ -175,7 +187,7 @@ export class AuthService {
   deleteResource(resourceUrl: string, httpHeader = new HttpHeaders()): Observable<any> {
     const newHeaders = httpHeader
       .append('Content-type', 'application/x-www-form-urlencoded; charset=utf-8')
-      .append('Authorization', 'Bearer ' + this.getAccessToken());
+      .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
 
     return this.http.delete(resourceUrl, {headers: newHeaders});
   }
@@ -183,9 +195,8 @@ export class AuthService {
 
   postResource(resourceUrl: string, body: any, httpHeader = new HttpHeaders()): Observable<any> {
     const newHeaders = httpHeader
-      // .append('Content-type', 'application/json')
-      // .append('Accept', 'application/json')
-      .append('Authorization', 'Bearer ' + this.getAccessToken());
+      .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
+
     return this.http.post(resourceUrl, body, {headers: newHeaders});
   }
 
@@ -194,7 +205,7 @@ export class AuthService {
     const newHeaders = httpHeader
       .append('Content-type', 'application/json')
       .append('Accept', 'application/json')
-      .append('Authorization', 'Bearer ' + this.getAccessToken());
+      .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
     return this.http.patch(resourceUrl, body, {headers: newHeaders});
   }
 
@@ -202,7 +213,7 @@ export class AuthService {
   putResource(resourceUrl: string, body: any, httpHeader = new HttpHeaders()): Observable<any> {
     const newHeaders = httpHeader
       .append('Content-type', 'application/x-www-form-urlencoded; charset=utf-8')
-      .append('Authorization', 'Bearer ' + this.getAccessToken());
+      .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
 
     return this.http.put(resourceUrl, body, {headers: newHeaders});
   }
@@ -210,7 +221,7 @@ export class AuthService {
 
   uploadResource(resourceUrl: string, body: any, httpHeader = new HttpHeaders()): Observable<any> {
     const header = httpHeader
-      .append('Authorization', 'Bearer ' + this.getAccessToken());
+      .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
 
     return this.http.post<any>(resourceUrl, body, { headers: header, reportProgress: true, observe: 'events' }).pipe(map((event) => {
         if (event.type === HttpEventType.Response) {
@@ -227,22 +238,7 @@ export class AuthService {
   getUserFromToken(token: string = localStorage.getItem('token')): string {
     try {
       const tokenInfo = jwt_decode(token);
-      const username = tokenInfo.username;
-
-      return username;
-    }
-    catch (error) {
-      return null;
-    }
-  }
-
-
-  private getDecodedAccessToken(token: string): any {
-    try {
-      const tokenInfo = jwt_decode(token);
-      const expireDate = tokenInfo.exp;
-
-      return expireDate;
+      return tokenInfo.username;
     }
     catch (error) {
       return null;
