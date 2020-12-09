@@ -23,7 +23,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('player', { static: false }) playerElement: ElementRef;
   @ViewChild('playerVideo', { static: false }) videoElement: ElementRef<HTMLVideoElement>;
-  @ViewChild('playerSource', { static: false }) videoSource: ElementRef;
+  @ViewChild('playerSource', { static: false }) videoSource: ElementRef<HTMLSourceElement>;
   @ViewChild('playerControls', { static: false }) playerControls: ElementRef;
   @ViewChild('progress', { static: false }) progressSection: ElementRef;
   @ViewChild('filledProgress', { static: false }) progressBar: ElementRef;
@@ -58,6 +58,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   // thDown = 0;
   stat = 1;
   author = '';
+  authorAvatar = '';
 
   playbackRate = 1;
   volume = 0.5;
@@ -94,6 +95,8 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.currentRoute.queryParams.subscribe(params => {
+      // const header = new HttpHeaders();
+      // header.append('Content-Type', 'video/mp4');
       this.authService.getResource(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
         this.visible = true;
 
@@ -115,29 +118,11 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             // this.thDown = res.thDown;
             this.stat = res.stat;
             this.author = res.author;
+            this.authorAvatar = res.authorAvatar;
 
-            if (this.error === null) {
-                if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
-                  const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
-                  if (watchedVideos !== null) {
-                    const result = watchedVideos.findIndex(v => v.vid === this.id);
-
-                    if (result === -1) {
-                      this.authService.patchResource(
-                        `${this.VIDEOS_URL}/${params.vid}/views`,
-                        null
-                      ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
-                    }
-                  }
-                  else {
-                    this.authService.patchResource(
-                      `${this.VIDEOS_URL}/${params.vid}/views`,
-                      null
-                    ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
-                  }
-                }
+            if (this.author === this.authService.getUsernameFromToken()) {
+              this.isOwner = true;
             }
-
 
             this.authService.getResource(`${this.COMMENTS_URL}/${res.id}`).subscribe(result => {
               if (result.comments !== undefined) {
@@ -171,6 +156,28 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
               });
             }
 
+            if (this.error === null) {
+                if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
+                  const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
+                  if (watchedVideos !== null) {
+                    const result = watchedVideos.findIndex(v => v.vid === this.id);
+
+                    if (result === -1) {
+                      this.authService.patchResource(
+                        `${this.VIDEOS_URL}/${params.vid}/views`,
+                        null
+                      ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
+                    }
+                  }
+                  else {
+                    this.authService.patchResource(
+                      `${this.VIDEOS_URL}/${params.vid}/views`,
+                      null
+                    ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
+                  }
+                }
+            }
+
             this.titleService.setTitle(res.title + ' - WatchMe');
           }
         }
@@ -182,16 +189,21 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.isAdmin = this.authService.isAdmin();
-
-    if (this.author === this.authService.getUserFromToken()) {
-      this.isOwner = true;
-    }
   }
 
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       if (this.error === null) {
+        this.authService.getUser().subscribe(result => {
+          if (result.avatar_url) {
+            (document.getElementById('avatar') as HTMLImageElement).src = result.avatar_url;
+          }
+          else {
+            (document.getElementById('avatar') as HTMLImageElement).src = result.avatar;
+          }
+        });
+
         this.loadPlayer();
       }
       }, 50);

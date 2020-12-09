@@ -70,7 +70,7 @@
 
             <div class="info">
               <div class="add-by">
-                <div class="avatar border-0"><a href="#"><img class="rounded-circle border border-white" src="#"  alt="Author's avatar"/></a></div>
+                <div class="avatar border-0"><a href="#"><img class="rounded-circle border border-white" src="{{ authorAvatar }}"  alt="Author's avatar"/></a></div>
                 <div class="uploaded">
                   <a href="#" id="author">{{ author }}</a>
                   <p id="date">Added on 00.00.0000 at 00:00</p>
@@ -89,8 +89,7 @@
               <h3>Comments</h3>
 
               <div class="media mt-3 shadow-textarea mb-4">
-                <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3" src=""
-                     alt="Current user avatar">
+                <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3" alt="Current user avatar">
                 <div class="media-body">
                   <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="form-group rounded-corners" enctype="multipart/form-data">
                     <textarea

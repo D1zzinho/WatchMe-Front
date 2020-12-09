@@ -169,8 +169,29 @@ export class AuthService {
       return false;
     }
 
+    // const token = jwt_decode(AuthService.getAccessToken());
+    // if (token.access_token) {
+    //   this.http.post<any>(`http://localhost:3000/auth/github/me`, token).subscribe(result => {
+    //
+    //   });
+    // }
+
+
     this.isLogged.next(true);
     return true;
+  }
+
+
+  getUser(): Observable<any> {
+     if (localStorage.getItem('token') !== null) {
+      const tokenInfo = jwt_decode(AuthService.getAccessToken());
+      if (tokenInfo.access_token) {
+        return this.http.post<any>(`http://localhost:3000/auth/github/me`, tokenInfo);
+      }
+      else {
+        return this.getResource(`${environment.baseUrl}/users/me`);
+      }
+    }
   }
 
 
@@ -207,7 +228,8 @@ export class AuthService {
 
   getResource(resourceUrl: string, httpHeader = new HttpHeaders()): Observable<any> {
     let newHeaders = httpHeader;
-    newHeaders.append('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
+    newHeaders.append('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
+    newHeaders.append('Access-Control-Allow-Headers', 'application/json');
     if (this.isLoggedIn()) {
       newHeaders = newHeaders.append('Authorization', 'Bearer ' + AuthService.getAccessToken());
     }
@@ -218,7 +240,8 @@ export class AuthService {
 
   deleteResource(resourceUrl: string, httpHeader = new HttpHeaders()): Observable<any> {
     const newHeaders = httpHeader
-      .append('Content-type', 'application/x-www-form-urlencoded; charset=utf-8')
+      .append('Accept', 'application/json')
+      .append('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
       .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
 
     return this.http.delete(resourceUrl, {headers: newHeaders});
@@ -227,6 +250,7 @@ export class AuthService {
 
   postResource(resourceUrl: string, body: any, httpHeader = new HttpHeaders()): Observable<any> {
     const newHeaders = httpHeader
+      .append('Accept', 'application/json')
       .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
 
     return this.http.post(resourceUrl, body, {headers: newHeaders});
@@ -235,7 +259,7 @@ export class AuthService {
 
   patchResource(resourceUrl: string, body: any, httpHeader = new HttpHeaders()): Observable<any> {
     const newHeaders = httpHeader
-      .append('Content-type', 'application/json')
+      .append('Content-Type', 'application/json')
       .append('Accept', 'application/json')
       .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
     return this.http.patch(resourceUrl, body, {headers: newHeaders});
@@ -244,7 +268,7 @@ export class AuthService {
 
   putResource(resourceUrl: string, body: any, httpHeader = new HttpHeaders()): Observable<any> {
     const newHeaders = httpHeader
-      .append('Content-type', 'application/x-www-form-urlencoded; charset=utf-8')
+      .append('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
       .append('Authorization', 'Bearer ' + AuthService.getAccessToken());
 
     return this.http.put(resourceUrl, body, {headers: newHeaders});
@@ -267,7 +291,7 @@ export class AuthService {
     );
   }
 
-  getUserFromToken(token: string = localStorage.getItem('token')): string {
+  getUsernameFromToken(token: string = localStorage.getItem('token')): string {
     try {
       const tokenInfo = jwt_decode(token);
       return tokenInfo.username;
