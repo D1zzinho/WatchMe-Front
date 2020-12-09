@@ -1,8 +1,11 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
+import {map, startWith} from 'rxjs/operators';
+import {FormControl} from '@angular/forms';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-finder',
@@ -11,7 +14,8 @@ import {environment} from '../../environments/environment';
 })
 export class FinderComponent implements OnInit {
 
-  readonly VIDEOS_URL = `${environment.baseUrl}/videos/search`;
+  readonly VIDEOS_URL: string = `${environment.baseUrl}/videos/search`;
+  readonly baseUrl: string = environment.baseUrl;
 
   videos: any = [];
   pages: any = {};
@@ -19,7 +23,11 @@ export class FinderComponent implements OnInit {
   message = '';
   q = '';
 
-  constructor(private http: HttpClient, private currentRoute: ActivatedRoute, private authService: AuthService) { }
+  searchControl: FormControl = new FormControl();
+  searchOptions: Array<string> = new Array<string>();
+  filteredSearchOptions: Observable<Array<string>>;
+
+  constructor(private http: HttpClient, private router: Router, private currentRoute: ActivatedRoute, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.currentRoute.queryParams.subscribe(params => {
@@ -33,6 +41,20 @@ export class FinderComponent implements OnInit {
         this.message = res.message;
       });
     });
+
+
+    this.authService.getResource(`${environment.baseUrl}/videos/mostUsedTags`).subscribe(res => {
+        if (res.found) {
+          this.searchOptions = res.options;
+        }
+      }, err => {
+        console.log(err);
+    });
+
+    this.filteredSearchOptions = this.searchControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filter(value))
+    );
   }
 
   loadPreview(event: any): void {
@@ -54,6 +76,30 @@ export class FinderComponent implements OnInit {
         console.log(err);
       });
     }
+  }
+
+
+  liveSearch(event: any): void {
+    this.router.navigate([], {
+      relativeTo: this.currentRoute,
+      queryParams: { q: event.target.value, page: this.pages.currentPage },
+      queryParamsHandling: 'merge'
+    });
+
+    // this.authService.getResource(this.VIDEOS_URL + '?query=' + event.target.value).subscribe(res => {
+    //   if (res.isResult) {
+    //     this.isResult = true;
+    //     this.pages = res.pages;
+    //     this.videos = res.videosOnPage;
+    //   }
+    //   this.message = res.message;
+    // });
+  }
+
+
+  filter(value: string): Array<string> {
+    const filterValue = value.toLowerCase();
+    return this.searchOptions.filter((item: string) => item.toLowerCase().includes(filterValue));
   }
 
 }

@@ -1,0 +1,18 @@
+.shortPreview {
+  position: fixed;
+  right: 0;
+  left: 0;
+  top: 67px;
+  min-width: 100%;
+  overflow: hidden;
+}
+
+.shortPreview .bg {
+  background-color: rgba(0,0,0,0.6);
+}
+
+.shortPreview video {
+  position: relative;
+  z-index: -1;
+  width: 100%;
+}

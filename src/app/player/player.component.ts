@@ -5,6 +5,8 @@ import {Title} from '@angular/platform-browser';
 import {VideoDto} from '../models/VideoDto';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {CommentDto} from '../models/CommentDto';
 
 @Component({
   selector: 'app-player',
@@ -13,37 +15,36 @@ import {environment} from '../../environments/environment';
 })
 export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  constructor(
-    private http: HttpClient,
-    private currentRoute: ActivatedRoute,
-    private router: Router,
-    private titleService: Title,
-    private authService: AuthService
-  ) {}
 
   readonly VIDEOS_URL: string = `${environment.baseUrl}/videos`;
+  readonly COMMENTS_URL: string = `${environment.baseUrl}/comments`;
+  readonly baseUrl: string = environment.baseUrl;
   error: string = null;
-  visible: boolean;
 
-  @ViewChild('player') playerElement: ElementRef;
-  @ViewChild('playerVideo') videoElement: ElementRef<HTMLVideoElement>;
-  @ViewChild('playerSource') videoSource: ElementRef;
-  @ViewChild('playerControls') playerControls: ElementRef;
-  @ViewChild('progress') progressSection: ElementRef;
-  @ViewChild('filledProgress') progressBar: ElementRef;
-  @ViewChild('filledBufferProgress') bufferProgressBar: ElementRef;
-  @ViewChild('playPauseBtn') playPauseBtn: ElementRef;
-  @ViewChild('togglePlay') playButton: ElementRef;
-  @ViewChild('sliders') slidersSection: ElementRef;
-  @ViewChild('volumeIcon') volumeIcon: ElementRef;
-  @ViewChild('volumeSlider') volumeSlider: ElementRef;
-  @ViewChild('speedIcon') speedIcon: ElementRef;
-  @ViewChild('speedSlider') speedSlider: ElementRef;
-  @ViewChild('speedValue') speedValue: ElementRef;
-  @ViewChild('timeHolder') timeHolder: ElementRef;
-  @ViewChild('fullScreenBtn') fullScreenBtn: ElementRef;
-  @ViewChild('descriptionDiv') descriptionDiv: ElementRef;
-  @ViewChild('editPanel') editPanel: ElementRef;
+  @ViewChild('player', { static: false }) playerElement: ElementRef;
+  @ViewChild('playerVideo', { static: false }) videoElement: ElementRef<HTMLVideoElement>;
+  @ViewChild('playerSource', { static: false }) videoSource: ElementRef;
+  @ViewChild('playerControls', { static: false }) playerControls: ElementRef;
+  @ViewChild('progress', { static: false }) progressSection: ElementRef;
+  @ViewChild('filledProgress', { static: false }) progressBar: ElementRef;
+  @ViewChild('filledBufferProgress', { static: false }) bufferProgressBar: ElementRef;
+  @ViewChild('playPauseBtn', { static: false }) playPauseBtn: ElementRef;
+  @ViewChild('togglePlay', { static: false }) playButton: ElementRef;
+  @ViewChild('sliders', { static: false }) slidersSection: ElementRef;
+  @ViewChild('volumeIcon', { static: false }) volumeIcon: ElementRef;
+  @ViewChild('volumeSlider', { static: false }) volumeSlider: ElementRef;
+  @ViewChild('speedIcon', { static: false }) speedIcon: ElementRef;
+  @ViewChild('speedSlider', { static: false }) speedSlider: ElementRef;
+  @ViewChild('speedValue', { static: false }) speedValue: ElementRef;
+  @ViewChild('timeHolder', { static: false }) timeHolder: ElementRef;
+  @ViewChild('fullScreenBtn', { static: false }) fullScreenBtn: ElementRef;
+  @ViewChild('descriptionDiv', { static: false }) descriptionDiv: ElementRef;
+  @ViewChild('showDescLink', { static: false }) showDescLink: ElementRef;
+  @ViewChild('editPanel', { static: false }) editPanel: ElementRef;
+  @ViewChild('commentInput', { static: false }) commentInput: ElementRef<HTMLTextAreaElement>;
+
+  comments: Array<CommentDto> = new Array<CommentDto>();
+  commentForm: FormGroup;
 
   id = '';
   title = '';
@@ -55,13 +56,12 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   visits = 0;
   // thUp = 0;
   // thDown = 0;
-  // comments: Array<CommentDto> = new Array<CommentDto>();
   stat = 1;
   author = '';
 
   playbackRate = 1;
   volume = 0.5;
-  videoIsMuted = false;
+  videoIsMuted = true;
 
   similarVideos: Array<VideoDto> = new Array<VideoDto>();
   similarOnPage = 10;
@@ -70,17 +70,39 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   isAdmin = false;
   isOwner = false;
 
+  visible = false;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private http: HttpClient,
+    private currentRoute: ActivatedRoute,
+    private router: Router,
+    private titleService: Title,
+    private authService: AuthService
+  ) {}
+
 
   ngOnInit(): void {
+    this.commentForm = this.formBuilder.group({
+      text: new FormControl('',
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(1000)
+        ]
+      )
+    });
+
     this.currentRoute.queryParams.subscribe(params => {
       this.authService.getResource(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
+        this.visible = true;
+
         if (res !== null) {
           if (res.err) {
             this.error = 'Video not found!';
             throw new Error(res.err);
           }
           else {
-            this.visible = true;
             this.id = res.id;
             this.title = res.title;
             this.description = res.desc;
@@ -93,6 +115,63 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             // this.thDown = res.thDown;
             this.stat = res.stat;
             this.author = res.author;
+
+            if (this.error === null) {
+                if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
+                  const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
+                  if (watchedVideos !== null) {
+                    const result = watchedVideos.findIndex(v => v.vid === this.id);
+
+                    if (result === -1) {
+                      this.authService.patchResource(
+                        `${this.VIDEOS_URL}/${params.vid}/views`,
+                        null
+                      ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
+                    }
+                  }
+                  else {
+                    this.authService.patchResource(
+                      `${this.VIDEOS_URL}/${params.vid}/views`,
+                      null
+                    ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
+                  }
+                }
+            }
+
+
+            this.authService.getResource(`${this.COMMENTS_URL}/${res.id}`).subscribe(result => {
+              if (result.comments !== undefined) {
+                this.comments = result.comments;
+              }
+              else {
+                this.comments = null;
+              }
+            });
+
+            if (res.id !== '') {
+              this.getSimilarVideos().then(videos => {
+                let currentIndex = videos.length;
+                let temporaryValue;
+                let randomIndex;
+
+                // While there remain elements to shuffle...
+                while (0 !== currentIndex) {
+
+                  // Pick a remaining element...
+                  randomIndex = Math.floor(Math.random() * currentIndex);
+                  currentIndex -= 1;
+
+                  // And swap it with the current element.
+                  temporaryValue = videos[currentIndex];
+                  videos[currentIndex] = videos[randomIndex];
+                  videos[randomIndex] = temporaryValue;
+                }
+
+                this.similarVideos = videos;
+              });
+            }
+
+            this.titleService.setTitle(res.title + ' - WatchMe');
           }
         }
         else {
@@ -100,53 +179,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           throw new Error('Video not found!');
         }
       });
-
-
-      setTimeout(() => {
-        if (this.error === null) {
-          if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
-            const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
-            if (watchedVideos !== null) {
-              const result = watchedVideos.findIndex(v => v.vid === this.id);
-              if (result === -1) {
-                this.authService.patchResource(
-                  `${this.VIDEOS_URL}/${params.vid}/views`,
-                  null
-                ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
-              }
-            }
-            else {
-              this.authService.patchResource(
-                `${this.VIDEOS_URL}/${params.vid}/views`,
-                null
-              ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
-            }
-          }
-
-          if (this.id !== '') {
-              this.getSimilarVideos().then(videos => {
-                  let currentIndex = videos.length;
-                  let temporaryValue;
-                  let randomIndex;
-
-                  // While there remain elements to shuffle...
-                  while (0 !== currentIndex) {
-
-                      // Pick a remaining element...
-                      randomIndex = Math.floor(Math.random() * currentIndex);
-                      currentIndex -= 1;
-
-                      // And swap it with the current element.
-                      temporaryValue = videos[currentIndex];
-                      videos[currentIndex] = videos[randomIndex];
-                      videos[randomIndex] = temporaryValue;
-                  }
-
-                  this.similarVideos = videos;
-              });
-          }
-        }
-        }, 200);
     });
 
     this.isAdmin = this.authService.isAdmin();
@@ -159,14 +191,16 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.createVideoElement();
-
       if (this.error === null) {
-          this.initPlayer(this.id);
-          this.titleService.setTitle(this.title + ' - WatchMe');
-          this.loadMediaSessionData();
-        }
-      }, 500);
+        this.loadPlayer();
+      }
+      }, 50);
+  }
+
+
+  private loadPlayer(): void {
+      this.initPlayer();
+      this.loadMediaSessionData();
   }
 
 
@@ -184,445 +218,13 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  // loadVideo(id): void {
-  //   this.http.get<any>(`${this.VIDEOS_URL}/${id}`).subscribe(res => {
-  //     this.id = res._id;
-  //     this.title = res.title;
-  //     this.description = res.desc;
-  //     this.tags = res.tags;
-  //     this.path = res.path;
-  //     this.cover = res.cover;
-  //     this.thumb = res.thumb;
-  //     this.visits = res.visits;
-  //     this.thup = res.thup;
-  //     this.thdown = res.thdown;
-  //     this.stat = res.stat;
-  //   });
-  //
-  //
-  //   setTimeout(() => {
-  //     this.http.post<any>(`${this.VIDEOS_URL}/similar`, { tags: this.tags }).subscribe(res => {
-  //       this.similarVideos = res;
-  //     });
-  //   }, 200);
-  //
-  //   setTimeout(() => {
-  //     this.initPlayer(this.id);
-  //     this.titleService.setTitle(this.title + ' - WatchMe');
-  //   }, 1000);
-  // }
-
-
-    play(id: string): void {
-      window.location.href = `/player?vid=${id}`;
-    }
-
-
-  private async getSimilarVideos(): Promise<Array<VideoDto>> {
-    return await this.authService.getResource(`${this.VIDEOS_URL}/${this.id}/similar`).toPromise();
+  play(id: string): void {
+    window.location.href = `/player?vid=${id}`;
   }
 
 
-    private initPlayer(vid: string): void {
-        const video = this.videoElement?.nativeElement;
-
-        video.load();
-
-        const shDescBtn = document.getElementById('sh_desc');
-        const desc = this.descriptionDiv.nativeElement;
-        shDescBtn.addEventListener('click', () => {
-            if (desc.style.height === 'auto') {
-                desc.removeAttribute('style');
-                shDescBtn.innerHTML = 'Show more';
-            }
-            else {
-                desc.style.height = 'auto';
-                shDescBtn.innerHTML = 'Show less';
-            }
-        });
-
-        video.addEventListener('loadedmetadata', () => {
-        const player = this.playerElement.nativeElement;
-        const progress = this.progressSection.nativeElement;
-        const progressFilled = this.progressBar.nativeElement;
-        const toggle = this.playButton.nativeElement;
-        const fullscreenButton = this.fullScreenBtn.nativeElement;
-        const controls = this.playerControls.nativeElement;
-        const currentTime = this.timeHolder.nativeElement;
-        const ranges = document.querySelectorAll('.player-slider');
-
-        // Logic
-        function togglePlay(): any {
-            const playState = video.paused ? 'play' : 'pause';
-            return video[playState](); // Call play or paused method
-        }
-
-        function updateButton(): void {
-            const togglePlayBtn = toggle;
-
-            if (this.paused) {
-            togglePlayBtn.innerHTML = `<i class="fa fa-play"></i>`;
-            } else {
-            togglePlayBtn.innerHTML = `<i class="fa fa-pause"></i>`;
-            }
-        }
-
-        function rangeUpdate(): void {
-            video[this.name] = this.value;
-
-            if (this.name === 'volume') {
-                localStorage.setItem('volume', this.value);
-                if (Number(this.value) === 0) {
-                    document.getElementById('vol').innerHTML = '<i class="fa fa-volume-off"></i>';
-                }
-                else if (Number(this.value) > 0 && Number(this.value) < 0.6) {
-                    document.getElementById('vol').innerHTML = '<i class="fa fa-volume-down"></i>';
-                }
-                else {
-                    document.getElementById('vol').innerHTML = '<i class="fa fa-volume-up"></i>';
-                }
-            }
-            else if (this.name === 'playbackRate') {
-                localStorage.setItem('playbackRate', this.value);
-
-                document.getElementById('playbackRate_value').innerHTML = 'x' + this.value;
-            }
-        }
-
-        let watchedVideos;
-        let result;
-        if (localStorage.getItem('watchedVideos') === null) {
-          watchedVideos = new Array<{ vid: string, vct: number }>();
-          result = 0;
-          watchedVideos.push({ vid, vct: 0 });
-
-          localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
-        }
-        else {
-          watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
-          result = watchedVideos.findIndex(v => v.vid === vid);
-
-          if (result === -1) {
-            watchedVideos.push({ vid, vct: 0 });
-
-            localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
-          }
-        }
-
-        function progressUpdate(): void {
-          if (localStorage.getItem('watchedVideos') !== null) {
-            if (result === -1) {
-              result = watchedVideos.findIndex(v => v.vid === vid);
-            }
-            watchedVideos[result].vct = Math.floor(video.currentTime);
-            localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
-          }
-
-          const percent = (video.currentTime / video.duration) * 100;
-          progressFilled.style.flexBasis = `${percent}%`;
-        }
-
-
-        function currentTimeUpdate(): void {
-            convertTime(Math.round(video.currentTime));
-        }
-
-        function convertTime(seconds): void {
-            const min = Math.floor(seconds / 60);
-            const sec = seconds % 60;
-
-            const mins = (min < 10) ? '0' + min : min;
-            const secs = (sec < 10) ? '0' + sec : sec;
-            currentTime.textContent = mins + ':' + secs;
-
-            totalTime(Math.round(video.duration));
-        }
-
-        function totalTime(seconds): void {
-            const min = Math.floor(seconds / 60);
-            const sec = seconds % 60;
-
-            const mins = (min < 10) ? '0' + min : min;
-            const secs = (sec < 10) ? '0' + sec : sec;
-            currentTime.textContent += ' / ' + mins + ':' + secs;
-        }
-
-        function scrub(e): void {
-          video.currentTime = (e.offsetX / progress.offsetWidth) * video.duration;
-        }
-
-        function toggleFullScreen(): void {
-            if (!document.fullscreenElement) {
-                document.getElementById('full-screen').innerHTML = '<i class="fa fa-compress"></i>';
-                if (player.requestFullScreen) {
-                    player.requestFullScreen();
-                }
-                else if (player.webkitRequestFullScreen) {
-                    player.webkitRequestFullScreen();
-                }
-                else if (player.mozRequestFullScreen){
-                    player.mozRequestFullScreen();
-                }
-                else if (player.msRequestFullscreen) {
-                    player.msRequestFullscreen();
-                }
-            }
-            else {
-                document.getElementById('full-screen').innerHTML = '<i class="fa fa-expand"></i>';
-                if (document.exitFullscreen) {
-                    document.exitFullscreen().then();
-                }
-
-            }
-        }
-
-        if ('orientation' in screen) {
-            screen.orientation.addEventListener('change', () => {
-                if (screen.orientation.type.startsWith('landscape')) {
-                    if (!video.paused) {
-                        if (!document.fullscreenElement) {
-                            if (player.requestFullScreen) {
-                                player.requestFullScreen();
-                            }
-                            else if (player.webkitRequestFullScreen) {
-                                player.webkitRequestFullScreen();
-                            }
-                            else if (player.mozRequestFullScreen){
-                                player.mozRequestFullScreen();
-                            }
-                            else if (player.msRequestFullscreen) {
-                                player.msRequestFullscreen();
-                            }
-                        }
-                    }
-                }
-                else if (document.fullscreenElement) {
-                    document.exitFullscreen().then();
-                }
-            });
-        }
-
-        // Event listeners
-        // video.addEventListener('click', togglePlay);
-        video.addEventListener('play', updateButton);
-        video.addEventListener('pause', updateButton);
-        video.addEventListener('timeupdate', progressUpdate);
-        video.addEventListener('timeupdate', currentTimeUpdate);
-        video.addEventListener('dblclick', toggleFullScreen);
-        fullscreenButton.addEventListener('click', toggleFullScreen);
-
-        toggle.addEventListener('click', togglePlay);
-        ranges.forEach(range => range.addEventListener('change', rangeUpdate));
-        ranges.forEach(range => range.addEventListener('mousemove', rangeUpdate));
-
-        let mousedown = false;
-        progress.addEventListener('click', scrub);
-        progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
-        progress.addEventListener('mousedown', () => mousedown = true);
-        progress.addEventListener('mouseup', () => mousedown = false);
-
-        // controls show or hide on mousemove or click
-        let timeout = 0;
-        let timeout2 = 0;
-        player.addEventListener('mousemove', () => {
-            controls.style.transform = 'translateY(0)';
-            player.style.cursor = 'default';
-
-            if (timeout2 === 0) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    controls.removeAttribute('style');
-                    player.style.cursor = 'none';
-                    timeout = 0;
-                }, 5000);
-            }
-        });
-
-        player.addEventListener('click', () => {
-            controls.style.transform = 'translateY(0)';
-            player.style.cursor = 'default';
-            clearTimeout(timeout2);
-            timeout2 = setTimeout(() => {
-                controls.removeAttribute('style');
-                player.style.cursor = 'none';
-                timeout2 = 0;
-            }, 5000);
-        });
-
-        player.addEventListener('mouseout', () => {
-            controls.removeAttribute('style');
-            player.style.cursor = 'default';
-            clearTimeout(timeout);
-            timeout = 0;
-            clearTimeout(timeout2);
-            timeout2 = 0;
-        });
-
-        progress.addEventListener('mouseover', () => {
-          controls.style.transform = 'translateY(0)';
-          player.style.cursor = 'default';
-        });
-
-        // events on mobile browser
-        const tout = null;
-        let lastTap = 0;
-        video.addEventListener('touchend', (event) => {
-            const cTime = new Date().getTime();
-            const tapLength = cTime - lastTap;
-            clearTimeout(tout);
-            if (tapLength < 200 && tapLength > 0) {
-                toggleFullScreen();
-                if (video.paused) {
-                    togglePlay();
-                }
-                else {
-                    togglePlay();
-                }
-                event.preventDefault();
-            }
-            else {
-                togglePlay();
-                timeout = setTimeout(() => {
-                    clearTimeout(tout);
-                }, 300);
-            }
-            lastTap = currentTime;
-        });
-
-        const speedIcon = this.speedIcon.nativeElement;
-        const playbackRateSlider = this.speedSlider.nativeElement;
-        const playbackRateSpeedValue = this.speedValue.nativeElement;
-
-        function resize(): void {
-          if (window.innerWidth < 768) {
-            speedIcon.style.display = 'none';
-            playbackRateSlider.style.display = 'none';
-            playbackRateSpeedValue.style.display = 'none';
-          }
-          else {
-            speedIcon.removeAttribute('style');
-            playbackRateSlider.removeAttribute('style');
-            playbackRateSpeedValue.removeAttribute('style');
-          }
-        }
-        resize();
-
-        window.addEventListener('resize', () => {
-          resize();
-        });
-
-        const vd = video.duration;
-
-        video.addEventListener('timeupdate', () => {
-            let range = 0;
-            const bf = video.buffered;
-            const time = video.currentTime;
-
-            while (!(bf.start(range) <= time && time <= bf.end(range))) {
-                range += 1;
-            }
-
-            const loadEndPercentage = 100 * (bf.end(range) / vd);
-
-            this.bufferProgressBar.nativeElement.style.width = `${loadEndPercentage}%`;
-        });
-
-        document.onkeydown = (e) => {
-            if (e.key === 'ArrowLeft') {
-                video.currentTime -= 10;
-            }
-            else if (e.key === 'ArrowRight') {
-                video.currentTime += 10;
-            }
-            else if (e.key === 'p') {
-                if (video.paused) {
-                    video.play().then();
-                }
-                else {
-                    video.pause();
-                }
-            }
-            else if (e.key === 'm') {
-                video.muted = !video.muted;
-            }
-        };
-
-        const duration = video.duration;
-
-        if (watchedVideos.length > 0 && result !== -1) {
-          const videoTime = watchedVideos[result].vct;
-
-          if (videoTime === Math.floor(duration)) {
-            video.currentTime = 0;
-            console.log('Replay for ' + vid);
-          }
-          else if (videoTime === 0) {
-            console.log('No saved time for ' + vid + '!');
-          }
-          else {
-            video.currentTime = videoTime;
-            console.log('Saved time for ' + vid + ': ' + videoTime);
-          }
-        }
-        else {
-          console.log('No saved data for ' + vid + '!');
-        }
-
-        setTimeout(() => {
-          const mute = localStorage.getItem('volume');
-          if (mute !== null) {
-            if (Number(mute) === 0) {
-              video.volume = Number(mute);
-              this.volumeSlider.nativeElement.value = mute;
-              console.log('Last video was muted!');
-            }
-            else {
-              video.volume = Number(mute);
-              this.volumeSlider.nativeElement.value = mute;
-              console.log('Last video was not muted at volume = ' + mute + '!');
-            }
-          }
-          else {
-            localStorage.setItem('volume', String(0.5));
-            console.log('No saved status for sound!');
-            this.volumeSlider.nativeElement.value = 0.5;
-            video.volume = 0.5;
-          }
-        }, 100);
-
-
-        const playbackRate = localStorage.getItem('playbackRate');
-        if (playbackRate !== null) {
-            video.playbackRate = Number(playbackRate);
-            this.speedSlider.nativeElement.value = playbackRate;
-            this.speedValue.nativeElement.innerHTML =
-                'x' + playbackRate;
-            console.log('Video playbackRate = ' + playbackRate);
-        }
-        else {
-            console.log('No saved rate for video playback!');
-            localStorage.setItem('playbackRate', String(1));
-            this.speedSlider.nativeElement.value = 1;
-            this.speedValue.nativeElement.innerHTML = 'x' + 1;
-        }
-
-        video.oncanplay = () => {
-            const promise = video.play();
-
-            if (promise !== undefined) {
-              promise.then(() => {
-
-              }).catch((error) => {
-                console.log(error);
-                video.muted = true;
-                this.videoIsMuted = true;
-                video.play().then();
-              });
-            }
-          };
-
-      });
-
+  videoEnded(): void {
+    console.log(this.videoElement.nativeElement.played);
   }
 
 
@@ -637,14 +239,15 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   deleteCurrentVideo(): void {
-    if (this.authService.isAdmin()) {
+    if (this.authService.isAdmin() || this.isOwner) {
       const c = confirm('Do you want to delete ' + this.title + '?');
 
       if (c) {
         this.authService.deleteResource(`${this.VIDEOS_URL}/${this.id}`).subscribe(result => {
           if (!result.deleteVideo.deleted) {
             console.log('There was an error when deleting video! Message: ' + result.message);
-          } else {
+          }
+          else {
             window.location.href = '/videos';
           }
         });
@@ -721,9 +324,495 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  loadMediaSessionData(): void {
-    const video = document.getElementById('video') as HTMLVideoElement;
-    const artwork = `http://localhost:3000/${this.cover}`;
+  private async getSimilarVideos(): Promise<Array<VideoDto>> {
+    return await this.authService.getResource(`${this.VIDEOS_URL}/${this.id}/similar`).toPromise();
+  }
+
+
+  private initPlayer(): void {
+    const video = this.videoElement.nativeElement;
+
+    video.load();
+
+    video.addEventListener('loadedmetadata', () => {
+      const progress = this.progressSection.nativeElement;
+      const toggle = this.playButton.nativeElement;
+      const fullscreenButton = this.fullScreenBtn.nativeElement;
+
+      let watchedVideos;
+      let result;
+
+      const watchedVideosResult = this.watchedVideosListener();
+      watchedVideos = watchedVideosResult.watchedVideos;
+      result = watchedVideosResult.result;
+
+      video.addEventListener('play', () => this.updateButton());
+      video.addEventListener('pause', () => this.updateButton());
+      video.addEventListener('timeupdate', () => this.progressUpdate(result, watchedVideos));
+      video.addEventListener('timeupdate', () => this.currentTimeUpdate());
+      video.addEventListener('dblclick', () => this.toggleFullscreen());
+      fullscreenButton.addEventListener('click', () => this.toggleFullscreen());
+
+      toggle.addEventListener('click', async () => await this.togglePlay());
+
+      let mousedown = false;
+      progress.addEventListener('click', (e: MouseEvent) => this.moveTimeProgress(e));
+      progress.addEventListener('mousemove', (e: MouseEvent) => mousedown && this.moveTimeProgress(e));
+      progress.addEventListener('mousedown', () => mousedown = true);
+      progress.addEventListener('mouseup', () => mousedown = false);
+
+      window.addEventListener('resize', () => {
+        this.windowResizeToChangeViewListener();
+      });
+      this.windowResizeToChangeViewListener();
+      this.rangeUpdate();
+      this.orientationListener();
+      this.showCustomControlsListeners();
+      this.windowResizeToChangeViewListener();
+      this.bufferProgressListener();
+      this.detectKeyDownWhenPlayerFocused();
+      this.showMoreOrLessOfVideoDescription();
+      this.localStorageSetOrGetTimeVolumeAndPlayRate(watchedVideosResult);
+      this.videoPlayOrMute();
+
+      video.addEventListener('ended', () => {
+        this.playFirstFromOthers();
+      });
+    });
+  }
+
+
+  private progressUpdate(result: number, watchedVideos: Array<{ vid: string, vct: number }>): void {
+    const video = this.videoElement.nativeElement;
+    const progressFilled = this.progressBar.nativeElement;
+    const vid = this.id;
+
+    if (localStorage.getItem('watchedVideos') !== null) {
+      if (result === -1) {
+        result = watchedVideos.findIndex(v => v.vid === vid);
+      }
+
+      watchedVideos[result].vct = Math.floor(video.currentTime);
+      localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
+    }
+
+    const percent = (video.currentTime / video.duration) * 100;
+    progressFilled.style.flexBasis = `${percent}%`;
+  }
+
+
+  private currentTimeUpdate(): void {
+    const video = this.videoElement.nativeElement;
+
+    this.convertTime(video, Math.round(video.currentTime));
+  }
+
+
+  private convertTime(video: HTMLVideoElement, seconds: number): void {
+    const currentTime = this.timeHolder.nativeElement;
+    let videoCurrentTime: string;
+
+    if (Math.round(video.duration) >= 3600) {
+      videoCurrentTime = new Date(seconds * 1000).toISOString().substr(11, 8);
+    }
+    else {
+      videoCurrentTime = new Date(seconds * 1000).toISOString().substr(14, 5);
+    }
+
+    currentTime.textContent = videoCurrentTime;
+
+
+    if (Math.round(video.duration) >= 3600) {
+      currentTime.textContent += ' / ' + new Date(Math.round(video.duration) * 1000).toISOString().substr(11, 8);
+    }
+    else {
+      currentTime.textContent += ' / ' + new Date(Math.round(video.duration) * 1000).toISOString().substr(14, 5);
+    }
+  }
+
+
+  private moveTimeProgress(e: MouseEvent): void {
+    const video = this.videoElement.nativeElement;
+    const progress = this.progressSection.nativeElement;
+
+    video.currentTime = (e.offsetX / progress.offsetWidth) * video.duration;
+
+    // const canvas = document.getElementById('thumbnail') as HTMLCanvasElement;
+    // canvas.width = video.videoWidth * 0.25;
+    // canvas.height = video.videoHeight * 0.25;
+    // canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  }
+
+  private rangeUpdate(): void {
+    const video = this.videoElement.nativeElement;
+    const ranges = document.querySelectorAll('.player-slider');
+
+    function update(): void {
+      video[this.name] = this.value;
+
+      if (this.name === 'volume') {
+        localStorage.setItem('volume', this.value);
+        if (Number(this.value) === 0) {
+          document.getElementById('vol').innerHTML = '<i class="fa fa-volume-off"></i>';
+        } else if (Number(this.value) > 0 && Number(this.value) < 0.6) {
+          document.getElementById('vol').innerHTML = '<i class="fa fa-volume-down"></i>';
+        } else {
+          document.getElementById('vol').innerHTML = '<i class="fa fa-volume-up"></i>';
+        }
+      } else if (this.name === 'playbackRate') {
+        localStorage.setItem('playbackRate', this.value);
+
+        document.getElementById('playbackRate_value').innerHTML = 'x' + this.value;
+      }
+    }
+
+    ranges.forEach(range => range.addEventListener('change', update));
+    ranges.forEach(range => range.addEventListener('mousemove', update));
+  }
+
+
+  private updateButton(): void {
+    const video = this.videoElement.nativeElement;
+    const togglePlayBtn = this.playButton.nativeElement;
+
+    if (video.paused) {
+      togglePlayBtn.innerHTML = `<i class="fa fa-play"></i>`;
+    }
+    else {
+      togglePlayBtn.innerHTML = `<i class="fa fa-pause"></i>`;
+    }
+  }
+
+
+  private togglePlay(): Promise<void> | void {
+    const video = this.videoElement.nativeElement;
+    const playState = video.paused ? 'play' : 'pause';
+    return video[playState]();
+  }
+
+
+  private toggleFullscreen(): void {
+    const player = this.playerElement.nativeElement;
+
+    if (!document.fullscreenElement) {
+      document.getElementById('full-screen').innerHTML = '<i class="fa fa-compress"></i>';
+      if (player.requestFullScreen) {
+        player.requestFullScreen();
+      }
+      else if (player.webkitRequestFullScreen) {
+        player.webkitRequestFullScreen();
+      }
+      else if (player.mozRequestFullScreen){
+        player.mozRequestFullScreen();
+      }
+      else if (player.msRequestFullscreen) {
+        player.msRequestFullscreen();
+      }
+    }
+    else {
+      document.getElementById('full-screen').innerHTML = '<i class="fa fa-expand"></i>';
+      if (document.exitFullscreen) {
+        document.exitFullscreen().then();
+      }
+    }
+  }
+
+
+  private orientationListener(): void {
+    const video = this.videoElement.nativeElement;
+    const player = this.playerElement.nativeElement;
+
+    if ('orientation' in screen) {
+      screen.orientation.addEventListener('change', () => {
+        if (screen.orientation.type.startsWith('landscape')) {
+          if (!video.paused) {
+            if (!document.fullscreenElement) {
+              if (player.requestFullScreen) {
+                player.requestFullScreen();
+              }
+              else if (player.webkitRequestFullScreen) {
+                player.webkitRequestFullScreen();
+              }
+              else if (player.mozRequestFullScreen){
+                player.mozRequestFullScreen();
+              }
+              else if (player.msRequestFullscreen) {
+                player.msRequestFullscreen();
+              }
+            }
+          }
+        }
+        else if (document.fullscreenElement) {
+          document.exitFullscreen().then();
+        }
+      });
+    }
+  }
+
+
+  private showCustomControlsListeners(): void {
+    const player = this.playerElement.nativeElement;
+    const video = this.videoElement.nativeElement;
+    const controls = this.playerControls.nativeElement;
+    const progress = this.progressSection.nativeElement;
+
+    let timeout = 0;
+    let timeout2 = 0;
+    player.addEventListener('mousemove', () => {
+      controls.style.transform = 'translateY(0)';
+      player.style.cursor = 'default';
+
+      if (timeout2 === 0) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          controls.removeAttribute('style');
+          player.style.cursor = 'none';
+          timeout = 0;
+        }, 5000);
+      }
+    });
+
+    player.addEventListener('click', () => {
+      controls.style.transform = 'translateY(0)';
+      player.style.cursor = 'default';
+      clearTimeout(timeout2);
+      timeout2 = setTimeout(() => {
+        controls.removeAttribute('style');
+        player.style.cursor = 'none';
+        timeout2 = 0;
+      }, 5000);
+    });
+
+    player.addEventListener('mouseout', () => {
+      controls.removeAttribute('style');
+      player.style.cursor = 'default';
+      clearTimeout(timeout);
+      timeout = 0;
+      clearTimeout(timeout2);
+      timeout2 = 0;
+    });
+
+    progress.addEventListener('mouseover', () => {
+      controls.style.transform = 'translateY(0)';
+      player.style.cursor = 'default';
+    });
+
+    const tout = null;
+    let lastTap = 0;
+    video.addEventListener('touchend', (event) => {
+      const cTime = new Date().getTime();
+      const tapLength = cTime - lastTap;
+      clearTimeout(tout);
+      if (tapLength < 200 && tapLength > 0) {
+        this.toggleFullscreen();
+        if (video.paused) {
+          this.togglePlay();
+        }
+        else {
+          this.togglePlay();
+        }
+        event.preventDefault();
+      }
+      else {
+        this.togglePlay();
+        timeout = setTimeout(() => {
+          clearTimeout(tout);
+        }, 300);
+      }
+      lastTap = new Date().getTime();
+    });
+  }
+
+
+  private windowResizeToChangeViewListener(): void {
+    if (window.innerWidth < 768) {
+      this.speedIcon.nativeElement.style.display = 'none';
+      this.speedSlider.nativeElement.style.display = 'none';
+      this.speedValue.nativeElement.style.display = 'none';
+    }
+    else {
+      this.speedIcon.nativeElement.removeAttribute('style');
+      this.speedSlider.nativeElement.removeAttribute('style');
+      this.speedValue.nativeElement.removeAttribute('style');
+    }
+  }
+
+
+  private bufferProgressListener(): void {
+    const video = this.videoElement.nativeElement;
+    const videoDuration = video.duration;
+
+    video.addEventListener('progress', () => {
+      if (videoDuration > 0) {
+        for (let i = 0; i < video.buffered.length; i++) {
+          if (video.buffered.start(video.buffered.length - 1 - i) < video.currentTime) {
+            this.bufferProgressBar.nativeElement.style.width = (video.buffered.end(video.buffered.length - 1 - i) / videoDuration) * 100 + '%';
+            break;
+          }
+        }
+      }
+    });
+  }
+
+
+  private watchedVideosListener(): { watchedVideos: Array<{ vid: string, vct: number }>, result: number } {
+    const vid = this.id;
+    let watchedVideos: Array<{ vid: string, vct: number }>;
+    let result: number;
+
+    if (localStorage.getItem('watchedVideos') === null) {
+      watchedVideos = new Array<{ vid: string, vct: number }>();
+      result = 0;
+      watchedVideos.push({ vid, vct: 0 });
+
+      localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
+    }
+    else {
+      watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
+      result = watchedVideos.findIndex(v => v.vid === vid);
+
+      if (result === -1) {
+        watchedVideos.push({ vid, vct: 0 });
+
+        localStorage.setItem('watchedVideos', JSON.stringify(watchedVideos));
+      }
+    }
+
+    return { watchedVideos, result };
+  }
+
+
+  private localStorageSetOrGetTimeVolumeAndPlayRate(
+    watchedVideosListener: { watchedVideos: Array<{ vid: string, vct: number }>, result: number }
+    ): void {
+    const video = this.videoElement.nativeElement;
+    const videoDuration = video.duration;
+    const vid = this.id;
+
+    if (watchedVideosListener.watchedVideos.length > 0 && watchedVideosListener.result !== -1) {
+      const videoTime = watchedVideosListener.watchedVideos[watchedVideosListener.result].vct;
+
+      if (videoTime === Math.floor(videoDuration)) {
+        video.currentTime = 0;
+        console.log('Replay for ' + vid);
+      }
+      else if (videoTime === 0) {
+        console.log('No saved time for ' + vid + '!');
+      }
+      else {
+        video.currentTime = videoTime;
+        console.log('Saved time for ' + vid + ': ' + videoTime);
+      }
+    }
+    else {
+      console.log('No saved data for ' + vid + '!');
+    }
+
+    setTimeout(() => {
+      const mute = localStorage.getItem('volume');
+      if (mute !== null) {
+        if (Number(mute) === 0) {
+          video.volume = Number(mute);
+          this.volumeSlider.nativeElement.value = mute;
+          console.log('Last video was muted!');
+        }
+        else {
+          video.volume = Number(mute);
+          this.volumeSlider.nativeElement.value = mute;
+          console.log('Last video was not muted at volume = ' + mute + '!');
+        }
+      }
+      else {
+        localStorage.setItem('volume', String(0.5));
+        console.log('No saved status for sound!');
+        this.volumeSlider.nativeElement.value = 0.5;
+        video.volume = 0.5;
+      }
+    }, 100);
+
+
+    const playbackRate = localStorage.getItem('playbackRate');
+    if (playbackRate !== null) {
+      video.playbackRate = Number(playbackRate);
+      this.speedSlider.nativeElement.value = playbackRate;
+      this.speedValue.nativeElement.innerHTML =
+        'x' + playbackRate;
+      console.log('Video playbackRate = ' + playbackRate);
+    }
+    else {
+      console.log('No saved rate for video playback!');
+      localStorage.setItem('playbackRate', String(1));
+      this.speedSlider.nativeElement.value = 1;
+      this.speedValue.nativeElement.innerHTML = 'x' + 1;
+    }
+  }
+
+
+  private showMoreOrLessOfVideoDescription(): void {
+    const showDescBtn = this.showDescLink.nativeElement;
+    const desc = this.descriptionDiv.nativeElement;
+
+    showDescBtn.addEventListener('click', () => {
+      if (desc.style.height === 'auto') {
+        desc.removeAttribute('style');
+        showDescBtn.innerHTML = 'Show more';
+      }
+      else {
+        desc.style.height = 'auto';
+        showDescBtn.innerHTML = 'Show less';
+      }
+    });
+  }
+
+
+  private videoPlayOrMute(): void {
+    const video = this.videoElement.nativeElement;
+
+    video.oncanplay = () => {
+      const promise = video.play();
+
+      if (promise !== undefined) {
+        promise.catch((error) => {
+          console.log(error);
+          video.muted = true;
+          this.videoIsMuted = true;
+          video.play().then();
+        });
+      }
+    };
+  }
+
+
+  private detectKeyDownWhenPlayerFocused(): void {
+    const video = this.videoElement.nativeElement;
+
+    document.addEventListener('keydown', (e) => {
+      if (this.playerElement.nativeElement === document.activeElement) {
+        if (e.key === 'ArrowLeft') {
+          video.currentTime -= 10;
+        }
+        else if (e.key === 'ArrowRight') {
+          video.currentTime += 10;
+        }
+        else if (e.key === 'p') {
+          if (video.paused) {
+            video.play().then();
+          }
+          else {
+            video.pause();
+          }
+        }
+        else if (e.key === 'm') {
+          video.muted = !video.muted;
+        }
+      }
+    });
+  }
+
+
+  private loadMediaSessionData(): void {
+    const video = this.videoElement.nativeElement;
+    const artwork = `${environment.baseUrl}/${this.cover}`;
 
     video.addEventListener('loadedmetadata', () => {
       if ('mediaSession' in window.navigator) {
@@ -750,14 +839,36 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  private createVideoElement(): void {
-    const video = document.createElement('video');
-    video.muted = this.videoIsMuted;
-    video.id = 'video';
-    video.poster = `http://localhost:3000/${this.cover}`;
-    video.src = `http://localhost:3000/${this.path}`;
+  playFirstFromOthers(): void {
+    const info = document.createElement('h2');
+    const image = document.createElement('img');
+    info.style.position = 'absolute';
+    info.style.top = '0';
+    info.style.left = '0';
+    info.style.zIndex = '3';
+    image.style.position = 'absolute';
+    image.style.top = '0';
+    image.style.left = '0';
+    image.style.width = '100%';
+    image.src = `${environment.baseUrl}/${this.similarVideos[0].cover}`;
+    image.onclick = () => { play(this.similarVideos); };
+    info.innerText = `Next video: ${this.similarVideos[0].title} in 5 seconds`;
+    this.playerElement.nativeElement.appendChild(info);
+    this.playerElement.nativeElement.appendChild(image);
 
-    this.videoElement.nativeElement.appendChild(video);
+    let time = 5;
+    setInterval(() => {
+      time--;
+      info.innerText = `Next video: ${this.similarVideos[0].title} in ${time} seconds`;
+    }, 1000);
+
+    setTimeout((): void => {
+      play(this.similarVideos);
+    }, 5000);
+
+    function play(similarVideos: Array<VideoDto>): void {
+      window.location.href = `/player?vid=${similarVideos[0].id}`;
+    }
   }
 
 
@@ -765,6 +876,18 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.router.isActive('/player', true)) {
       window.location.reload();
     }
+  }
+
+
+  addComment(): void {
+    this.authService.postResource(`${this.COMMENTS_URL}/${this.id}`, { text: this.commentForm.value.text }).subscribe(res => {
+      if (res.added) {
+        this.comments.unshift(res.comment);
+      }
+      else {
+        console.log(res.message);
+      }
+    });
   }
 
 }

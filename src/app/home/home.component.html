@@ -5,27 +5,28 @@
 
     <div class="videos">
 
-      <div class="text-left h-100" *ngFor="let video of latestVideos">
+      <a class="text-left h-100" *ngFor="let video of latestVideos" [routerLink]="['/player']" [queryParams]="{vid: video.id}">
         <div class="video h-100" [title]="video.title">
-          <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
+
             <div class="preview">
 
               <img
-                src="http://localhost:3000/{{ video.cover }}"
-                class="img-fluid"
+                src="{{ baseUrl }}/{{ video.cover }}"
+                class="img-fluid hoverable"
                 (mouseover)="loadPreview($event)"
                 (mouseleave)="unloadPreview($event)"
+               alt="{{ video.title }}"
               >
 
               <video
                 preload="auto"
-                poster="http://localhost:3000/{{ video.cover }}"
+                poster="{{ baseUrl }}/{{ video.cover }}"
                 muted
                 loop
                 class="img-fluid"
                 id="{{ video.id }}"
               >
-                <source src="http://localhost:3000/{{ video.thumb }}" type="video/webm">
+                <source src="{{ baseUrl }}/{{ video.thumb }}" type="video/webm">
               </video>
 
             </div>
@@ -35,10 +36,8 @@
               <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
             </div>
 
-          </a>
         </div>
-      </div>
-
+      </a>
     </div>
 
     <div class="text-center mt-4">
@@ -49,4 +48,3 @@
 
   </div>
 </div>
-

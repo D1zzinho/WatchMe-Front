@@ -15,14 +15,7 @@ import {AuthService} from './auth.service';
 import {AppRoutingModule} from './app-routing.module';
 import {AuthGuardService} from './auth-guard.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MDBBootstrapModule} from 'angular-bootstrap-md';
 
 
 @NgModule({
@@ -43,14 +36,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     AppRoutingModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    MatProgressBarModule,
-    MatMenuModule,
-    MatIconModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatProgressSpinnerModule
+    MDBBootstrapModule.forRoot()
   ],
   providers: [AuthService, AuthGuardService],
   bootstrap: [AppComponent]

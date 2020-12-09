@@ -1,4 +1,4 @@
-<div class="content" *ngIf="visible">
+<div class="content" >
   <div class="container" *ngIf="error === null">
 <!--      <div class="row justify-content-md-center">-->
         <div [ngClass]="(similarVideos.length === 0 ? 'noSimilarVideos' : '') + ' nVideo-section justify-content-md-center'">
@@ -6,89 +6,132 @@
 <!--            <div [ngClass]="pageType === 'classic' ? 'col-12 col-lg-9 col-xl-7' : 'col-12 col-lg-10 col-xl-9'">-->
                 <!-- LEFT SIDE [VIDEO/COMMENTS] -->
 
-                    <div class="video-section">
-                        <div #player class="player">
-                          <button *ngIf="videoIsMuted" (click)="videoIsMuted = false;" class="btn btn-danger position-absolute w-100 h-100 rounded-0" style="opacity: 0.5;"><strong style="font-size: 20px;" class="text-white">Click to unmute</strong></button>
-                            <video #playerVideo [muted]="videoIsMuted" id="video" poster="http://localhost:3000/{{ cover }}">
-                                <source #playerSource id="source" src="http://localhost:3000/{{ path }}" type="video/mp4" />
-                            </video>
+          <div class="video-section">
+            <div #player class="player" tabindex="0">
 
-                            <div #playerControls class="player-controls">
-                                <div #progress class="progress">
-                                    <div #filledProgress class="filled-progress"></div>
-                                    <div #filledBufferProgress class="filled-buffer-progress"></div>
-                                </div>
+<!--              <canvas id="thumbnail" style="opacity: 0.4;"></canvas>-->
 
-                                <div #playPauseBtn class="ply-btn">
-                                    <button #togglePlay class="player-btn toggle-play" title="Toggle Play">
-                                        <i class="fa fa-play"></i>
-                                    </button>
-                                </div>
+              <button *ngIf="videoIsMuted" (click)="videoIsMuted = false;" mdbBtn color="danger" class="position-absolute w-100 h-100 rounded-0 m-0 opacity-50" mdbWavesEffect><strong style="font-size: 20px;" class="text-white">Click to unmute</strong></button>
+              <video #playerVideo preload="auto" [muted]="videoIsMuted" id="video" poster="{{ baseUrl }}/{{ cover }}" (ended)="videoEnded()">
+                <source #playerSource id="source" src="{{ baseUrl }}/{{ path }}" type="video/mp4" />
+              </video>
 
-                                <div #sliders class="sliders">
-                                    <div #volumeIcon id="vol"><i class="fa fa-volume-down"></i></div>
-                                    <input #volumeSlider type="range" id="volume" name="volume" title="Change volume"
-                                        class="player-slider" min="0" max="1" step="0.05" value="{{ volume }}" />
+              <div #playerControls class="player-controls">
+                <div #progress class="progress">
+                  <div #filledProgress class="filled-progress"></div>
+                  <div #filledBufferProgress class="filled-buffer-progress"></div>
+                </div>
 
-                                    <div #speedIcon class="speed"><i class="fa fa-fast-forward"></i></div>
-                                    <input #speedSlider type="range" id="playbackRate" name="playbackRate" title="Change speed"
-                                        class="player-slider" min="0.5" max="8" step="0.5" value="{{ playbackRate }}"/>
-                                    <div #speedValue id="playbackRate_value">x{{ playbackRate }}</div>
-                                </div>
+                <div #playPauseBtn class="ply-btn">
+                  <button #togglePlay class="player-btn toggle-play" title="Toggle Play">
+                    <i class="fa fa-play"></i>
+                  </button>
+                </div>
 
-                                <div #timeHolder class="time">00:00 / 00:00</div>
+                <div #sliders class="sliders">
+                  <div #volumeIcon id="vol"><i class="fa fa-volume-down"></i></div>
+                  <input #volumeSlider type="range" id="volume" name="volume" title="Change volume"
+                         class="player-slider" min="0" max="1" step="0.05" value="{{ volume }}" />
 
-                                <button #fullScreenBtn id="full-screen" class="player-btn" title="Toggle FullScreen">
-                                    <i class="fa fa-expand"></i>
-                                </button>
-                            </div>
-                        </div>
+                  <div #speedIcon class="speed"><i class="fa fa-fast-forward"></i></div>
+                  <input #speedSlider type="range" id="playbackRate" name="playbackRate" title="Change speed"
+                         class="player-slider" min="0.5" max="8" step="0.5" value="{{ playbackRate }}"/>
+                  <div #speedValue id="playbackRate_value">x{{ playbackRate }}</div>
+                </div>
 
-                        <div class="top-info-holder">
+                <div #timeHolder class="time">00:00 / 00:00</div>
 
-                            <div class="title-views-section">
-                              <h2 class="video-title"><span *ngIf="stat === 0">[PRIVATE] </span><span id="vtitle">{{ title }}</span></h2>
-                              <div class="views" id="visits">{{ visits }} views</div>
+                <button #fullScreenBtn id="full-screen" class="player-btn" title="Toggle FullScreen">
+                  <i class="fa fa-expand"></i>
+                </button>
+              </div>
+            </div>
 
-<!--                              <button class="btn btn-secondary float-right m-1" (click)="changePageType()">Change view</button>-->
-                              <button *ngIf="isAdmin || isOwner" class="btn btn-outline-danger float-right m-1" (click)="showEditPanel()">Edit</button>
+            <div class="top-info-holder">
 
-                              <div #editPanel class="m-0" style="display: none;" *ngIf="isAdmin || isOwner">
-                                <input #valueInput class="form-control float-right m-1" type="text" id="editValue" placeholder="Value to set when editing" />
-                                <button class="btn btn-warning float-right m-1" (click)="deleteCurrentVideo()">Delete video</button>
-                                <button class="btn btn-outline-secondary float-right m-1" (click)="editStat()">Edit stat</button>
-                                <button class="btn btn-outline-primary float-right m-1" (click)="editTags(valueInput.value)">Edit tags</button>
-                                <button class="btn btn-secondary float-right m-1" (click)="editDesc(valueInput.value)">Edit desc</button>
-                                <button class="btn btn-primary float-right m-1 rounded-right" (click)="editTitle(valueInput.value)">Edit title</button>
-                              </div>
+              <div class="title-views-section">
+                <h2 class="video-title"><span *ngIf="stat === 0">[PRIVATE] </span><span id="vtitle">{{ title }}</span></h2>
+                <div class="views" id="visits">{{ visits }} views</div>
 
-                            </div>
+                <button *ngIf="isAdmin || isOwner" class="btn btn-outline-danger float-right m-1" (click)="showEditPanel()">Edit</button>
 
-                        </div>
+                <div #editPanel class="m-0" style="display: none;" *ngIf="isAdmin || isOwner">
+                  <input #valueInput class="form-control float-right m-1" type="text" id="editValue" placeholder="Value to set when editing" />
+                  <button class="btn btn-warning float-right m-1" (click)="deleteCurrentVideo()">Delete video</button>
+                  <button class="btn btn-outline-secondary float-right m-1" (click)="editStat()">Edit stat</button>
+                  <button class="btn btn-outline-primary float-right m-1" (click)="editTags(valueInput.value)">Edit tags</button>
+                  <button class="btn btn-secondary float-right m-1" (click)="editDesc(valueInput.value)">Edit desc</button>
+                  <button class="btn btn-primary float-right m-1 rounded-right" (click)="editTitle(valueInput.value)">Edit title</button>
+                </div>
 
-                        <div class="info">
-                            <div class="add-by">
-                                <div class="avatar border-0"><a href="#"><img class="rounded-circle border border-white" src="#" /></a></div>
-                                <div class="uploaded">
-                                    <a href="#" id="author">{{ author }}</a>
-                                    <p id="date">Added on 00.00.0000 at 00:00</p>
-                                    <div #descriptionDiv class="desc">
-                                      <span class="description" style="white-space: pre-wrap;">{{ description }}</span>
-                                        <br><br><hr class="mt-4 mb-0 pb-2 border-secondary"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
-                                        <a *ngFor="let tag of tags" class="btn btn-sm btn-outline-info mr-1 my-1 px-1" [routerLink]="['/finder']" [queryParams]="{ q: tag, page: 1 }">{{ tag }}</a>
-                                    </div>
-                                    <a href="javascript:void(0)" id="sh_desc">Show more</a>
-                                </div>
-                            </div>
-                        </div>
+              </div>
 
+            </div>
+
+            <div class="info">
+              <div class="add-by">
+                <div class="avatar border-0"><a href="#"><img class="rounded-circle border border-white" src="#"  alt="Author's avatar"/></a></div>
+                <div class="uploaded">
+                  <a href="#" id="author">{{ author }}</a>
+                  <p id="date">Added on 00.00.0000 at 00:00</p>
+                  <div #descriptionDiv class="desc">
+                    <span class="description" style="white-space: pre-wrap;">{{ description }}</span>
+                    <br><br><hr class="mt-4 mb-0 pb-2 border-light"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
+                    <a *ngFor="let tag of tags" class="btn btn-sm btn-outline-info ml-0 mr-1 my-1 px-1" [routerLink]="['/finder']" [queryParams]="{ q: tag, page: 1 }">{{ tag }}</a>
+                  </div>
+                  <a #showDescLink href="javascript:void(0)" id="sh_desc">Show more</a>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="comment-section">
+              <h3>Comments</h3>
+
+              <div class="media mt-3 shadow-textarea mb-4">
+                <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3" src=""
+                     alt="Current user avatar">
+                <div class="media-body">
+                  <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="form-group rounded-corners" enctype="multipart/form-data">
+                    <textarea
+                      #commentInput
+                      class="md-textarea md-textarea-auto form-control comment-input"
+                      id="commentInput"
+                      rows="3"
+                      name="text"
+                      formControlName="text"
+                      placeholder="Write your comment..."
+                      mdbInput
+                      ></textarea>
+                    <div class="comment-form-actions">
+                      <button mdbBtn color="primary" rounded="true" class="my-0 waves-light m-0 mt-1" mdbWavesEffect type="submit" [disabled]="commentForm.invalid">Add</button>
                     </div>
+                  </form>
+                </div>
+              </div>
 
+              <div class="comments" *ngIf="comments.length > 0">
+                <div *ngFor="let comment of comments" class="media">
+                  <img class="d-flex rounded-circle avatar z-depth-1-half mr-3" src="{{ comment.authorAvatar }}"
+                       alt="{{ comment.author }}s' avatar">
+                  <div class="media-body">
+                    <h5 class="mt-0 font-weight-bold blue-text comment-author">{{ comment.author }}</h5>
+                    <p class="comment-message" style="white-space: pre;">{{ comment.text }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <h4 *ngIf="comments.length === 0">No comments</h4>
+
+            </div>
+
+
+          </div>
 <!--            </div>-->
 
 
           <div class="similar-videos-section" *ngIf="similarVideos.length > 0">
-<!--            <div class="row font-weight-light">-->
+
             <div class="font-weight-light">
               <div class="similar-container">
 
@@ -96,8 +139,8 @@
 
                   <div class="suggestedVideo h-100" (click)="play(similarVideo.id)">
 
-                      <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">
-                      <div class="movie-info">
+                      <img src="{{ baseUrl }}/{{ similarVideo.cover }}" class="img-fluid" alt="{{ similarVideo.title }}">
+                      <div class="similar-movie-info">
                         <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
                         <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.author }}">{{ similarVideo.author }}</span>
                       </div>
@@ -107,8 +150,8 @@
                 </div>
 
               </div>
-
             </div>
+
           </div>
 
 

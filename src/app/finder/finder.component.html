@@ -1,5 +1,41 @@
 <div class="container py-4">
 
+  <form #form class="form-inline md-form mr-auto mb-4" [action]="['/finder']" enctype="multipart/form-data">
+    <input type="text"
+           class="form-control"
+           placeholder="Search"
+           aria-label="Search"
+           name="q"
+           (keyup)="liveSearch($event)"
+           [formControl]="searchControl"
+    >
+    <input type="hidden" name="page" value="1" />
+    <button mdbBtn color="success" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
+  </form>
+
+<!--  <form #form class="form-inline my-2 my-lg-0" [action]="['/finder']" enctype="multipart/form-data">-->
+<!--    &lt;!&ndash;        <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search">&ndash;&gt;-->
+<!--    -->
+<!--    <mat-form-field class="mr-sm-2" appearance="fill">-->
+<!--      <mat-label>Search query</mat-label>-->
+<!--      <input type="text"-->
+<!--             name="q"-->
+<!--             (keyup)="liveSearch($event)"-->
+<!--             placeholder="Search query"-->
+<!--             aria-label="Search query"-->
+<!--             matInput-->
+<!--             [formControl]="searchControl"-->
+<!--             [matAutocomplete]="auto">-->
+<!--      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">-->
+<!--        <mat-option *ngFor="let option of filteredSearchOptions | async" [value]="option">-->
+<!--          {{option}}-->
+<!--        </mat-option>-->
+<!--      </mat-autocomplete>-->
+<!--    </mat-form-field>-->
+<!--    <input type="hidden" name="page" value="1" />-->
+<!--    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" (click)="form.submit()">Search</button>-->
+<!--  </form>-->
+
   <h3 class="pb-2 text-center">{{ message }}</h3>
 
   <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">
@@ -25,27 +61,27 @@
 
   <div class="videos">
 
-    <div class="text-left h-100" *ngFor="let video of videos">
+    <a class="text-left h-100" *ngFor="let video of videos" [routerLink]="['/player']" [queryParams]="{vid: video.id}">
       <div class="video h-100" [title]="video.title">
-        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
+
           <div class="preview">
 
             <img
-              src="http://localhost:3000/{{ video.cover }}"
+              src="{{ baseUrl }}/{{ video.cover }}"
               class="img-fluid"
               (mouseover)="loadPreview($event)"
               (mouseleave)="unloadPreview($event)"
-            >
+             alt="{{ video.title }}">
 
             <video
               preload="auto"
-              poster="http://localhost:3000/{{ video.cover }}"
+              poster="{{ baseUrl }}/{{ video.cover }}"
               muted
               loop
               class="img-fluid"
               id="{{ video.id }}"
             >
-              <source src="http://localhost:3000/{{ video.thumb }}" type="video/webm">
+              <source src="{{ baseUrl }}/{{ video.thumb }}" type="video/webm">
             </video>
 
           </div>
@@ -55,10 +91,9 @@
             <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
           </div>
 
-        </a>
       </div>
 
-    </div>
+    </a>
   </div>
 
 

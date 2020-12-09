@@ -1,50 +1,51 @@
 <div *ngIf="!noVideos" class="container py-4">
-  <h3 class="pb-2 text-center">All videos ({{ pages.totalPages }} pages)</h3>
+<!--  <div class="shortPreview"><div class="bg"><video autoplay id="shortPreviewVideo"></video></div></div>-->
+  <h3 class="pb-2 text-center">All videos ({{ videosLength }})</h3>
 
-  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">
-    <ul class="pagination justify-content-md-center">
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>
-      </li>
-      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>
-      </li>
-    </ul>
-  </div>
+<!--  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">-->
+<!--    <ul class="pagination justify-content-md-center">-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>-->
+<!--      </li>-->
+<!--      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </div>-->
 
   <mat-spinner class="mx-auto mt-4" *ngIf="loading"></mat-spinner>
   <div class="videos" *ngIf="!loading">
 
-    <div class="text-left h-100" *ngFor="let video of videos">
+    <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video.id}">
       <div class="video h-100" [title]="video.title">
-        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">
+<!--        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">-->
           <div class="preview">
 
             <img
-              src="http://localhost:3000/{{ video.cover }}"
-              class="img-fluid"
+              src="{{ baseUrl }}/{{ video.cover }}"
+              class="img-fluid prev"
               (mouseover)="loadPreview($event)"
               (mouseleave)="unloadPreview($event)"
-            >
+             alt="{{ video.title }}">
 
             <video
               preload="auto"
-              poster="http://localhost:3000/{{ video.cover }}"
+              poster="{{ baseUrl }}/{{ video.cover }}"
               muted
               loop
               class="img-fluid"
               id="{{ video.id }}"
             >
-              <source src="http://localhost:3000/{{ video.thumb }}" type="video/webm">
+              <source src="{{ baseUrl }}/{{ video.thumb }}" type="video/webm">
             </video>
 
           </div>
@@ -54,32 +55,61 @@
             <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
           </div>
 
-        </a>
+<!--        </a>-->
       </div>
 
-    </div>
+    </a>
   </div>
 
-
-  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 py-3 w-100 overflow-auto">
-    <ul class="pagination justify-content-md-center">
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>
+<!--  <mat-paginator-->
+<!--    class="mt-2"-->
+<!--    [showFirstLastButtons]="true"-->
+<!--    [length]="videosLength"-->
+<!--    [pageSize]="videosPerPage"-->
+<!--    [pageSizeOptions]="pageSizeOptions"-->
+<!--    (page)="pageEvent = handlePage($event)"-->
+<!--    [pageIndex]="currentPage"-->
+<!--  >-->
+<!--  </mat-paginator>-->
+  <nav aria-label="Page navigation example">
+    <ul class="pagination pg-blue justify-content-center">
+      <li class="page-item disabled">
+        <a class="page-link" tabindex="-1" mdbWavesEffect>Previous</a>
       </li>
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>
-      </li>
-      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
-        <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>
+      <li class="page-item"><a class="page-link" mdbWavesEffect>1</a></li>
+      <li class="page-item"><a class="page-link" mdbWavesEffect>2</a></li>
+      <li class="page-item"><a class="page-link" mdbWavesEffect>3</a></li>
+      <li class="page-item">
+        <a class="page-link" mdbWavesEffect>Next</a>
       </li>
     </ul>
-  </div>
+  </nav>
+
+<!--  <mat-paginator [length]="videosLength"-->
+<!--                 [pageSize]="videosPerPage"-->
+<!--                 [pageSizeOptions]="pageSizeOptions"-->
+<!--                 (page)="pageEvent = $event">-->
+<!--  </mat-paginator>-->
+
+<!--  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 py-3 w-100 overflow-auto">-->
+<!--    <ul class="pagination justify-content-md-center">-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: 1}" class="page-link">First</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage - 1}" class="page-link">Previous</a>-->
+<!--      </li>-->
+<!--      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: page}" class="page-link">{{ page }}</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: pages.currentPage + 1}" class="page-link">Next</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">-->
+<!--        <a [routerLink]="['/videos']" [queryParams]="{page: pages.totalPages}" class="page-link">Last</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </div>-->
 
 </div>
 

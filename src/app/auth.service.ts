@@ -12,6 +12,11 @@ import {environment} from '../environments/environment';
 })
 export class AuthService {
 
+  err = '';
+  private readonly SERVER_URL = `${environment.baseUrl}/auth`;
+  private isLogged = new Subject<boolean>();
+
+
   constructor(protected http: HttpClient, protected router: Router, private activatedRoute: ActivatedRoute) {
     if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
       if (moment().isBefore(this.getExpiration())) {
@@ -32,10 +37,6 @@ export class AuthService {
       }
     }
   }
-
-  err: string = null;
-  private readonly SERVER_URL = `${environment.baseUrl}/auth`;
-  private isLogged = new Subject<boolean>();
 
 
   private static getDecodedAccessToken(token: string): any {
@@ -105,9 +106,40 @@ export class AuthService {
       },
       (err) => {
         this.err = err.error.message;
-        throw new Error(err.error.message);
       }
     );
+  }
+
+
+  checkOAuthLogin(token: string): void {
+    try {
+      const decodedToken = jwt_decode(token);
+
+      this.http.post<any>(`http://localhost:3000/auth/github/me`, decodedToken).subscribe(result => {
+        if (result.login) {
+          localStorage.setItem('user', result.login);
+          localStorage.setItem('token', token);
+          localStorage.setItem(
+            'expires_at',
+            String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
+          );
+
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 100);
+        }
+      }, err => {
+        throw new Error(err.message);
+      });
+    }
+    catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+
+  gitHubLogin(): void {
+    window.location.href = `http://localhost:3000/auth/github`;
   }
 
 

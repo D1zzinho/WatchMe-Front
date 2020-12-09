@@ -2,6 +2,7 @@ import {AfterContentInit, Component, OnInit} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {VideoDto} from '../models/VideoDto';
 import {environment} from '../../environments/environment';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -10,17 +11,24 @@ import {environment} from '../../environments/environment';
 })
 export class HomeComponent implements OnInit, AfterContentInit {
 
-  limit = 12;
+  limit = 16;
   latestVideos: Array<VideoDto>;
   isLoggedIn = false;
   videosExist: boolean;
+  readonly baseUrl: string = environment.baseUrl;
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private activatedRoute: ActivatedRoute) {
   }
 
 
   ngOnInit(): void {
       this.isLoggedIn = this.authService.isLoggedIn();
+
+      this.activatedRoute.queryParams.subscribe(params => {
+        if (params.token) {
+          this.authService.checkOAuthLogin(params.token);
+        }
+      });
   }
 
 
@@ -28,12 +36,7 @@ export class HomeComponent implements OnInit, AfterContentInit {
     setTimeout(() => {
       if (this.isLoggedIn) {
         this.authService.getResource(`${environment.baseUrl}/videos/latest?limit=${this.limit}`).subscribe(res => {
-          if (res.message) {
-            this.videosExist = false;
-          }
-          else {
-            this.videosExist = true;
-          }
+          this.videosExist = !res.message;
 
           this.latestVideos = res;
         });

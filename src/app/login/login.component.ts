@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
   loginForm: FormGroup;
   registerForm: FormGroup;
-  error: Array<string>;
+  error: Array<string> = new Array<string>();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -27,9 +27,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService
-  ) {
-    this.error = new Array<string>();
-  }
+  ) {}
 
 
   ngOnInit(): void {
@@ -128,15 +126,18 @@ export class LoginComponent implements OnInit, AfterViewInit {
       password: this.loginForm.value.password
     };
 
-    this.authService.login(user);
     this.errorHandlingMessageWithAlert('login');
+    this.authService.login(user);
   }
 
 
   private errorHandlingMessageWithAlert(action: string): void {
     setTimeout(() => {
       if (this.authService.err !== null) {
-        if (action === 'login') { this.error.push(this.authService.err); }
+        if (action === 'login') {
+          this.error.push(this.authService.err);
+          this.ERROR.nativeElement.style.display = 'block';
+        }
       }
       else {
         if (this.error.length === 0) {
@@ -151,8 +152,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
         if (this.ERROR.nativeElement.style.display === 'none') {
           this.ERROR.nativeElement.removeAttribute('style');
-        }}, 50);
-    }, 100);
+        }}, 100);
+    }, 150);
   }
 
 

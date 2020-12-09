@@ -2,59 +2,59 @@
 
 html, body { height: 100%; }
 
-body {
-  font-family: "Poppins", sans-serif !important;
-}
+/*body {*/
+/*  font-family: "Poppins", sans-serif !important;*/
+/*}*/
 
 .bg-dark {
-  background-color: rgba(0,0,0,0.9) !important;
+  background-color: #303030 !important;
 }
 
-.mat-menu-panel {
-  min-height: auto !important;
-}
+/*.mat-menu-panel {*/
+/*  min-height: auto !important;*/
+/*}*/
 
-.mat-menu-content {
-  padding: 0 !important;
-}
+/*.mat-menu-content {*/
+/*  padding: 0 !important;*/
+/*}*/
 
-.mat-form-field-underline {
-  bottom: 0 !important;
-}
+/*.mat-form-field-underline {*/
+/*  bottom: 0 !important;*/
+/*}*/
 
-.mat-form-field-wrapper {
-  padding-bottom: 0 !important;
-}
+/*.mat-form-field-wrapper {*/
+/*  padding-bottom: 0 !important;*/
+/*}*/
 
-.page-item.disabled .page-link {
-  border-color: rgba(0,0,0,0.5) !important;
-  background: rgba(100,100,100,0.5) !important;
-}
+/*.page-item.disabled .page-link {*/
+/*  border-color: rgba(0,0,0,0.5) !important;*/
+/*  background: rgba(100,100,100,0.5) !important;*/
+/*}*/
 
-.page-item.active .page-link {
-  border-color: rgba(0,0,0,0.5) !important;
-  background: rgba(50,100,255,0.8) !important;
-  color: rgba(255,255,255,1) !important;
-}
+/*.page-item.active .page-link {*/
+/*  border-color: rgba(0,0,0,0.5) !important;*/
+/*  background: rgba(50,100,255,0.8) !important;*/
+/*  color: rgba(255,255,255,1) !important;*/
+/*}*/
 
-.page-item.active .page-link:hover {
-  border-color: rgba(0,0,0,0.5) !important;
-  background: rgba(50,150,255,1) !important;
-  color: rgba(255,255,255,1) !important;
-}
+/*.page-item.active .page-link:hover {*/
+/*  border-color: rgba(0,0,0,0.5) !important;*/
+/*  background: rgba(50,150,255,1) !important;*/
+/*  color: rgba(255,255,255,1) !important;*/
+/*}*/
 
-.page-link {
-  border-color: rgba(0,0,0,0.5);
-  background: rgba(100,100,100,0.5) !important;
-  color: rgba(255,255,255,0.6) !important;
-  transition-duration: .2s !important;
-}
+/*.page-link {*/
+/*  border-color: rgba(0,0,0,0.5);*/
+/*  background: rgba(100,100,100,0.5) !important;*/
+/*  color: rgba(255,255,255,0.6) !important;*/
+/*  transition-duration: .2s !important;*/
+/*}*/
 
-.page-link:hover {
-  background: rgba(200,200,200,0.9) !important;
-  color: rgba(0,0,0,1) !important;
-  border-color: rgba(50,100,255,0.8) !important;
-}
+/*.page-link:hover {*/
+/*  background: rgba(200,200,200,0.9) !important;*/
+/*  color: rgba(0,0,0,1) !important;*/
+/*  border-color: rgba(50,100,255,0.8) !important;*/
+/*}*/
 
 @media screen and (min-width: 1200px) {
   .container, .container-lg, .container-md, .container-sm, .container-xl {
@@ -66,7 +66,7 @@ body {
   display: grid;
   justify-content: center;
   align-content: center;
-  grid-template-columns: repeat(1,1fr);
+  grid-template-columns: repeat( auto-fit, minmax(300px, 1fr) );
   grid-template-rows: auto;
   grid-column-gap: 10px;
   grid-row-gap: 15px;
@@ -89,16 +89,48 @@ body {
   }
 }
 
+/*.videos {*/
+/*  -webkit-column-count: 1;*/
+/*  -webkit-column-gap:   10px;*/
+/*  -moz-column-count:    1;*/
+/*  -moz-column-gap:      10px;*/
+/*  column-count:         1;*/
+/*  column-gap:           10px;*/
+/*}*/
+
+/*@media (min-width: 576px) {*/
+/*  .videos  {*/
+/*    -moz-column-count:    2;*/
+/*    -webkit-column-count: 2;*/
+/*    column-count:         2;*/
+/*  }*/
+/*}*/
+/*@media (min-width: 992px) {*/
+/*  .videos  {*/
+/*    -moz-column-count:    3;*/
+/*    -webkit-column-count: 3;*/
+/*    column-count:         3;*/
+/*  }*/
+/*}*/
+/*@media (min-width: 1200px) {*/
+/*  .videos {*/
+/*    -moz-column-count:    4;*/
+/*    -webkit-column-count: 4;*/
+/*    column-count:         4;*/
+/*  }*/
+/*}*/
+
+.videos a {
+  text-decoration: none;
+}
+
 .video {
   background-color: #373b69;
   border-radius: 3px;
   box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   position: relative;
-}
-
-.video a {
-  text-decoration: none;
+  /*margin-bottom: 10px;*/
 }
 
 .video video {
@@ -118,13 +150,20 @@ body {
   opacity: 0;
 }
 
+
 .movie-info {
   color: #eee;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  /*position: absolute;*/
+  /*bottom: 0;*/
+  /*overflow: visible;*/
+  /*background-color: #373b9999;*/
+  /*width: 100%;*/
+  /*z-index: 10;*/
 }
 
 .movie-info h3 {
@@ -148,4 +187,6 @@ body {
 .movie-info span.red {
   color: rgb(189, 42, 42);
 }
+
+
 

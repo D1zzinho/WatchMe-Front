@@ -35,6 +35,11 @@ export class TopNavigationComponent implements OnInit {
   }
 
 
+  gitHubLogIn(): void {
+    this.authService.gitHubLogin();
+  }
+
+
   logout(): void {
     this.authService.logout();
   }

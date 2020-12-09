@@ -7,7 +7,7 @@ import {AuthService} from './auth.service';
 })
 export class AuthGuardService {
 
-  private loggedIn = false;
+  loggedIn = false;
 
   constructor(private router: Router, private auth: AuthService) {
     this.loggedIn = this.auth.isLoggedIn();
