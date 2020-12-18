@@ -173,6 +173,8 @@ export class AuthService {
     // if (token.access_token) {
     //   this.http.post<any>(`http://localhost:3000/auth/github/me`, token).subscribe(result => {
     //
+    //   }, error => {
+    //     this.logout();
     //   });
     // }
 

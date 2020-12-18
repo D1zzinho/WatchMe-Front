@@ -72,3 +72,75 @@
 mat-progress-bar {
   height: 50px;
 }
+
+
+
+
+/* NEW OTHERS */
+.suggestedVideo {
+  background-color: #373b69;
+  border-radius: 3px;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.suggestedVideo video {
+  width: 100%;
+}
+
+.suggestedVideo img {
+  position: relative;
+  z-index: -1;
+  width: 100%;
+}
+
+.upload-movie-info {
+  color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  letter-spacing: 0.5px;
+  backface-visibility: hidden;
+}
+
+.upload-movie-info h3 {
+  margin: 0;
+}
+
+.upload-movie-info span {
+  background-color: #22254b;
+  border-radius: 3px;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+}
+.upload-movie-info span.green {
+  color: rgb(39, 189, 39);
+}
+
+.upload-movie-info span.orange {
+  color: orange;
+}
+
+.upload-movie-info span.red {
+  color: rgb(189, 42, 42);
+}
+
+.suggestedVideo:hover {
+  transition-duration: .2s;
+  background: rgba(50,100,200,0.8);
+}
+
+.newVideo {
+  height: 100%;
+}
+
+@media screen and (min-width: 992px) {
+  .newVideo {
+    height: 50%;
+  }
+}
+

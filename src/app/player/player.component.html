@@ -1,5 +1,6 @@
-<div class="content" >
-  <div class="container" *ngIf="error === null">
+<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!timeoutEnded"></mat-progress-bar>
+<div class="content" *ngIf="videoLoaded | async" >
+  <div class="container" >
 <!--      <div class="row justify-content-md-center">-->
         <div [ngClass]="(similarVideos.length === 0 ? 'noSimilarVideos' : '') + ' nVideo-section justify-content-md-center'">
 
@@ -73,7 +74,7 @@
                 <div class="avatar border-0"><a href="#"><img class="rounded-circle border border-white" src="{{ authorAvatar }}"  alt="Author's avatar"/></a></div>
                 <div class="uploaded">
                   <a href="#" id="author">{{ author }}</a>
-                  <p id="date">Added on 00.00.0000 at 00:00</p>
+                  <p id="date">Added on {{ uploadDate }}</p>
                   <div #descriptionDiv class="desc">
                     <span class="description" style="white-space: pre-wrap;">{{ description }}</span>
                     <br><br><hr class="mt-4 mb-0 pb-2 border-light"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
@@ -85,11 +86,11 @@
             </div>
 
 
-            <div class="comment-section">
+            <div class="comment-section" [ngStyle]="{ 'display': timeoutEnded ? '' : 'none;' }">
               <h3>Comments</h3>
 
               <div class="media mt-3 shadow-textarea mb-4">
-                <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3" alt="Current user avatar">
+                <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3" alt="Current user avatar" src="{{ userAvatar }}">
                 <div class="media-body">
                   <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="form-group rounded-corners" enctype="multipart/form-data">
                     <textarea
@@ -114,7 +115,7 @@
                   <img class="d-flex rounded-circle avatar z-depth-1-half mr-3" src="{{ comment.authorAvatar }}"
                        alt="{{ comment.author }}s' avatar">
                   <div class="media-body">
-                    <h5 class="mt-0 font-weight-bold blue-text comment-author">{{ comment.author }}</h5>
+                    <h5 class="mt-0 mb-1 font-weight-bold blue-text comment-author">{{ comment.author }}</h5>
                     <p class="comment-message" style="white-space: pre;">{{ comment.text }}</p>
                   </div>
                 </div>
@@ -128,13 +129,39 @@
           </div>
 <!--            </div>-->
 
+          <div class="next-video-section" *ngIf="similarVideos.length > 0">
 
-          <div class="similar-videos-section" *ngIf="similarVideos.length > 0">
+            <div class="options-section">
+              <mat-slide-toggle
+                class="example-margin"
+                [checked]="autoPlayNext"
+                (change)="onAutoPlayToggle($event)"
+                [color]="color"
+                >
+                Autoplay next video
+              </mat-slide-toggle>
+            </div>
+
+            <div class="selected-video-section">
+              <div id="autoplayVideo" class="suggestedVideo h-100" (click)="play(similarVideos[0].id)" matTooltip="Play: {{ similarVideos[0].title }}" matTooltipPosition="before">
+                <img src="{{ baseUrl }}/{{ similarVideos[0].cover }}" class="img-fluid" alt="{{ similarVideos[0].title }}">
+                <div class="similar-movie-info">
+                  <strong style="word-break: break-word;">{{ (similarVideos[0].title.length > 30 ? similarVideos[0].title.slice(0, 30) + '...' : similarVideos[0].title) }}</strong>
+                  <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideos[0].author }}">{{ similarVideos[0].author }}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <hr class="my-2" *ngIf="similarVideos.length > 1">
+
+          <div class="similar-videos-section" *ngIf="similarVideos.length > 1">
 
             <div class="font-weight-light">
               <div class="similar-container">
 
-                <div *ngFor="let similarVideo of similarVideos.slice(0, similarOnPage)" class="" title="Play: {{ similarVideo.title }}">
+                <div *ngFor="let similarVideo of similarVideos.slice(1, similarOnPage)" title="Play: {{ similarVideo.title }}">
 
                   <div class="suggestedVideo h-100" (click)="play(similarVideo.id)">
 
@@ -154,142 +181,7 @@
           </div>
 
 
-<!--            <div class="col-12 col-md-6 col-lg-3 col-xl-2 ml-lg-auto ml-xl-0" *ngIf="similarVideos.length > 1 && pageType === 'classic'">-->
-<!--              <div class="row font-weight-light">-->
-
-<!--                <div *ngFor="let similarVideo of similarVideos.slice(0, similarOnPage)" class="col-12 mb-4 mg-md-2" title="Play: {{ similarVideo.title }}">-->
-<!--&lt;!&ndash;                  <div class="card bg-secondary h-100">&ndash;&gt;-->
-
-<!--                    <div class="video h-100">-->
-<!--                      <a href="/player?vid={{ similarVideo.id }}">-->
-
-<!--                        <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">-->
-<!--                        <div class="movie-info">-->
-<!--                          <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>-->
-<!--                          <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.author }}">{{ similarVideo.author }}</span>-->
-<!--                        </div>-->
-
-<!--                      </a>-->
-<!--                    </div>-->
-
-<!--&lt;!&ndash;                    <a href="/player?vid={{ similarVideo.id }}" class="text-light">&ndash;&gt;-->
-<!--&lt;!&ndash;                      <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="card-img-top" alt="{{ similarVideo.title }}" />&ndash;&gt;-->
-<!--&lt;!&ndash;                      <div class="card-body m-1 p-1"><p class="card-title m-1 p-1">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</p></div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                  </div>&ndash;&gt;-->
-<!--                </div>-->
-
-<!--              </div>-->
-<!--            </div>-->
-
-<!--            <div class="col-12 col-md-6 col-lg-3 col-xl-2 ml-lg-auto ml-xl-0" *ngIf="similarVideos.length > 1 && pageType === 'classic'">-->
-<!--              <div class="row mb-4 font-weight-light">-->
-
-<!--                <div *ngFor="let similarVideo of similarVideos.slice(similarOnPage, similarOnPage+similarOnPage)" class="col-12 mb-4 mg-md-2" title="Play: {{ similarVideo.title }}">-->
-<!--&lt;!&ndash;                  <div class="card bg-secondary h-100">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <a href="/player?vid={{ similarVideo.id }}" class="text-light">&ndash;&gt;-->
-<!--&lt;!&ndash;                      &lt;!&ndash;                    <a (click)="loadVideo(similarVideo._id)" class="text-light">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                      <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="card-img-top" alt="{{ similarVideo.title }}" />&ndash;&gt;-->
-<!--&lt;!&ndash;                      <div class="card-body m-1 p-1"><p class="card-title m-1 p-1">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</p></div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                  </div>&ndash;&gt;-->
-
-<!--                  <div class="video h-100">-->
-<!--                    <a href="/player?vid={{ similarVideo.id }}">-->
-
-<!--                      <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">-->
-<!--                      <div class="movie-info">-->
-<!--                        <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>-->
-<!--                        <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.author }}">{{ similarVideo.author }}</span>-->
-<!--                      </div>-->
-
-<!--                    </a>-->
-<!--                  </div>-->
-<!--                </div>-->
-
-<!--              </div>-->
-<!--            </div>-->
-
-
-<!--            <div class="col-12 col-lg-3 col-xl-5" *ngIf="similarVideos.length === 1 && pageType === 'classic' ">-->
-<!--              <div class="row mb-4">-->
-
-<!--                <div *ngFor="let similarVideo of similarVideos.slice(0, similarOnPage)" class="col-12 mb-4 mg-md-2" title="Play: {{ similarVideo.title }}">-->
-<!--&lt;!&ndash;                  <div class="card bg-secondary h-100">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <a href="/player?vid={{ similarVideo.id }}" class="text-light">&ndash;&gt;-->
-<!--&lt;!&ndash;                      <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="card-img-top" alt="{{ similarVideo.title }}" />&ndash;&gt;-->
-<!--&lt;!&ndash;                      <div class="card-body m-1 p-1"><p class="card-title m-1 p-1">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</p></div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                  </div>&ndash;&gt;-->
-
-<!--                  <div class="video h-100">-->
-<!--                    <a href="/player?vid={{ similarVideo.id }}">-->
-
-<!--                      <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">-->
-<!--                      <div class="movie-info">-->
-<!--                        <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>-->
-<!--                        <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.author }}">{{ similarVideo.author }}</span>-->
-<!--                      </div>-->
-
-<!--                    </a>-->
-<!--                  </div>-->
-<!--                </div>-->
-
-<!--              </div>-->
-<!--            </div>-->
-
         </div>
-
-<!--      <div class="row justify-content-md-center">-->
-<!--        <div class="col-12 col-lg-10 col-xl-9" *ngIf="pageType === 'big'">-->
-<!--          <div class="row mb-4 font-weight-light">-->
-
-<!--            <div *ngFor="let similarVideo of similarVideos.slice(0, similarOnPage)" class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4 mg-md-2" title="Play: {{ similarVideo.title }}">-->
-<!--&lt;!&ndash;              <div class="card bg-secondary h-100">&ndash;&gt;-->
-<!--&lt;!&ndash;                <a href="/player?vid={{ similarVideo.id }}" class="text-light">&ndash;&gt;-->
-<!--&lt;!&ndash;                  &lt;!&ndash;                    <a (click)="loadVideo(similarVideo._id)" class="text-light">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                  <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="card-img-top" alt="{{ similarVideo.title }}" />&ndash;&gt;-->
-<!--&lt;!&ndash;                  <div class="card-body m-1 p-1"><p class="card-title m-1 p-1">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</p></div>&ndash;&gt;-->
-<!--&lt;!&ndash;                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-
-<!--              <div class="video h-100">-->
-<!--                <a href="/player?vid={{ similarVideo.id }}">-->
-
-<!--                  <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">-->
-<!--                  <div class="movie-info">-->
-<!--                    <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>-->
-<!--                    <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.author }}">{{ similarVideo.author }}</span>-->
-<!--                  </div>-->
-
-<!--                </a>-->
-<!--              </div>-->
-<!--            </div>-->
-
-<!--            <div *ngFor="let similarVideo of similarVideos.slice(similarOnPage, similarOnPage+similarOnPage)" class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4 mg-md-2" title="Play: {{ similarVideo.title }}">-->
-<!--&lt;!&ndash;              <div class="card bg-secondary h-100">&ndash;&gt;-->
-<!--&lt;!&ndash;                <a href="/player?vid={{ similarVideo.id }}" class="text-light">&ndash;&gt;-->
-<!--&lt;!&ndash;                  &lt;!&ndash;                    <a (click)="loadVideo(similarVideo._id)" class="text-light">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                  <img src="http://192.168.100.2:3000/{{ similarVideo.cover }}" class="card-img-top" alt="{{ similarVideo.title }}" />&ndash;&gt;-->
-<!--&lt;!&ndash;                  <div class="card-body m-1 p-1"><p class="card-title m-1 p-1">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</p></div>&ndash;&gt;-->
-<!--&lt;!&ndash;                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--              <div class="video h-100">-->
-<!--                <a href="/player?vid={{ similarVideo.id }}">-->
-
-<!--                  <img src="http://localhost:3000/{{ similarVideo.cover }}" class="img-fluid">-->
-<!--                  <div class="movie-info">-->
-<!--                    <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>-->
-<!--                    <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.author }}">{{ similarVideo.author }}</span>-->
-<!--                  </div>-->
-
-<!--                </a>-->
-<!--              </div>-->
-<!--            </div>-->
-
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
 
     </div>
 

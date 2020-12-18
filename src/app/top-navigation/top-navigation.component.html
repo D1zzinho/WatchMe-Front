@@ -121,12 +121,14 @@
   <!-- Collapsible content -->
   <links>
 
-    <ul class="navbar-nav ml-auto">
-      <form #form *ngIf="isLoggedIn" class="form-inline mr-auto md-form m-0 p-0" [action]="['/finder']" enctype="multipart/form-data">
-        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" [formControl]="searchControl">
-        <input type="hidden" name="page" value="1" />
-        <button mdbBtn color="elegant" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
-      </form>
+    <ul class="navbar-nav ml-auto" *ngIf="isLoggedIn">
+      <li class="nav-item">
+        <form #form class="form-inline mr-auto md-form m-0 p-0" [action]="['/finder']" enctype="multipart/form-data">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" [formControl]="searchControl">
+          <input type="hidden" name="page" value="1" />
+          <button mdbBtn color="elegant" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
+        </form>
+      </li>
     </ul>
 
 

@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 
 import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
@@ -16,6 +16,10 @@ import {AppRoutingModule} from './app-routing.module';
 import {AuthGuardService} from './auth-guard.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MDBBootstrapModule} from 'angular-bootstrap-md';
+import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 
 @NgModule({
@@ -36,9 +40,17 @@ import {MDBBootstrapModule} from 'angular-bootstrap-md';
     AppRoutingModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    MDBBootstrapModule.forRoot()
+    MDBBootstrapModule.forRoot(),
+    MatPaginatorModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    MatProgressBarModule
   ],
-  providers: [AuthService, AuthGuardService],
+  providers: [
+    AuthService,
+    AuthGuardService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+

@@ -4,6 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
 import {VideoDto} from '../models/VideoDto';
 import {environment} from '../../environments/environment';
+import {PageEvent} from '@angular/material/paginator';
 
 @Component({
   selector: 'app-videos',
@@ -15,6 +16,8 @@ export class VideosComponent implements OnInit {
   readonly VIDEOS_URL = `${environment.baseUrl}/videos`;
   readonly baseUrl: string = environment.baseUrl;
   pageEvent: void;
+
+  videosLoaded: Promise<boolean>;
 
   videos: Array<VideoDto> = new Array<VideoDto>();
   videosOnPage: Array<VideoDto> = new Array<VideoDto>();
@@ -31,7 +34,7 @@ export class VideosComponent implements OnInit {
     private http: HttpClient,
     private currentRoute: ActivatedRoute,
     private router: Router,
-    private authService: AuthService) { }
+    private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loading = true;
@@ -80,7 +83,6 @@ export class VideosComponent implements OnInit {
 
   private showVideos(): void {
     this.authService.getResource(`${this.VIDEOS_URL}/all`).subscribe(videos => {
-      this.loading = false;
       this.videos = videos;
       this.videosLength = videos.length;
 
@@ -97,18 +99,20 @@ export class VideosComponent implements OnInit {
       else {
         this.noVideos = true;
       }
+
+      this.videosLoaded = Promise.resolve(true);
     });
   }
 
 
-  // handlePage(e: PageEvent): void {
-  //   this.currentPage = e.pageIndex;
-  //   this.videosPerPage = e.pageSize;
-  //
-  //   this.router.navigate(['/videos'], { queryParams: { limit: e.pageSize, page: e.pageIndex } });
-  //
-  //   this.iterator();
-  // }
+  handlePage(e: PageEvent): void {
+    this.currentPage = e.pageIndex;
+    this.videosPerPage = e.pageSize;
+
+    this.router.navigate(['/videos'], { queryParams: { limit: e.pageSize, page: e.pageIndex } });
+
+    this.iterator();
+  }
 
 
   private iterator(): void {

@@ -1,4 +1,4 @@
-<div *ngIf="!noVideos" class="container py-4">
+<div *ngIf="videosLoaded | async" class="container py-4">
 <!--  <div class="shortPreview"><div class="bg"><video autoplay id="shortPreviewVideo"></video></div></div>-->
   <h3 class="pb-2 text-center">All videos ({{ videosLength }})</h3>
 
@@ -22,24 +22,24 @@
 <!--    </ul>-->
 <!--  </div>-->
 
-  <mat-spinner class="mx-auto mt-4" *ngIf="loading"></mat-spinner>
-  <div class="videos" *ngIf="!loading">
+  <mat-spinner class="mx-auto mt-4" *ngIf="!(videosLoaded | async)"></mat-spinner>
+  <div class="videos" *ngIf="videosLoaded | async">
 
-    <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video.id}">
-      <div class="video h-100" [title]="video.title">
+    <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video?.id}">
+      <div class="video h-100" [title]="video?.title">
 <!--        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">-->
           <div class="preview">
 
             <img
-              src="{{ baseUrl }}/{{ video.cover }}"
+              src="{{ baseUrl }}/{{ video?.cover }}"
               class="img-fluid prev"
               (mouseover)="loadPreview($event)"
               (mouseleave)="unloadPreview($event)"
-             alt="{{ video.title }}">
+             alt="{{ video?.title }}">
 
             <video
               preload="auto"
-              poster="{{ baseUrl }}/{{ video.cover }}"
+              poster="{{ baseUrl }}/{{ video?.cover }}"
               muted
               loop
               class="img-fluid"
@@ -61,29 +61,29 @@
     </a>
   </div>
 
-<!--  <mat-paginator-->
-<!--    class="mt-2"-->
-<!--    [showFirstLastButtons]="true"-->
-<!--    [length]="videosLength"-->
-<!--    [pageSize]="videosPerPage"-->
-<!--    [pageSizeOptions]="pageSizeOptions"-->
-<!--    (page)="pageEvent = handlePage($event)"-->
-<!--    [pageIndex]="currentPage"-->
-<!--  >-->
-<!--  </mat-paginator>-->
-  <nav aria-label="Page navigation example">
-    <ul class="pagination pg-blue justify-content-center">
-      <li class="page-item disabled">
-        <a class="page-link" tabindex="-1" mdbWavesEffect>Previous</a>
-      </li>
-      <li class="page-item"><a class="page-link" mdbWavesEffect>1</a></li>
-      <li class="page-item"><a class="page-link" mdbWavesEffect>2</a></li>
-      <li class="page-item"><a class="page-link" mdbWavesEffect>3</a></li>
-      <li class="page-item">
-        <a class="page-link" mdbWavesEffect>Next</a>
-      </li>
-    </ul>
-  </nav>
+  <mat-paginator
+    class="mt-2"
+    [showFirstLastButtons]="true"
+    [length]="videosLength"
+    [pageSize]="videosPerPage"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="pageEvent = handlePage($event)"
+    [pageIndex]="currentPage"
+  >
+  </mat-paginator>
+<!--  <nav aria-label="Page navigation example">-->
+<!--    <ul class="pagination pg-blue justify-content-center">-->
+<!--      <li class="page-item disabled">-->
+<!--        <a class="page-link" tabindex="-1" mdbWavesEffect>Previous</a>-->
+<!--      </li>-->
+<!--      <li class="page-item"><a class="page-link" mdbWavesEffect>1</a></li>-->
+<!--      <li class="page-item"><a class="page-link" mdbWavesEffect>2</a></li>-->
+<!--      <li class="page-item"><a class="page-link" mdbWavesEffect>3</a></li>-->
+<!--      <li class="page-item">-->
+<!--        <a class="page-link" mdbWavesEffect>Next</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </nav>-->
 
 <!--  <mat-paginator [length]="videosLength"-->
 <!--                 [pageSize]="videosPerPage"-->

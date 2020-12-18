@@ -13,10 +13,11 @@ import {environment} from '../../environments/environment';
 export class UploadvideoComponent implements OnInit, AfterContentInit {
 
   private readonly SERVER_URL = `${environment.baseUrl}/videos/upload`;
+  baseUrl = environment.baseUrl;
   uploadForm: FormGroup;
   selectedFile: File;
   error: string;
-  uploadResponse = { status: '', message: '' };
+  uploadResponse = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -119,6 +120,7 @@ export class UploadvideoComponent implements OnInit, AfterContentInit {
 
     this.authService.uploadResource(this.SERVER_URL, formData).subscribe(
       (res) => {
+        console.log(res);
         this.uploadResponse = res;
       },
       (err) => {

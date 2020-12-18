@@ -911,6 +911,10 @@ h1.page-header {
   grid-area: similar;
 }
 
+.next-video-section {
+  grid-area: next_video;
+}
+
 /*.comment-section {*/
 /*  grid-area: comments;*/
 /*}*/
@@ -919,6 +923,7 @@ h1.page-header {
   display: grid;
   grid-template-areas:
     'video'
+    'next_video'
     'similar'
     ;
   grid-gap: 20px;
@@ -928,9 +933,57 @@ h1.page-header {
   .nVideo-section {
     grid-template-columns: 4fr 2fr;
     grid-template-areas:
+    'video next_video'
     'video similar';
   }
 }
+
+
+
+.options-section {
+  grid-area: os;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.selected-video-section {
+  grid-area: svs;
+}
+
+.next-video-section {
+  display: grid;
+  grid-template-areas:
+    'os'
+    'svs';
+  grid-gap: 20px;
+  font-weight: 400;
+}
+
+@media screen and (min-width: 992px) {
+  .next-video-section {
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas:
+    'os svs svs';
+  }
+}
+
+
+.next-video-section .suggestedVideo {
+  background-color: rgba(154,154,154,0.7);
+}
+
+.next-video-section .suggestedVideo .similar-movie-info {
+  font-weight: 300;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.next-video-section span {
+  background-color: rgba(200,200,200,1) !important;
+  color: #22254b !important;
+}
+
 
 
 /* NEW OTHERS */

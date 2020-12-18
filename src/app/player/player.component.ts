@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterContentInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Title} from '@angular/platform-browser';
@@ -7,23 +7,60 @@ import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CommentDto} from '../models/CommentDto';
+import {ThemePalette} from '@angular/material/core';
+import {MatSlideToggleChange} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.css']
 })
-export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   readonly VIDEOS_URL: string = `${environment.baseUrl}/videos`;
   readonly COMMENTS_URL: string = `${environment.baseUrl}/comments`;
   readonly baseUrl: string = environment.baseUrl;
+  videoLoaded: Promise<boolean>;
   error: string = null;
 
-  @ViewChild('player', { static: false }) playerElement: ElementRef;
-  @ViewChild('playerVideo', { static: false }) videoElement: ElementRef<HTMLVideoElement>;
-  @ViewChild('playerSource', { static: false }) videoSource: ElementRef<HTMLSourceElement>;
+  id = '';
+  title = '';
+  description = '';
+  tags: Array<string> = new Array<string>();
+  path = '';
+  cover = '';
+  thumb = '';
+  visits = 0;
+  // thUp = 0;
+  // thDown = 0;
+  stat = 1;
+  author = '';
+  authorAvatar = '';
+  uploadDate = '';
+
+  playbackRate = 1;
+  volume = 0.5;
+  videoIsMuted = true;
+
+  similarVideos: Array<VideoDto> = new Array<VideoDto>();
+  similarOnPage = 10;
+  similarVideosColumnLimit = 20;
+
+  isAdmin = false;
+  isOwner = false;
+  userAvatar = '';
+
+  comments: Array<CommentDto> = new Array<CommentDto>();
+  commentForm: FormGroup;
+
+  autoPlayNext: boolean;
+  color: ThemePalette = 'accent';
+  timeoutEnded: boolean;
+
+  @ViewChild('player') playerElement: ElementRef;
+  @ViewChild('playerVideo') videoElement: ElementRef<HTMLVideoElement>;
+  @ViewChild('playerSource') videoSource: ElementRef<HTMLSourceElement>;
   @ViewChild('playerControls', { static: false }) playerControls: ElementRef;
   @ViewChild('progress', { static: false }) progressSection: ElementRef;
   @ViewChild('filledProgress', { static: false }) progressBar: ElementRef;
@@ -42,36 +79,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('showDescLink', { static: false }) showDescLink: ElementRef;
   @ViewChild('editPanel', { static: false }) editPanel: ElementRef;
   @ViewChild('commentInput', { static: false }) commentInput: ElementRef<HTMLTextAreaElement>;
-
-  comments: Array<CommentDto> = new Array<CommentDto>();
-  commentForm: FormGroup;
-
-  id = '';
-  title = '';
-  description = '';
-  tags: Array<string> = new Array<string>();
-  path = '';
-  cover = '';
-  thumb = '';
-  visits = 0;
-  // thUp = 0;
-  // thDown = 0;
-  stat = 1;
-  author = '';
-  authorAvatar = '';
-
-  playbackRate = 1;
-  volume = 0.5;
-  videoIsMuted = true;
-
-  similarVideos: Array<VideoDto> = new Array<VideoDto>();
-  similarOnPage = 10;
-  similarVideosColumnLimit = 20;
-
-  isAdmin = false;
-  isOwner = false;
-
-  visible = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -95,10 +102,8 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.currentRoute.queryParams.subscribe(params => {
-      // const header = new HttpHeaders();
-      // header.append('Content-Type', 'video/mp4');
       this.authService.getResource(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
-        this.visible = true;
+        this.videoLoaded = Promise.resolve(true);
 
         if (res !== null) {
           if (res.err) {
@@ -106,19 +111,22 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             throw new Error(res.err);
           }
           else {
-            this.id = res.id;
-            this.title = res.title;
-            this.description = res.desc;
-            this.tags = res.tags;
-            this.path = res.path;
-            this.cover = res.cover;
-            this.thumb = res.thumb;
-            this.visits = res.visits;
+            this.id = res?.id;
+            this.title = res?.title;
+            this.description = res?.desc;
+            this.tags = res?.tags;
+            this.path = res?.path;
+            this.cover = res?.cover;
+            this.thumb = res?.thumb;
+            this.visits = res?.visits;
             // this.thUp = res.thUp;
             // this.thDown = res.thDown;
-            this.stat = res.stat;
-            this.author = res.author;
-            this.authorAvatar = res.authorAvatar;
+            this.stat = res?.stat;
+            this.author = res?.author;
+            this.authorAvatar = res?.authorAvatar;
+
+            const date = new Date(res?.uploadDate);
+            this.uploadDate = `${date.toDateString()}`;
 
             if (this.author === this.authService.getUsernameFromToken()) {
               this.isOwner = true;
@@ -126,7 +134,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
             this.authService.getResource(`${this.COMMENTS_URL}/${res.id}`).subscribe(result => {
               if (result.comments !== undefined) {
-                this.comments = result.comments;
+                this.comments = result?.comments;
               }
               else {
                 this.comments = null;
@@ -189,30 +197,52 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.isAdmin = this.authService.isAdmin();
+
+    this.authService.getUser().subscribe(result => {
+      if (result.avatar_url) {
+        this.userAvatar = result.avatar_url;
+      }
+      else {
+        this.userAvatar = result.avatar;
+      }
+    });
   }
 
 
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
+    this.timeoutEnded = false;
+
     setTimeout(() => {
       if (this.error === null) {
-        this.authService.getUser().subscribe(result => {
-          if (result.avatar_url) {
-            (document.getElementById('avatar') as HTMLImageElement).src = result.avatar_url;
+        if (this.similarVideos.length > 0) {
+
+          if (localStorage.getItem('autoNext') !== null) {
+            this.autoPlayNext = (localStorage.getItem('autoNext') === 'true');
           }
           else {
-            (document.getElementById('avatar') as HTMLImageElement).src = result.avatar;
+            localStorage.setItem('autoNext', 'true');
+            this.autoPlayNext = true;
           }
-        });
+
+          const autoplayVideo = document.getElementById('autoplayVideo');
+          if (this.autoPlayNext) {
+            autoplayVideo.style.backgroundColor = '#69f0aaaa';
+          }
+          else {
+            autoplayVideo.removeAttribute('style');
+          }
+        }
 
         this.loadPlayer();
       }
-      }, 50);
+      }, 2000);
   }
 
 
   private loadPlayer(): void {
       this.initPlayer();
       this.loadMediaSessionData();
+      this.timeoutEnded = true;
   }
 
 
@@ -388,7 +418,14 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.videoPlayOrMute();
 
       video.addEventListener('ended', () => {
-        this.playFirstFromOthers();
+        if (this.similarVideos.length > 0) {
+          if (localStorage.getItem('autoNext')) {
+            this.playFirstFromOthers(localStorage.getItem('autoNext') === 'true');
+          }
+          else {
+            this.playFirstFromOthers(false);
+          }
+        }
       });
     });
   }
@@ -851,7 +888,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  playFirstFromOthers(): void {
+  playFirstFromOthers(autoPlayNext: boolean): void {
     const info = document.createElement('h2');
     const image = document.createElement('img');
     info.style.position = 'absolute';
@@ -863,24 +900,30 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     image.style.left = '0';
     image.style.width = '100%';
     image.src = `${environment.baseUrl}/${this.similarVideos[0].cover}`;
-    image.onclick = () => { play(this.similarVideos); };
+    image.onclick = () => { this.play(this.similarVideos[0].id); };
     info.innerText = `Next video: ${this.similarVideos[0].title} in 5 seconds`;
     this.playerElement.nativeElement.appendChild(info);
     this.playerElement.nativeElement.appendChild(image);
 
-    let time = 5;
-    setInterval(() => {
-      time--;
-      info.innerText = `Next video: ${this.similarVideos[0].title} in ${time} seconds`;
-    }, 1000);
+    if (autoPlayNext) {
+      let time = 5;
+      setInterval(() => {
+        time--;
+        info.innerText = `Next video: ${this.similarVideos[0].title} in ${time} seconds`;
+      }, 1000);
 
-    setTimeout((): void => {
-      play(this.similarVideos);
-    }, 5000);
-
-    function play(similarVideos: Array<VideoDto>): void {
-      window.location.href = `/player?vid=${similarVideos[0].id}`;
+      setTimeout((): void => {
+        this.play(this.similarVideos[0].id);
+      }, 5000);
     }
+    else {
+      info.innerText = `Click to play next video: ${this.similarVideos[0].title}`;
+    }
+
+    // this.play(this.similarVideos[0].id);
+    // function play(similarVideos: Array<VideoDto>): void {
+    //   window.location.href = `/player?vid=${similarVideos[0].id}`;
+    // }
   }
 
 
@@ -894,12 +937,27 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   addComment(): void {
     this.authService.postResource(`${this.COMMENTS_URL}/${this.id}`, { text: this.commentForm.value.text }).subscribe(res => {
       if (res.added) {
+        this.commentInput.nativeElement.value = '';
+        this.commentInput.nativeElement.style.height = '45px';
         this.comments.unshift(res.comment);
       }
       else {
         console.log(res.message);
       }
     });
+  }
+
+
+  onAutoPlayToggle(event: MatSlideToggleChange): void {
+    localStorage.setItem('autoNext', String(event.checked));
+
+    const autoplayVideo = document.getElementById('autoplayVideo');
+    if (event.checked) {
+      autoplayVideo.style.backgroundColor = '#69f0aaaa';
+    }
+    else {
+      autoplayVideo.removeAttribute('style');
+    }
   }
 
 }

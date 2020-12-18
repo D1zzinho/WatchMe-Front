@@ -9,4 +9,6 @@ export interface VideoDto {
   visits: number;
   stat: number;
   author: string;
+  authorAvatar: string;
+  uploadDate: Date;
 }
