@@ -18,6 +18,7 @@ export class TopNavigationComponent implements OnInit {
   searchOptions: Array<string> = new Array<string>();
   filteredSearchOptions: Observable<Array<string>>;
 
+  username = '';
   collapsed = true;
   isLoggedIn: boolean;
   isAdmin = false;
@@ -35,11 +36,6 @@ export class TopNavigationComponent implements OnInit {
   }
 
 
-  gitHubLogIn(): void {
-    this.authService.gitHubLogin();
-  }
-
-
   logout(): void {
     this.authService.logout();
   }
@@ -52,12 +48,20 @@ export class TopNavigationComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.authService.getResource(`${environment.baseUrl}/videos/mostUsedTags`).subscribe(res => {
-        if (res.found) {
-          this.searchOptions = res.options;
+      // this.authService.getResource(`${environment.baseUrl}/videos/mostUsedTags`).subscribe(res => {
+      //   if (res.found) {
+      //     this.searchOptions = res.options;
+      //   }
+      // }, err => {
+      //   console.log(err);
+      // });
+      this.authService.getUser().subscribe(res => {
+        if (res.login) {
+          this.username = res.login;
         }
-      }, err => {
-        console.log(err);
+        else if (res.username) {
+          this.username = res.username;
+        }
       });
     }
 

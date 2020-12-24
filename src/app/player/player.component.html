@@ -1,6 +1,6 @@
-<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!timeoutEnded"></mat-progress-bar>
-<div class="content" *ngIf="videoLoaded | async" >
-  <div class="container" >
+<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!timeoutEnded && (videoLoaded | async)"></mat-progress-bar>
+<div class="content" *ngIf="videoLoaded | async">
+  <div class="container">
 <!--      <div class="row justify-content-md-center">-->
         <div [ngClass]="(similarVideos.length === 0 ? 'noSimilarVideos' : '') + ' nVideo-section justify-content-md-center'">
 
@@ -188,4 +188,8 @@
     <div class="container" *ngIf="error !== null">
       <div class="alert alert-danger">{{ error }}</div>
     </div>
+</div>
+
+<div class="container mt-4" *ngIf="error !== null && !(videoLoaded | async)">
+  <div class="alert alert-danger">{{ error }}</div>
 </div>

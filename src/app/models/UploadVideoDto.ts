@@ -7,4 +7,5 @@ export interface UploadVideoDto {
   cover: string;
   visits: number;
   stat: number;
+  uploadDate: number;
 }

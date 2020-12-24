@@ -7,9 +7,7 @@ import {Observable, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from '../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class AuthService {
 
   err = '';
@@ -111,35 +109,13 @@ export class AuthService {
   }
 
 
-  checkOAuthLogin(token: string): void {
-    try {
-      const decodedToken = jwt_decode(token);
-
-      this.http.post<any>(`http://localhost:3000/auth/github/me`, decodedToken).subscribe(result => {
-        if (result.login) {
-          localStorage.setItem('user', result.login);
-          localStorage.setItem('token', token);
-          localStorage.setItem(
-            'expires_at',
-            String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
-          );
-
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 100);
-        }
-      }, err => {
-        throw new Error(err.message);
-      });
-    }
-    catch (err) {
-      throw new Error(err.message);
-    }
+  checkOAuthLogin(token: any): Observable<any> {
+      return this.http.post<any>(`${environment.baseUrl}/auth/github/me`, token);
   }
 
 
   gitHubLogin(): void {
-    window.location.href = `http://localhost:3000/auth/github`;
+    window.location.href = `${environment.baseUrl}/auth/github`;
   }
 
 
@@ -169,16 +145,6 @@ export class AuthService {
       return false;
     }
 
-    // const token = jwt_decode(AuthService.getAccessToken());
-    // if (token.access_token) {
-    //   this.http.post<any>(`http://localhost:3000/auth/github/me`, token).subscribe(result => {
-    //
-    //   }, error => {
-    //     this.logout();
-    //   });
-    // }
-
-
     this.isLogged.next(true);
     return true;
   }
@@ -188,7 +154,7 @@ export class AuthService {
      if (localStorage.getItem('token') !== null) {
       const tokenInfo = jwt_decode(AuthService.getAccessToken());
       if (tokenInfo.access_token) {
-        return this.http.post<any>(`http://localhost:3000/auth/github/me`, tokenInfo);
+        return this.http.post<any>(`${environment.baseUrl}/auth/github/me`, tokenInfo);
       }
       else {
         return this.getResource(`${environment.baseUrl}/users/me`);

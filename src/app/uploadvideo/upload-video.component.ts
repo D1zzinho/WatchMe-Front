@@ -6,11 +6,11 @@ import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
 
 @Component({
-  selector: 'app-uploadvideo',
-  templateUrl: './uploadvideo.component.html',
-  styleUrls: ['./uploadvideo.component.css']
+  selector: 'app-upload-video',
+  templateUrl: './upload-video.component.html',
+  styleUrls: ['./upload-video.component.css']
 })
-export class UploadvideoComponent implements OnInit, AfterContentInit {
+export class UploadVideoComponent implements OnInit, AfterContentInit {
 
   private readonly SERVER_URL = `${environment.baseUrl}/videos/upload`;
   baseUrl = environment.baseUrl;
@@ -111,7 +111,8 @@ export class UploadvideoComponent implements OnInit, AfterContentInit {
       tags: this.uploadForm.value.tags,
       thumb: `${this.selectedFile.name.slice(0, -4)}_preview.webm`,
       title: this.uploadForm.value.title,
-      visits: 0
+      visits: 0,
+      uploadDate: Date.now()
     };
 
     const formData = new FormData();
@@ -120,8 +121,16 @@ export class UploadvideoComponent implements OnInit, AfterContentInit {
 
     this.authService.uploadResource(this.SERVER_URL, formData).subscribe(
       (res) => {
-        console.log(res);
         this.uploadResponse = res;
+
+        if (res) {
+          if (res.saved) {
+            (document.querySelector('.drop-zone') as HTMLDivElement).style.display = 'none';
+            setTimeout(() => {
+              (document.getElementById('newVideoThumbnail') as HTMLImageElement).src = `${this.baseUrl}/${res.saved.video.cover}`;
+            }, 5000);
+          }
+        }
       },
       (err) => {
         this.error = err.error.message;

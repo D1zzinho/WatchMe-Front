@@ -23,17 +23,11 @@ export class HomeComponent implements OnInit, AfterContentInit {
 
   ngOnInit(): void {
       this.isLoggedIn = this.authService.isLoggedIn();
-
-      this.activatedRoute.queryParams.subscribe(params => {
-        if (params.token) {
-          this.authService.checkOAuthLogin(params.token);
-        }
-      });
   }
 
 
   ngAfterContentInit(): void {
-    setTimeout(() => {
+    // setTimeout(() => {
       if (this.isLoggedIn) {
         this.authService.getResource(`${environment.baseUrl}/videos/latest?limit=${this.limit}`).subscribe(res => {
           this.videosExist = !res.message;
@@ -41,7 +35,7 @@ export class HomeComponent implements OnInit, AfterContentInit {
           this.latestVideos = res;
         });
       }
-    }, 200);
+    // }, 200);
   }
 
 
@@ -66,5 +60,4 @@ export class HomeComponent implements OnInit, AfterContentInit {
       });
     }
   }
-
 }

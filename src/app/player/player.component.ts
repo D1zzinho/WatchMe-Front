@@ -44,8 +44,8 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   videoIsMuted = true;
 
   similarVideos: Array<VideoDto> = new Array<VideoDto>();
-  similarOnPage = 10;
-  similarVideosColumnLimit = 20;
+  similarOnPage = 11;
+  similarVideosColumnLimit = 21;
 
   isAdmin = false;
   isOwner = false;
@@ -103,14 +103,14 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
     this.currentRoute.queryParams.subscribe(params => {
       this.authService.getResource(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
-        this.videoLoaded = Promise.resolve(true);
-
         if (res !== null) {
           if (res.err) {
             this.error = 'Video not found!';
-            throw new Error(res.err);
+            // throw new Error(res.err);
           }
           else {
+            this.videoLoaded = Promise.resolve(true);
+
             this.id = res?.id;
             this.title = res?.title;
             this.description = res?.desc;
@@ -883,6 +883,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
         navigator.mediaSession.setActionHandler('pause', () => { video.pause(); });
         navigator.mediaSession.setActionHandler('seekbackward', () => { video.currentTime -= 10; });
         navigator.mediaSession.setActionHandler('seekforward', () => { video.currentTime += 10; });
+        navigator.mediaSession.setActionHandler('nexttrack', () => { window.location.href = `/player?vid=${this.similarVideos[0].id}`; });
       }
     });
   }

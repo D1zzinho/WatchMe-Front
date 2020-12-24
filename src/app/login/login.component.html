@@ -4,26 +4,39 @@
     <div #ERROR [ngStyle]="{'display': (error.length > 0 ? 'block' : 'none') }">
 <!--    <div #ERROR *ngIf="error.length > 0">-->
       <div class="alert alert-danger">
-        <a href="javascript:void(0)" class="close" (click)="ERROR.style.display = 'none'" aria-label="close">&times;</a>
+        <a *ngIf="!(redirecting | async)" href="javascript:void(0)" class="close" (click)="ERROR.style.display = 'none'" aria-label="close">&times;</a>
         <p class="p-0 m-0" *ngFor="let err of error">{{ err }}</p>
       </div>
     </div>
 
-    <form class="register-form" (ngSubmit)="onRegisterSubmit()" [formGroup]="registerForm" enctype="multipart/form-data">
-      <input #username type="text" name="username" formControlName="username" placeholder="Login" required />
-      <input #password type="password" name="password" formControlName="password" placeholder="Password" required />
-      <input #repeatPassword type="password" name="repeatPassword" formControlName="repeatPassword" placeholder="Repeat password" required />
-      <input #email type="email" name="email" formControlName="email" placeholder="E-mail address" required />
-      <button type="submit" class="btn btn-outline-success" [disabled]="registerForm.invalid">Create account</button>
-      <p class="message">Already registered? <a href="javascript:void(0)" class="text-info">Sign in</a></p>
-    </form>
+    <div *ngIf="redirecting | async">
+      <mat-spinner class="ml-auto mr-auto" *ngIf="redirectingSuccess | async"></mat-spinner>
+      <h3 class="form-header mt-4">{{ oAuthLoginResponse }}</h3>
+    </div>
 
-    <form class="login-form" (ngSubmit)="onLoginSubmit()" [formGroup]="loginForm" enctype="multipart/form-data">
-      <input type="text" name="username" formControlName="username" placeholder="Login" required />
-      <input type="password" name="password" formControlName="password" placeholder="Password" required />
-      <button type="submit" class="btn btn-outline-success" [disabled]="loginForm.invalid">Enter</button>
-      <p class="message">Not registered? <a href="javascript:void(0)" class="text-success">Create an account</a></p>
-    </form>
+    <div *ngIf="!(redirecting | async)">
+      <form class="register-form" (ngSubmit)="onRegisterSubmit()" [formGroup]="registerForm" enctype="multipart/form-data">
+        <h2 class="form-header mb-4">Register to WatchMe</h2>
+        <input #username type="text" name="username" formControlName="username" placeholder="Login" required />
+        <input #password type="password" name="password" formControlName="password" placeholder="Password" required />
+        <input #repeatPassword type="password" name="repeatPassword" formControlName="repeatPassword" placeholder="Repeat password" required />
+        <input #email type="email" name="email" formControlName="email" placeholder="E-mail address" required />
+        <button type="submit" class="btn btn-outline-success" [disabled]="registerForm.invalid">Create account</button>
+        <p class="message">Already registered? <a href="javascript:void(0)" class="text-info">Sign in</a></p>
+
+        <a class="btn btn-primary mt-4 w-100" style="background-color: #333333" (click)="gitHubLogin()" href="javascript:void(0)" role="button">Login via <i class="fab fa-github"></i></a>
+      </form>
+
+      <form class="login-form" (ngSubmit)="onLoginSubmit()" [formGroup]="loginForm" enctype="multipart/form-data">
+        <h2 class="form-header mb-4">Login to WatchMe</h2>
+        <input type="text" name="username" formControlName="username" placeholder="Login" required />
+        <input type="password" name="password" formControlName="password" placeholder="Password" required />
+        <button type="submit" class="btn btn-outline-success" [disabled]="loginForm.invalid">Enter</button>
+        <p class="message">Not registered? <a href="javascript:void(0)" class="text-success">Create an account</a></p>
+
+        <a class="btn btn-primary mt-4 w-100" style="background-color: #333333" (click)="gitHubLogin()" href="javascript:void(0)" role="button">Login via <i class="fab fa-github"></i></a>
+      </form>
+    </div>
 
   </div>
 </div>

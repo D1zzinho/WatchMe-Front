@@ -113,7 +113,7 @@
 <!--</mdb-navbar>-->
 
 
-<mdb-navbar SideClass="navbar navbar-expand-lg navbar-dark info-color" [containerInside]="true">
+<mdb-navbar SideClass="navbar navbar-expand-lg navbar-dark secondary-color" [containerInside]="true">
 
   <!-- Navbar brand -->
   <mdb-navbar-brand><a class="logo navbar-brand" [routerLink]="['/']">WatchMe</a></mdb-navbar-brand>
@@ -124,9 +124,9 @@
     <ul class="navbar-nav ml-auto" *ngIf="isLoggedIn">
       <li class="nav-item">
         <form #form class="form-inline mr-auto md-form m-0 p-0" [action]="['/finder']" enctype="multipart/form-data">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" [formControl]="searchControl">
+          <input id="search-nav-input" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" [formControl]="searchControl">
           <input type="hidden" name="page" value="1" />
-          <button mdbBtn color="elegant" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
+          <button mdbBtn size="sm" color="elegant" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
         </form>
       </li>
     </ul>
@@ -146,19 +146,16 @@
       <!-- Dropdown -->
       <li class="nav-item dropdown" dropdown *ngIf="isLoggedIn">
         <a dropdownToggle mdbWavesEffect type="button" class="nav-link dropdown-toggle waves-light">
-          <mdb-icon fas icon="user"></mdb-icon> Profile<span class="caret"></span></a>
+          <mdb-icon fas icon="user"></mdb-icon>
+          {{ username }}<span class="caret"></span></a>
         <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown dropdown-primary" role="menu">
-          <a class="dropdown-item waves-light" mdbWavesEffect href="#">My account</a>
+          <a class="dropdown-item waves-light" mdbWavesEffect [routerLink]="['/profile']">My account</a>
           <a (click)="logout()" class="dropdown-item waves-light" mdbWavesEffect href="#">Log out</a>
         </div>
       </li>
 
       <li class="nav-item" *ngIf="!isLoggedIn">
         <a [routerLink]="['/login']" class="nav-link waves-light" mdbWavesEffect href="#"><mdb-icon fas icon="sign-in-alt"></mdb-icon> Login</a>
-      </li>
-
-      <li class="nav-item" *ngIf="!isLoggedIn">
-        <a (click)="gitHubLogIn()" class="nav-link waves-light" mdbWavesEffect><mdb-icon fas icon="sign-in-alt"></mdb-icon> Login via GitHub</a>
       </li>
 
       <li class="nav-item">

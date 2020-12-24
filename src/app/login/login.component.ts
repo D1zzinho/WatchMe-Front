@@ -3,6 +3,8 @@ import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
+import {environment} from '../../environments/environment';
+import * as jwt_decode from 'jwt-decode';
 
 @Component({
   selector: 'app-login',
@@ -11,15 +13,21 @@ import {AuthService} from '../auth.service';
 })
 export class LoginComponent implements OnInit, AfterViewInit {
 
+  baseUrl = environment.baseUrl;
+
+  loginForm: FormGroup;
+  registerForm: FormGroup;
+  error: Array<string> = new Array<string>();
+
+  oAuthLoginResponse: string;
+  redirecting = Promise.resolve(false);
+  redirectingSuccess = Promise.resolve(false);
+
   @ViewChild('ERROR') ERROR: ElementRef;
   @ViewChild('username') usernameInput: ElementRef;
   @ViewChild('password') passwordInput: ElementRef;
   @ViewChild('repeatPassword') repeatPasswordInput: ElementRef;
   @ViewChild('email') emailInput: ElementRef;
-
-  loginForm: FormGroup;
-  registerForm: FormGroup;
-  error: Array<string> = new Array<string>();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,6 +41,40 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/']);
+    }
+    else {
+      this.activatedRoute.queryParams.subscribe(params => {
+        if (params.token) {
+          this.redirecting = Promise.resolve(true);
+
+          try {
+            const token = jwt_decode(params.token);
+
+            this.authService.checkOAuthLogin(token).subscribe(result => {
+              if (result.login) {
+                localStorage.setItem('user', result.login);
+                localStorage.setItem('token', params.token);
+                localStorage.setItem(
+                  'expires_at',
+                  String((token.exp * 1000))
+                );
+
+                this.oAuthLoginResponse = `You are successfully logged in, ${result.login}! Redirecting...`;
+                this.redirectingSuccess = Promise.resolve(true);
+
+                setTimeout(() => { window.location.href = '/'; }, 2000);
+              }
+            }, err => {
+              this.oAuthLoginResponse = 'Login failed!';
+              this.error.push(err.message);
+            });
+          }
+          catch (err) {
+            this.oAuthLoginResponse = 'Login failed!';
+            this.error.push(err.message);
+          }
+        }
+      });
     }
 
     this.loginForm = this.formBuilder.group({
@@ -157,4 +199,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
 
+  gitHubLogin(): void {
+    window.location.href = `${this.baseUrl}/auth/github`;
+  }
 }

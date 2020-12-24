@@ -1,1 +1,7 @@
+.top-content {
+  min-height: calc(100% - 52px);
+}
 
+.bottom-content {
+  height: 52px;
+}

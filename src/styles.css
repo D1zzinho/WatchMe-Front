@@ -1,6 +1,7 @@
 @import url(https://fonts.googleapis.com/css?family=Poppins:300);
 
 html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 /*body {*/
 /*  font-family: "Poppins", sans-serif !important;*/

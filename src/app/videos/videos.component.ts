@@ -130,6 +130,7 @@ export class VideosComponent implements OnInit {
     video.play();
   }
 
+
   unloadPreview(event: any): void {
     const video = event.target.nextSibling;
     const playPromise = video.play();

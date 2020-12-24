@@ -53,8 +53,7 @@
         <div class="suggestedVideo h-100" [title]="uploadResponse['saved'].video.title">
           <div class="preview">
 
-            <img
-              src="{{ baseUrl }}/{{ uploadResponse['saved'].video.cover }}"
+            <img id="newVideoThumbnail"
               class="img-fluid prev"
               alt="{{ uploadResponse['saved'].video.title }}">
 
@@ -67,7 +66,7 @@
       </a>
 
 
-      <div #SUCCESS class="alert alert-success mx-2" *ngIf="uploadResponse['uploaded']">
+      <div #SUCCESS class="alert alert-success mx-2 mt-2" *ngIf="uploadResponse['uploaded']">
         <a href="javascript:void(0)" class="close" (click)="SUCCESS.style.display = 'none'" aria-label="close">&times;</a>
         <p class="p-0 m-0">Video <strong>{{ uploadResponse['saved'].video.title }}</strong> successfully uploaded!</p>
       </div>
