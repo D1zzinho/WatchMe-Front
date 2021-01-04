@@ -33,6 +33,11 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatDividerModule} from '@angular/material/divider';
 import { FooterComponent } from './footer/footer.component';
+import { EditVideoDialogComponent } from './dialogs/edit-video-dialog/edit-video-dialog.component';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { SnackBarComponent } from './snack-bar/snack-bar.component';
+import { CreateRepoDialogComponent } from './dialogs/create-repo-dialog/create-repo-dialog.component';
 
 
 @NgModule({
@@ -46,7 +51,10 @@ import { FooterComponent } from './footer/footer.component';
     HomeComponent,
     LoginComponent,
     ProfileComponent,
-    FooterComponent
+    FooterComponent,
+    EditVideoDialogComponent,
+    SnackBarComponent,
+    CreateRepoDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -70,7 +78,9 @@ import { FooterComponent } from './footer/footer.component';
     MatIconModule,
     MatMenuModule,
     MatCardModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule,
+    MatSnackBarModule
   ],
   providers: [
     AuthService,

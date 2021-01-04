@@ -6,6 +6,10 @@ import {PageEvent} from '@angular/material/paginator';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
+import {EditVideoDialogComponent} from '../dialogs/edit-video-dialog/edit-video-dialog.component';
+import {MatDialog} from '@angular/material/dialog';
+import {MatMenuTrigger} from '@angular/material/menu';
+import {CreateRepoDialogComponent} from '../dialogs/create-repo-dialog/create-repo-dialog.component';
 
 
 @Component({
@@ -43,9 +47,10 @@ export class ProfileComponent implements OnInit {
 
   @ViewChild('repoPaginator') paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
 
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, public dialog: MatDialog) { }
 
 
   ngOnInit(): void {
@@ -125,6 +130,25 @@ export class ProfileComponent implements OnInit {
     this.videosPerPage = e.pageSize;
 
     this.iterator();
+  }
+
+
+  openEditVideoDialog(video: VideoDto): void {
+    const dialogRef = this.dialog.open(EditVideoDialogComponent, {
+      data: video,
+      restoreFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.menuTrigger.focus();
+    });
+  }
+
+
+  openCreateRepoDialog(): void {
+    this.dialog.open(CreateRepoDialogComponent, {
+      restoreFocus: false
+    });
   }
 
 

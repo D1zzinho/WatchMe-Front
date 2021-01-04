@@ -1,0 +1,41 @@
+<h3 mat-dialog-title>Edit <strong class="font-italic" style="letter-spacing: 1px;">{{ video.title }}</strong></h3>
+<mat-dialog-content>
+
+  <form class="example-form text-center">
+    <mat-form-field color="accent" class="example-full-width">
+      <mat-label>Title</mat-label>
+      <input matInput #title maxlength="100" placeholder="Type here new video title...">
+      <mat-hint align="start">Set logic title.</mat-hint>
+      <mat-hint align="end">{{title.value.length}} / 100</mat-hint>
+    </mat-form-field>
+    <button mat-raised-button color="accent" class="ml-2" (click)="editTitle(title.value)">Edit title</button>
+  </form>
+
+  <mat-divider class="mt-3 mb-2"></mat-divider>
+
+  <form class="example-form text-center">
+    <mat-form-field color="accent" class="example-full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput #description maxlength="400" placeholder="Type here new video description..." cols="4" style="min-height: 40px; max-height: 400px;"></textarea>
+      <mat-hint align="start">Write logic description.</mat-hint>
+      <mat-hint align="end">{{description.value.length}} / 400</mat-hint>
+    </mat-form-field>
+    <button mat-raised-button color="accent" class="ml-2" (click)="editDesc(description.value)">Edit description</button>
+  </form>
+
+<!--  <mat-divider class="my-3"></mat-divider>-->
+
+<!--  <form class="example-form text-center">-->
+<!--    <mat-form-field color="accent" class="example-full-width">-->
+<!--      <mat-label>Title</mat-label>-->
+<!--      <input matInput #title maxlength="256" placeholder="Type here new video title...">-->
+<!--      <mat-hint align="start"><strong>Try to set logic video title.</strong> </mat-hint>-->
+<!--      <mat-hint align="end">{{title.value.length}} / 256</mat-hint>-->
+<!--    </mat-form-field>-->
+<!--    <button mat-raised-button color="accent" class="ml-2">Edit title</button>-->
+<!--  </form>-->
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

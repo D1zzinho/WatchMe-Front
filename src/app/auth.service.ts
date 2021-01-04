@@ -37,7 +37,7 @@ export class AuthService {
   }
 
 
-  private static getDecodedAccessToken(token: string): any {
+  static getDecodedAccessToken(token: string): any {
     try {
       const tokenInfo = jwt_decode(token);
       return tokenInfo.exp;
@@ -53,59 +53,13 @@ export class AuthService {
   }
 
 
-  register(user): void {
-    this.http.post<any>(`${this.SERVER_URL}/register`, user).subscribe(
-      (res) => {
-        if (res.user !== null && res.token !== null) {
-          localStorage.setItem('user', JSON.stringify(res.user));
-          localStorage.setItem('token', res.token);
-          localStorage.setItem(
-            'expires_at',
-            String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
-          );
-
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 100);
-        }
-      },
-      (err) => {
-        this.err = err.error.message;
-        throw new Error(err.error.message);
-      }
-    );
+  login(user: any): Observable<any> {
+    return this.http.post<any>(`${this.SERVER_URL}/login`, user);
   }
 
 
-  login(user): void {
-    this.http.post<any>(`${this.SERVER_URL}/login`, user).subscribe(
-      (res) => {
-        if (res.user !== null && res.token !== null) {
-          localStorage.setItem('user', JSON.stringify(res.user));
-          localStorage.setItem('token', res.token);
-          localStorage.setItem(
-            'expires_at',
-            String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
-          );
-
-          this.activatedRoute.queryParams.subscribe(params => {
-            if (params.requested === 'videos') {
-              setTimeout(() => {
-                window.location.href = '/videos';
-              }, 100);
-            }
-            else {
-              setTimeout(() => {
-                window.location.href = '/';
-              }, 100);
-            }
-          });
-        }
-      },
-      (err) => {
-        this.err = err.error.message;
-      }
-    );
+  register(user: any): Observable<any> {
+    return this.http.post<any>(`${this.SERVER_URL}/register`, user);
   }
 
 

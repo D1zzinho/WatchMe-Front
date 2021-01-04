@@ -47,32 +47,39 @@ export class LoginComponent implements OnInit, AfterViewInit {
         if (params.token) {
           this.redirecting = Promise.resolve(true);
 
-          try {
-            const token = jwt_decode(params.token);
+          if (params.error) {
+            this.oAuthLoginResponse = `Login failed!`;
+            this.error.push(params.error);
+          }
+          else {
+            try {
+              const token = jwt_decode(params.token);
 
-            this.authService.checkOAuthLogin(token).subscribe(result => {
-              if (result.login) {
-                localStorage.setItem('user', result.login);
-                localStorage.setItem('token', params.token);
-                localStorage.setItem(
-                  'expires_at',
-                  String((token.exp * 1000))
-                );
+              this.authService.checkOAuthLogin(token).subscribe(result => {
+                if (result.login) {
+                  localStorage.setItem('user', result.login);
+                  localStorage.setItem('token', params.token);
+                  localStorage.setItem(
+                    'expires_at',
+                    String((token.exp * 1000))
+                  );
 
-                this.oAuthLoginResponse = `You are successfully logged in, ${result.login}! Redirecting...`;
-                this.redirectingSuccess = Promise.resolve(true);
+                  this.oAuthLoginResponse = `You are successfully logged in, ${result.login}! Redirecting...`;
+                  this.redirectingSuccess = Promise.resolve(true);
 
-                setTimeout(() => { window.location.href = '/'; }, 2000);
-              }
-            }, err => {
+                  setTimeout(() => { window.location.href = '/'; }, 2000);
+                }
+              }, err => {
+                this.oAuthLoginResponse = 'Login failed!';
+                this.error.push(err.message);
+              });
+            }
+            catch (err) {
               this.oAuthLoginResponse = 'Login failed!';
               this.error.push(err.message);
-            });
+            }
           }
-          catch (err) {
-            this.oAuthLoginResponse = 'Login failed!';
-            this.error.push(err.message);
-          }
+
         }
       });
     }
@@ -103,6 +110,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
   async onRegisterSubmit(): Promise<void> {
     if (this.error.length > 0) {
       this.error = new Array<string>();
+      if (this.ERROR.nativeElement.style.display === 'none') {
+        this.ERROR.nativeElement.removeAttribute('style');
+      }
     }
 
     const { usernameExists, emailExists } = await this.authService.checkCredentials(
@@ -151,10 +161,26 @@ export class LoginComponent implements OnInit, AfterViewInit {
         email: this.registerForm.value.email
       };
 
-      this.authService.register(user);
-    }
+      this.authService.register(user).subscribe(
+        (res) => {
+          if (res.user !== null && res.token !== null) {
+            localStorage.setItem('user', JSON.stringify(res.user));
+            localStorage.setItem('token', res.token);
+            localStorage.setItem(
+              'expires_at',
+              String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
+            );
 
-    this.errorHandlingMessageWithAlert('register');
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 100);
+          }
+        },
+        (err) => {
+          throw new Error(err.error.message);
+        }
+      );
+    }
   }
 
 
@@ -168,34 +194,38 @@ export class LoginComponent implements OnInit, AfterViewInit {
       password: this.loginForm.value.password
     };
 
-    this.errorHandlingMessageWithAlert('login');
-    this.authService.login(user);
-  }
 
+    this.authService.login(user).subscribe(
+      (res) => {
+        if (res.user !== null && res.token !== null) {
+          localStorage.setItem('user', JSON.stringify(res.user));
+          localStorage.setItem('token', res.token);
+          localStorage.setItem(
+            'expires_at',
+            String((AuthService.getDecodedAccessToken(localStorage.getItem('token')) * 1000))
+          );
 
-  private errorHandlingMessageWithAlert(action: string): void {
-    setTimeout(() => {
-      if (this.authService.err !== null) {
-        if (action === 'login') {
-          this.error.push(this.authService.err);
-          this.ERROR.nativeElement.style.display = 'block';
+          this.activatedRoute.queryParams.subscribe(params => {
+            if (params.requested === 'videos') {
+              setTimeout(() => {
+                window.location.href = '/videos';
+              }, 100);
+            }
+            else {
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 100);
+            }
+          });
         }
-      }
-      else {
-        if (this.error.length === 0) {
-          this.ERROR.nativeElement.remove();
-        }
-      }
-
-      setTimeout(() => {
-        if (this.authService.err !== null) {
-          this.authService.err = null;
-        }
-
+      },
+      (err) => {
         if (this.ERROR.nativeElement.style.display === 'none') {
           this.ERROR.nativeElement.removeAttribute('style');
-        }}, 100);
-    }, 150);
+        }
+        this.error.push(err.error.message);
+      }
+    );
   }
 
 

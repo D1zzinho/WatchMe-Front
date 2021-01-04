@@ -71,6 +71,27 @@
   padding-bottom: 20px;
 }
 
+@media screen and (min-width: 576px) {
+  .user-videos {
+    grid-template-columns: repeat(2,1fr);
+  }
+}
+@media screen and (min-width: 768px) {
+  .user-videos {
+    grid-template-columns: repeat(3,1fr);
+  }
+}
+@media screen and (min-width: 992px) {
+  .user-videos {
+    grid-template-columns: repeat(4,1fr);
+  }
+}
+@media screen and (min-width: 1200px) {
+  .user-videos {
+    grid-template-columns: repeat(5,1fr);
+  }
+}
+
 
 .user-video {
   background-color: #373b69;

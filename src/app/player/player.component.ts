@@ -9,6 +9,8 @@ import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {CommentDto} from '../models/CommentDto';
 import {ThemePalette} from '@angular/material/core';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {SnackBarComponent} from '../snack-bar/snack-bar.component';
 
 @Component({
   selector: 'app-player',
@@ -86,7 +88,8 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     private currentRoute: ActivatedRoute,
     private router: Router,
     private titleService: Title,
-    private authService: AuthService
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) {}
 
 
@@ -941,9 +944,19 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
         this.commentInput.nativeElement.value = '';
         this.commentInput.nativeElement.style.height = '45px';
         this.comments.unshift(res.comment);
+
+        this.snackBar.openFromComponent(SnackBarComponent, {
+          data: { message: 'Comment successfully added!', type: 'success' },
+          duration: 4 * 1000,
+          panelClass: ['darkBar']
+        });
       }
       else {
-        console.log(res.message);
+        this.snackBar.openFromComponent(SnackBarComponent, {
+          data: { message: res.message, type: 'error' },
+          duration: 4 * 1000,
+          panelClass: ['darkBar']
+        });
       }
     });
   }
