@@ -17,16 +17,20 @@ export class CreateRepoDialogComponent implements OnInit {
 
   createRepoForm: FormGroup;
 
+  checked = false;
+
   constructor(
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<CreateRepoDialogComponent>,
     private authService: AuthService,
     private snackBar: MatSnackBar
-  ) { }
+  ) {}
+
 
   ngOnInit(): void {
     this.createRepoForm = this.formBuilder.group({
-      repoName: new FormControl('', [Validators.required, Validators.maxLength(200), Validators.minLength(10)])
+      repoName: new FormControl('', [Validators.required, Validators.maxLength(200), Validators.minLength(10)]),
+      repoDescription: new FormControl('', [Validators.maxLength(200), Validators.minLength(30)])
     });
   }
 
@@ -36,7 +40,9 @@ export class CreateRepoDialogComponent implements OnInit {
 
   onCreateRepoSubmit(): void {
     const newRepo = {
-      name: this.createRepoForm.value.repoName
+      name: this.createRepoForm.value.repoName,
+      description: this.createRepoForm.value.repoDescription,
+      private: this.checked
     };
 
     this.authService.postResource(`${environment.baseUrl}/users/github/repos`, newRepo).subscribe(result => {

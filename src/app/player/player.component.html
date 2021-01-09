@@ -93,18 +93,23 @@
                 <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3" alt="Current user avatar" src="{{ userAvatar }}">
                 <div class="media-body">
                   <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="form-group rounded-corners" enctype="multipart/form-data">
-                    <textarea
-                      #commentInput
-                      class="md-textarea md-textarea-auto form-control comment-input"
-                      id="commentInput"
-                      rows="3"
-                      name="text"
-                      formControlName="text"
-                      placeholder="Write your comment..."
-                      mdbInput
-                      ></textarea>
+<!--                    <textarea-->
+<!--                      #commentInput-->
+<!--                      class="md-textarea md-textarea-auto form-control comment-input"-->
+<!--                      id="commentInput"-->
+<!--                      rows="3"-->
+<!--                      name="text"-->
+<!--                      formControlName="text"-->
+<!--                      placeholder="Write your comment..."-->
+<!--                      mdbInput-->
+<!--                      ></textarea>-->
+                    <mat-form-field class="w-100" color="accent" appearance="outline">
+                      <mat-label>Write new comment here (min. 5 signs)</mat-label>
+                      <textarea matInput #commentInput name="text" formControlName="text" type="text" minlength="5" maxlength="500" class="comment-input"></textarea>
+                      <mat-hint align="end">{{commentInput.value.length}} / 500</mat-hint>
+                    </mat-form-field>
                     <div class="comment-form-actions">
-                      <button mdbBtn color="primary" rounded="true" class="my-0 waves-light m-0 mt-1" mdbWavesEffect type="submit" [disabled]="commentForm.invalid">Add</button>
+                      <button mat-raised-button color="accent" class="mt-1" [disabled]="commentForm.invalid">Add</button>
                     </div>
                   </form>
                 </div>
@@ -118,6 +123,20 @@
                     <h5 class="mt-0 mb-1 font-weight-bold blue-text comment-author">{{ comment.author }}</h5>
                     <p class="comment-message" style="white-space: pre;">{{ comment.text }}</p>
                   </div>
+
+                  <button class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Video actions" #menuTrigger>
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #menu="matMenu">
+                    <button mat-menu-item>
+                      <mat-icon>edit</mat-icon>
+                      <span>Edit</span>
+                    </button>
+                    <button mat-menu-item disabled>
+                      <mat-icon>delete_forever</mat-icon>
+                      <span>Delete</span>
+                    </button>
+                  </mat-menu>
                 </div>
               </div>
 

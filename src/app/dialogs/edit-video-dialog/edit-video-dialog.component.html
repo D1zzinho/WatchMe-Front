@@ -2,7 +2,7 @@
 <mat-dialog-content>
 
   <form class="example-form text-center">
-    <mat-form-field color="accent" class="example-full-width">
+    <mat-form-field color="accent" appearance="outline" class="w-100">
       <mat-label>Title</mat-label>
       <input matInput #title maxlength="100" placeholder="Type here new video title...">
       <mat-hint align="start">Set logic title.</mat-hint>
@@ -14,7 +14,7 @@
   <mat-divider class="mt-3 mb-2"></mat-divider>
 
   <form class="example-form text-center">
-    <mat-form-field color="accent" class="example-full-width">
+    <mat-form-field color="accent" appearance="outline" class="w-100">
       <mat-label>Description</mat-label>
       <textarea matInput #description maxlength="400" placeholder="Type here new video description..." cols="4" style="min-height: 40px; max-height: 400px;"></textarea>
       <mat-hint align="start">Write logic description.</mat-hint>
@@ -23,17 +23,27 @@
     <button mat-raised-button color="accent" class="ml-2" (click)="editDesc(description.value)">Edit description</button>
   </form>
 
-<!--  <mat-divider class="my-3"></mat-divider>-->
+  <mat-divider class="my-3"></mat-divider>
 
-<!--  <form class="example-form text-center">-->
-<!--    <mat-form-field color="accent" class="example-full-width">-->
-<!--      <mat-label>Title</mat-label>-->
-<!--      <input matInput #title maxlength="256" placeholder="Type here new video title...">-->
-<!--      <mat-hint align="start"><strong>Try to set logic video title.</strong> </mat-hint>-->
-<!--      <mat-hint align="end">{{title.value.length}} / 256</mat-hint>-->
-<!--    </mat-form-field>-->
-<!--    <button mat-raised-button color="accent" class="ml-2">Edit title</button>-->
-<!--  </form>-->
+  <form class="example-form text-center">
+    <mat-form-field color="accent" appearance="outline" class="w-100">
+      <mat-label>Tags</mat-label>
+      <mat-chip-list #chipList aria-label="Tags selection">
+        <mat-chip *ngFor="let tag of tags" [selectable]="selectable"
+                  [removable]="removable" (removed)="remove(tag)">
+          {{tag}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input placeholder="Add tag..."
+               [matChipInputFor]="chipList"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur"
+               (matChipInputTokenEnd)="add($event)"
+               name="tags">
+      </mat-chip-list>
+    </mat-form-field>
+    <button mat-raised-button color="accent" class="ml-2" (click)="editTags()">Edit tags</button>
+  </form>
 
 </mat-dialog-content>
 <mat-dialog-actions>

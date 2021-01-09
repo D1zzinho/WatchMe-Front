@@ -98,8 +98,8 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       text: new FormControl('',
         [
           Validators.required,
-          Validators.minLength(10),
-          Validators.maxLength(1000)
+          Validators.minLength(5),
+          Validators.maxLength(500)
         ]
       )
     });

@@ -10,6 +10,8 @@ import {EditVideoDialogComponent} from '../dialogs/edit-video-dialog/edit-video-
 import {MatDialog} from '@angular/material/dialog';
 import {MatMenuTrigger} from '@angular/material/menu';
 import {CreateRepoDialogComponent} from '../dialogs/create-repo-dialog/create-repo-dialog.component';
+import {DeleteVideoDialogComponent} from '../dialogs/delete-video-dialog/delete-video-dialog.component';
+import {ShowRepoInfoDialogComponent} from '../dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
 
 
 @Component({
@@ -41,7 +43,7 @@ export class ProfileComponent implements OnInit {
   pageSizeOptions: number[] = [5, 10, 15, 20, 40];
 
 
-  displayedColumns: string[] = ['name', 'language', 'description', 'external_link'];
+  displayedColumns: string[] = ['name', 'language', 'description', 'commits', 'external_link'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
   tableLoaded = Promise.resolve(false);
 
@@ -72,6 +74,11 @@ export class ProfileComponent implements OnInit {
             this.currentUserVideos = videosCommentsRes.videos.sort((a, b) => {
               return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime();
             });
+
+            this.currentUserVideos.forEach(video => {
+              video.author = videosCommentsRes.username;
+            });
+
             this.iterator();
           }
         });
@@ -145,8 +152,28 @@ export class ProfileComponent implements OnInit {
   }
 
 
+  openDeleteVideoDialog(video: VideoDto): void {
+    const dialogRef = this.dialog.open(DeleteVideoDialogComponent, {
+      data: video,
+      restoreFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.menuTrigger.focus();
+    });
+  }
+
+
   openCreateRepoDialog(): void {
     this.dialog.open(CreateRepoDialogComponent, {
+      restoreFocus: false
+    });
+  }
+
+
+  openShowCommitsDialog(repo: string): void {
+    this.dialog.open(ShowRepoInfoDialogComponent, {
+      data: repo,
       restoreFocus: false
     });
   }

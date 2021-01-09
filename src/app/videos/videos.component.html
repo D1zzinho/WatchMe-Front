@@ -1,6 +1,6 @@
 <div *ngIf="videosLoaded | async" class="container py-4">
 <!--  <div class="shortPreview"><div class="bg"><video autoplay id="shortPreviewVideo"></video></div></div>-->
-  <h3 class="pb-2 text-center">All videos ({{ videosLength }})</h3>
+  <h1 class="pb-2 text-center">All videos ({{ videosLength }})</h1>
 
 <!--  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">-->
 <!--    <ul class="pagination justify-content-md-center">-->
@@ -63,6 +63,7 @@
 
   <mat-paginator
     class="mt-2"
+    color="accent"
     [showFirstLastButtons]="true"
     [length]="videosLength"
     [pageSize]="videosPerPage"

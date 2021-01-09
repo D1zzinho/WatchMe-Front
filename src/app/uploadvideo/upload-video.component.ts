@@ -4,6 +4,8 @@ import {HttpClient} from '@angular/common/http';
 import {UploadVideoDto} from '../models/UploadVideoDto';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 @Component({
   selector: 'app-upload-video',
@@ -19,6 +21,14 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
   error: string;
   uploadResponse = '';
 
+  selectable = true;
+  removable = true;
+  addOnBlur = true;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  tags: Array<string> = new Array<string>();
+
+  newImageLoaded: Promise<boolean>;
+
   constructor(
     private formBuilder: FormBuilder,
     private http: HttpClient,
@@ -27,9 +37,9 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
       file: new FormControl(null, Validators.required),
-      title: new FormControl('', [Validators.required, Validators.maxLength(200)]),
-      desc: new FormControl('', Validators.maxLength(300)),
-      tags: new FormControl('')
+      title: new FormControl('', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]),
+      desc: new FormControl('', [Validators.minLength(10), Validators.maxLength(300)]),
+      tags: new FormControl('', Validators.required)
     });
   }
 
@@ -108,7 +118,7 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
       desc: this.uploadForm.value.desc,
       path: `${this.selectedFile.name}`,
       stat: 1,
-      tags: this.uploadForm.value.tags,
+      tags: this.tags,
       thumb: `${this.selectedFile.name.slice(0, -4)}_preview.webm`,
       title: this.uploadForm.value.title,
       visits: 0,
@@ -126,8 +136,15 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
         if (res) {
           if (res.saved) {
             (document.querySelector('.drop-zone') as HTMLDivElement).style.display = 'none';
+            this.newImageLoaded = Promise.resolve(false);
+
             setTimeout(() => {
-              (document.getElementById('newVideoThumbnail') as HTMLImageElement).src = `${this.baseUrl}/${res.saved.video.cover}`;
+              this.newImageLoaded = Promise.resolve(true);
+
+              setTimeout(() => {
+                (document.getElementById('newVideoThumbnail') as HTMLImageElement).src = `${this.baseUrl}/${res.saved.video.cover}`;
+              }, 100);
+
             }, 5000);
           }
         }
@@ -136,6 +153,29 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
         this.error = err.error.message;
       }
     );
+  }
+
+  add(event: MatChipInputEvent): void {
+    const input = event.input;
+    const value = event.value;
+
+    if ((value || '').trim()) {
+      if (!this.tags.includes(value)) {
+        this.tags.push(value.trim());
+      }
+    }
+
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  remove(tag: string): void {
+    const index = this.tags.indexOf(tag);
+
+    if (index >= 0) {
+      this.tags.splice(index, 1);
+    }
   }
 
 }

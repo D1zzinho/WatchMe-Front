@@ -15,7 +15,7 @@
   <div class="upload-page">
     <div class="form">
       <div class="form-header mb-4">
-        <h3>Upload new video</h3>
+        <h1>Upload new video</h1>
       </div>
 
       <div #DRAG_SECTION class="form-body pt-2">
@@ -27,9 +27,36 @@
           </div>
 
           <div class="text-inputs" style="display: none;" *ngIf="!uploadResponse['status'] || uploadResponse['status'] !== 'progress'">
-            <input type="text" class="form-control bg-transparent text-light mb-2" name="title" formControlName="title" placeholder="Video title" maxlength="200" required />
-            <textarea class="form-control bg-transparent text-light mb-2" name="desc" formControlName="desc" placeholder="Video description" maxlength="600"></textarea>
-            <input type="text" class="form-control bg-transparent text-light mb-2" name="tags" formControlName="tags" placeholder="Video tags" />
+            <mat-form-field class="w-100" color="accent" appearance="outline">
+              <mat-label>Video title (min. 10 signs)</mat-label>
+              <input matInput #videoTitle name="title" formControlName="title" type="text" minlength="10" maxlength="200">
+              <mat-hint align="end">{{videoTitle.value.length}} / 200</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field class="w-100" color="accent" appearance="outline">
+              <mat-label>Video description (min. 10 signs)</mat-label>
+              <textarea matInput #videoDescription name="desc" formControlName="desc" type="text" minlength="10" maxlength="600"></textarea>
+              <mat-hint align="end">{{videoDescription.value.length}} / 600</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field color="accent" appearance="outline" class="w-100">
+              <mat-label>Tags</mat-label>
+              <mat-chip-list #chipList aria-label="Tags selection">
+                <mat-chip *ngFor="let tag of tags" [selectable]="selectable"
+                          [removable]="removable" (removed)="remove(tag)">
+                  {{tag}}
+                  <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                </mat-chip>
+                <input placeholder="Add tag..."
+                       [matChipInputFor]="chipList"
+                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                       [matChipInputAddOnBlur]="addOnBlur"
+                       (matChipInputTokenEnd)="add($event)"
+                name="tags"
+                formControlName="tags">
+              </mat-chip-list>
+            </mat-form-field>
+
             <button type="submit" class="btn btn-outline-primary" [disabled]="uploadForm.invalid">Upload</button>
           </div>
 
@@ -53,9 +80,11 @@
         <div class="suggestedVideo h-100" [title]="uploadResponse['saved'].video.title">
           <div class="preview">
 
-            <img id="newVideoThumbnail"
+            <img *ngIf="newImageLoaded | async" id="newVideoThumbnail"
               class="img-fluid prev"
-              alt="{{ uploadResponse['saved'].video.title }}">
+              alt="{{ uploadResponse['saved'].video.title }}" src="">
+
+            <mat-spinner color="accent" *ngIf="!(newImageLoaded | async)"></mat-spinner>
 
           </div>
           <div class="upload-movie-info">
@@ -74,7 +103,7 @@
       <div *ngIf="uploadResponse['status'] && uploadResponse['status'] === 'progress'" class="progress mx-2">
 <!--          <div class="progress-bar" role="progressbar" [style.width]="uploadResponse.message + '%'" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>-->
 
-        <mat-progress-bar [value]="uploadResponse['message']"></mat-progress-bar>
+        <mat-progress-bar style="height: 50px;" [value]="uploadResponse['message']"></mat-progress-bar>
 
 <!--        <div role="progressbar" [ngStyle]="{'width': uploadResponse.message + '%' }" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">-->
 <!--          <p class="p-0 m-0">{{ uploadResponse.message }}%</p>-->

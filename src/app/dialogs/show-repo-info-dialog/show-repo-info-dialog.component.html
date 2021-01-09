@@ -1,0 +1,39 @@
+<h3>Latest <strong style="letter-spacing: 2px;">{{repo}}</strong> commits</h3>
+
+<div class="commits-holder" *ngIf="loadedCommits | async">
+  <ul class="timeline mr-4">
+
+    <li *ngFor="let commitGroup of commits">
+      <p>Commits on {{commitGroup['date']}}</p>
+      <ol class="box position-relative mt-3 list-style-none ml-sm-0">
+        <li class="box-row mt-0 border-top-0">
+          <span style="font-size: 13px;">
+            {{ commitGroup['commits'][0].message }}
+          </span>
+          <div>
+            <span style="font-size: 11px;" class="text-white-50">
+              Committed by <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commitGroup['commits'][0]['author']['login'] }}</span>
+            </span>
+          </div>
+        </li>
+
+        <li *ngFor="let commit of commitGroup['commits'].slice(1,commitGroup['commits'].length)" class="box-row mt-0">
+          <span style="font-size: 13px;">
+            {{ commit.message }}
+          </span>
+          <div>
+            <span style="font-size: 11px;" class="text-white-50">
+              Committed by <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commit['author']['login'] }}</span>
+            </span>
+          </div>
+        </li>
+      </ol>
+    </li>
+
+  </ul>
+</div>
+
+<div class="loading" *ngIf="!(loadedCommits | async)">
+  <mat-spinner class="m-auto" color="accent"></mat-spinner>
+</div>
+

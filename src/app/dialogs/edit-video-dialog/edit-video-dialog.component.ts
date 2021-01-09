@@ -5,6 +5,8 @@ import {AuthService} from '../../auth.service';
 import {environment} from '../../../environments/environment';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {SnackBarComponent} from '../../snack-bar/snack-bar.component';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MatChipInputEvent} from '@angular/material/chips';
 
 @Component({
   selector: 'app-edit-video-dialog',
@@ -16,7 +18,15 @@ export class EditVideoDialogComponent implements OnInit {
   readonly VIDEOS_URL = `${environment.baseUrl}/videos`;
   readonly durationInSeconds = 5;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public video: any, private authService: AuthService, private snackBar: MatSnackBar) { }
+  selectable = true;
+  removable = true;
+  addOnBlur = true;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  tags: Array<string> = new Array<string>();
+
+  constructor(@Inject(MAT_DIALOG_DATA) public video: any, private authService: AuthService, private snackBar: MatSnackBar) {
+    this.tags = video.tags;
+  }
 
   ngOnInit(): void {
   }
@@ -79,19 +89,26 @@ export class EditVideoDialogComponent implements OnInit {
   }
 
 
-  async editTags(tags: string): Promise<void> {
-    try {
-      const editTags = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.video._id}/tags`, {tags}).toPromise();
+  async editTags(): Promise<void> {
+    if (this.tags.length > 0) {
+      try {
+        const editTags = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.video._id}/tags`, {tags: this.tags}).toPromise();
 
-      if (editTags.updated) {
-        window.location.reload();
+        if (editTags.updated) {
+          this.video.tags = this.tags;
+
+          this.openSnackBar(editTags.message, 'success');
+        }
+        else {
+          this.openSnackBar(editTags.message, 'error');
+        }
       }
-      else {
-        console.log(editTags.message);
+      catch (err) {
+        this.openSnackBar(err.message, 'error');
       }
     }
-    catch (err) {
-      console.log(err.message);
+    else {
+      this.openSnackBar('You have to specify at least 1 tag!', 'warning');
     }
   }
 
@@ -109,6 +126,30 @@ export class EditVideoDialogComponent implements OnInit {
     }
     catch (err) {
       console.log(err.message);
+    }
+  }
+
+
+  add(event: MatChipInputEvent): void {
+    const input = event.input;
+    const value = event.value;
+
+    if ((value || '').trim()) {
+      if (!this.tags.includes(value)) {
+        this.tags.push(value.trim());
+      }
+    }
+
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  remove(tag: string): void {
+    const index = this.tags.indexOf(tag);
+
+    if (index >= 0) {
+      this.tags.splice(index, 1);
     }
   }
 

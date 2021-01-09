@@ -1,0 +1,8 @@
+<h3 mat-dialog-title>Are you sure you want to delete <strong class="font-italic" style="letter-spacing: 1px;">{{ video.title }}</strong>?</h3>
+<mat-dialog-content>
+  <p>Decide what you want to do.</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button mat-dialog-close (click)="delete()">Delete</button>
+</mat-dialog-actions>

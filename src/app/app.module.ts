@@ -38,6 +38,11 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { SnackBarComponent } from './snack-bar/snack-bar.component';
 import { CreateRepoDialogComponent } from './dialogs/create-repo-dialog/create-repo-dialog.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatChipsModule} from '@angular/material/chips';
+import { DeleteVideoDialogComponent } from './dialogs/delete-video-dialog/delete-video-dialog.component';
+import { ShowRepoInfoDialogComponent } from './dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
+import {MatStepperModule, MatVerticalStepper} from '@angular/material/stepper';
 
 
 @NgModule({
@@ -54,7 +59,9 @@ import { CreateRepoDialogComponent } from './dialogs/create-repo-dialog/create-r
     FooterComponent,
     EditVideoDialogComponent,
     SnackBarComponent,
-    CreateRepoDialogComponent
+    CreateRepoDialogComponent,
+    DeleteVideoDialogComponent,
+    ShowRepoInfoDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -80,7 +87,10 @@ import { CreateRepoDialogComponent } from './dialogs/create-repo-dialog/create-r
     MatCardModule,
     MatDividerModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatStepperModule
   ],
   providers: [
     AuthService,

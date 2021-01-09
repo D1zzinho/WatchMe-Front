@@ -1,14 +1,23 @@
 <h1 mat-dialog-title class="mt-0 pt-0">Create repository</h1>
 
-<form class="register-form" [formGroup]="createRepoForm" enctype="multipart/form-data">
+<form [formGroup]="createRepoForm" enctype="multipart/form-data">
 
   <div mat-dialog-content>
     <p>Type short information about your new repository.</p>
 
-    <mat-form-field color="accent" appearance="outline">
-      <mat-label>Repo name</mat-label>
-      <input matInput name="repoName" formControlName="repoName" type="text">
+    <mat-form-field class="w-100" color="accent" appearance="outline">
+      <mat-label>Repo name (min. 10 signs)</mat-label>
+      <input matInput #repoName name="repoName" formControlName="repoName" type="text" minlength="10" maxlength="200">
+      <mat-hint align="end">{{repoName.value.length}} / 200</mat-hint>
     </mat-form-field>
+
+    <mat-form-field class="w-100" color="accent" appearance="outline">
+      <mat-label>Repo short description (min. 10 signs)</mat-label>
+      <input matInput name="repoDescription" formControlName="repoDescription" type="text" minlength="30" maxlength="200">
+      <mat-hint align="end">{{repoName.value.length}} / 200</mat-hint>
+    </mat-form-field>
+
+    <mat-checkbox [(ngModel)]="checked" [ngModelOptions]="{ standalone: true }">Create as private repository</mat-checkbox>
 
   </div>
 
