@@ -609,26 +609,12 @@ h1.page-header {
     padding: 0;
 }
 
-.uploaded a.editme {
-    float: right;
-    color: rgba(226, 200, 53, 0.9);
-    font-size: 15px;
-}
 
-.uploaded a.editme:hover {
-    color: rgba(24, 151, 201, 0.7);
-}
-@media screen and (max-width: 768px) {
-    .uploaded a.editme {
-        font-size: 13px;
-    }
-}
-
-.uploaded p.date {
+.uploaded p#date {
     color: rgba(138, 137, 137, 0.8);
     font-weight: 300;
     letter-spacing: 1px;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .uploaded .desc {

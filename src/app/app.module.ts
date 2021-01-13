@@ -43,6 +43,7 @@ import {MatChipsModule} from '@angular/material/chips';
 import { DeleteVideoDialogComponent } from './dialogs/delete-video-dialog/delete-video-dialog.component';
 import { ShowRepoInfoDialogComponent } from './dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
 import {MatStepperModule, MatVerticalStepper} from '@angular/material/stepper';
+import { EditCommentDialogComponent } from './dialogs/edit-comment-dialog/edit-comment-dialog.component';
 
 
 @NgModule({
@@ -61,7 +62,8 @@ import {MatStepperModule, MatVerticalStepper} from '@angular/material/stepper';
     SnackBarComponent,
     CreateRepoDialogComponent,
     DeleteVideoDialogComponent,
-    ShowRepoInfoDialogComponent
+    ShowRepoInfoDialogComponent,
+    EditCommentDialogComponent
   ],
   imports: [
     BrowserModule,

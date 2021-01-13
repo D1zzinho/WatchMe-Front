@@ -51,19 +51,19 @@
             <div class="top-info-holder">
 
               <div class="title-views-section">
-                <h2 class="video-title"><span *ngIf="stat === 0">[PRIVATE] </span><span id="vtitle">{{ title }}</span></h2>
+                <h2 class="video-title"><span *ngIf="stat === 0">[PRIVATE] </span><span id="vtitle">{{ video['title'] }}</span></h2>
                 <div class="views" id="visits">{{ visits }} views</div>
 
-                <button *ngIf="isAdmin || isOwner" class="btn btn-outline-danger float-right m-1" (click)="showEditPanel()">Edit</button>
+                <button *ngIf="isAdmin || isOwner" class="btn btn-outline-danger float-right m-1" (click)="openEditVideoDialog(video)">Edit</button>
 
-                <div #editPanel class="m-0" style="display: none;" *ngIf="isAdmin || isOwner">
-                  <input #valueInput class="form-control float-right m-1" type="text" id="editValue" placeholder="Value to set when editing" />
-                  <button class="btn btn-warning float-right m-1" (click)="deleteCurrentVideo()">Delete video</button>
-                  <button class="btn btn-outline-secondary float-right m-1" (click)="editStat()">Edit stat</button>
-                  <button class="btn btn-outline-primary float-right m-1" (click)="editTags(valueInput.value)">Edit tags</button>
-                  <button class="btn btn-secondary float-right m-1" (click)="editDesc(valueInput.value)">Edit desc</button>
-                  <button class="btn btn-primary float-right m-1 rounded-right" (click)="editTitle(valueInput.value)">Edit title</button>
-                </div>
+<!--                <div #editPanel class="m-0" style="display: none;" *ngIf="isAdmin || isOwner">-->
+<!--                  <input #valueInput class="form-control float-right m-1" type="text" id="editValue" placeholder="Value to set when editing" />-->
+<!--                  <button class="btn btn-warning float-right m-1" (click)="deleteCurrentVideo()">Delete video</button>-->
+<!--                  <button class="btn btn-outline-secondary float-right m-1" (click)="editStat()">Edit stat</button>-->
+<!--                  <button class="btn btn-outline-primary float-right m-1" (click)="editTags(valueInput.value)">Edit tags</button>-->
+<!--                  <button class="btn btn-secondary float-right m-1" (click)="editDesc(valueInput.value)">Edit desc</button>-->
+<!--                  <button class="btn btn-primary float-right m-1 rounded-right" (click)="editTitle(valueInput.value)">Edit title</button>-->
+<!--                </div>-->
 
               </div>
 
@@ -71,14 +71,14 @@
 
             <div class="info">
               <div class="add-by">
-                <div class="avatar border-0"><a href="#"><img class="rounded-circle border border-white" src="{{ authorAvatar }}"  alt="Author's avatar"/></a></div>
+                <div class="avatar"><a href="#"><img class="rounded-circle" src="{{ authorAvatar }}"  alt="Author's avatar"/></a></div>
                 <div class="uploaded">
                   <a href="#" id="author">{{ author }}</a>
                   <p id="date">Added on {{ uploadDate }}</p>
                   <div #descriptionDiv class="desc">
-                    <span class="description" style="white-space: pre-wrap;">{{ description }}</span>
+                    <span class="description" style="white-space: pre-wrap;">{{ video['desc'] }}</span>
                     <br><br><hr class="mt-4 mb-0 pb-2 border-light"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
-                    <a *ngFor="let tag of tags" class="btn btn-sm btn-outline-info ml-0 mr-1 my-1 px-1" [routerLink]="['/finder']" [queryParams]="{ q: tag, page: 1 }">{{ tag }}</a>
+                    <a *ngFor="let tag of video['tags']" class="btn btn-sm btn-outline-info ml-0 mr-1 my-1 px-1" [routerLink]="['/finder']" [queryParams]="{ q: tag, page: 1 }">{{ tag }}</a>
                   </div>
                   <a #showDescLink href="javascript:void(0)" id="sh_desc">Show more</a>
                 </div>
@@ -90,24 +90,16 @@
               <h3>Comments</h3>
 
               <div class="media mt-3 shadow-textarea mb-4">
-                <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3" alt="Current user avatar" src="{{ userAvatar }}">
+                <img id="avatar" class="d-flex rounded-circle avatar z-depth-1-half mr-3 mt-1" alt="Current user avatar" src="{{ userAvatar }}">
                 <div class="media-body">
                   <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="form-group rounded-corners" enctype="multipart/form-data">
-<!--                    <textarea-->
-<!--                      #commentInput-->
-<!--                      class="md-textarea md-textarea-auto form-control comment-input"-->
-<!--                      id="commentInput"-->
-<!--                      rows="3"-->
-<!--                      name="text"-->
-<!--                      formControlName="text"-->
-<!--                      placeholder="Write your comment..."-->
-<!--                      mdbInput-->
-<!--                      ></textarea>-->
+
                     <mat-form-field class="w-100" color="accent" appearance="outline">
                       <mat-label>Write new comment here (min. 5 signs)</mat-label>
                       <textarea matInput #commentInput name="text" formControlName="text" type="text" minlength="5" maxlength="500" class="comment-input"></textarea>
                       <mat-hint align="end">{{commentInput.value.length}} / 500</mat-hint>
                     </mat-form-field>
+
                     <div class="comment-form-actions">
                       <button mat-raised-button color="accent" class="mt-1" [disabled]="commentForm.invalid">Add</button>
                     </div>
@@ -124,15 +116,15 @@
                     <p class="comment-message" style="white-space: pre;">{{ comment.text }}</p>
                   </div>
 
-                  <button class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Video actions" #menuTrigger>
+                  <button *ngIf="comment.author === currentUser || isAdmin" class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Video actions" #menuTrigger>
                     <mat-icon>more_vert</mat-icon>
                   </button>
                   <mat-menu #menu="matMenu">
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="openEditCommentDialog(comment)">
                       <mat-icon>edit</mat-icon>
                       <span>Edit</span>
                     </button>
-                    <button mat-menu-item disabled>
+                    <button mat-menu-item (click)="deleteComment(comment.id)">
                       <mat-icon>delete_forever</mat-icon>
                       <span>Delete</span>
                     </button>

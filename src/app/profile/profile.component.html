@@ -30,7 +30,7 @@
         <h3 class="text-monospace text-muted pt-3">Registered in GitHub at: <span class="text-white">{{ currentUserData['created_at'] }}</span></h3>
       </mat-card>
 
-      <div class="mt-4" *ngIf="userType === 'system'">
+      <mat-card class="mt-4" *ngIf="userType === 'system'">
         <h3 class="text-monospace text-muted">Name: <span class="text-white">{{ currentUserData['username'] }}</span></h3>
         <mat-divider></mat-divider>
         <h3 class="text-monospace text-muted pt-3">E-mail address: <span class="text-white">{{ currentUserData['email'] === null ? 'not assigned' : currentUserData['email'] }}</span></h3>
@@ -40,7 +40,7 @@
         <h3 class="text-monospace text-muted pt-3">Registered at: <span class="text-white">{{ currentUserData['registerDate'] }}</span></h3>
         <!--        <h3 class="text-monospace text-muted">About: <p class="text-white">{{ currentUserData['about'] === null ? 'not set' : currentUserData['about'] }}</p></h3>-->
 <!--        <h3 class="text-monospace text-muted">Registered at: <strong class="text-white">{{ currentUserData['lastLoginDate'] }}</strong></h3>-->
-      </div>
+      </mat-card>
 
     </mat-tab>
 
@@ -55,7 +55,7 @@
       <div class="user-videos mt-0" *ngIf="currentUserVideos.length > 0">
 
         <div class="text-left h-100" *ngFor="let video of videosOnPage">
-          <div class="user-video h-100" [title]="video['title']">
+          <div class="user-video h-100 rgba-pink-light" [title]="video['title']">
 
             <a class="video-link" [routerLink]="['/player']" [queryParams]="{vid: video['_id']}"></a>
             <img
@@ -128,22 +128,22 @@
             <td mat-cell *matCellDef="let row"> {{row.name}} </td>
           </ng-container>
 
-          <!-- Repo language column -->
-          <ng-container matColumnDef="language">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Language </th>
-            <td mat-cell *matCellDef="let row"> {{row.language}} </td>
-          </ng-container>
-
           <!-- Repo description Column -->
           <ng-container matColumnDef="description">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Description </th>
-            <td mat-cell *matCellDef="let row"> {{row.description}} </td>
+            <td mat-cell *matCellDef="let row"> {{row['description']}} </td>
           </ng-container>
 
-          <!-- Repo description Column -->
+          <!-- Repo private or public Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+            <td mat-cell *matCellDef="let row"> {{row['private'] ? 'Private' : 'Public'}} </td>
+          </ng-container>
+
+          <!-- Repo commits Column -->
           <ng-container matColumnDef="commits">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Commits </th>
-            <td mat-cell *matCellDef="let row"><a (click)="openShowCommitsDialog(row.name)"><mat-icon>mediation_icon</mat-icon></a></td>
+            <td mat-cell *matCellDef="let row"><a (click)="openShowCommitsDialog(row['name'], row['owner']['login'], row['private'])"><mat-icon>mediation_icon</mat-icon></a></td>
           </ng-container>
 
           <!-- External link to repo column -->

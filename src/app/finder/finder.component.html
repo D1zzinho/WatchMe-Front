@@ -62,7 +62,7 @@
   <div class="videos">
 
     <a class="text-left h-100" *ngFor="let video of videos" [routerLink]="['/player']" [queryParams]="{vid: video.id}">
-      <div class="video h-100" [title]="video.title">
+      <div class="video h-100 rgba-pink-light" [title]="video.title">
 
           <div class="preview">
 
@@ -88,7 +88,7 @@
 
           <div class="movie-info">
             <h3 style="font-size: 13px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</h3>
-            <span style="color: rgba(50,170,255,0.8)" title="Views">{{ video.visits }}</span>
+            <span class="blue-text" title="Views">{{ video.visits }}</span>
           </div>
 
       </div>

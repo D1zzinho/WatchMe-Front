@@ -1,39 +1,66 @@
-<h3>Latest <strong style="letter-spacing: 2px;">{{repo}}</strong> commits</h3>
+<h2>Repository <strong style="letter-spacing: 2px;">{{data.name}}</strong></h2>
 
-<div class="commits-holder" *ngIf="loadedCommits | async">
-  <ul class="timeline mr-4">
+<mat-tab-group color="accent" animationDuration="0ms">
 
-    <li *ngFor="let commitGroup of commits">
-      <p>Commits on {{commitGroup['date']}}</p>
-      <ol class="box position-relative mt-3 list-style-none ml-sm-0">
-        <li class="box-row mt-0 border-top-0">
-          <span style="font-size: 13px;">
-            {{ commitGroup['commits'][0].message }}
-          </span>
-          <div>
-            <span style="font-size: 11px;" class="text-white-50">
-              Committed by <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commitGroup['commits'][0]['author']['login'] }}</span>
-            </span>
-          </div>
+  <!-- COMMITS TAB -->
+  <mat-tab label="Commits">
+    <div class="commits-holder" *ngIf="loadedCommits | async">
+      <ul class="timeline mr-4" *ngIf="accessible | async">
+
+        <li *ngFor="let commitGroup of commits">
+          <p>Commits on {{commitGroup['date']}}</p>
+          <ol class="box position-relative mt-3 list-style-none ml-sm-0">
+            <li class="box-row mt-0 border-top-0">
+              <span style="font-size: 13px;">
+                {{ commitGroup['commits'][0].message }}
+              </span>
+              <div>
+                <span style="font-size: 11px;" class="text-white-50">
+                  Committed by
+                  <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commitGroup['commits'][0]['author']['login'] }}</span>
+                  on {{ commitGroup['commits'][0]['date'] }}
+                </span>
+              </div>
+            </li>
+
+            <li *ngFor="let commit of commitGroup['commits'].slice(1,commitGroup['commits'].length)" class="box-row mt-0">
+              <span style="font-size: 13px;">
+                {{ commit.message }}
+              </span>
+              <div>
+                <span style="font-size: 11px;" class="text-white-50">
+                  Committed by
+                  <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commit['author']['login'] }}</span>
+                  on {{ commit.date }}
+                </span>
+              </div>
+            </li>
+          </ol>
         </li>
 
-        <li *ngFor="let commit of commitGroup['commits'].slice(1,commitGroup['commits'].length)" class="box-row mt-0">
-          <span style="font-size: 13px;">
-            {{ commit.message }}
-          </span>
-          <div>
-            <span style="font-size: 11px;" class="text-white-50">
-              Committed by <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commit['author']['login'] }}</span>
-            </span>
-          </div>
-        </li>
-      </ol>
-    </li>
+      </ul>
 
-  </ul>
-</div>
+      <div class="alert alert-danger" role="alert" *ngIf="!(accessible | async)">
+        You cannot access other users <strong>private</strong> repository commits!
+      </div>
+    </div>
 
-<div class="loading" *ngIf="!(loadedCommits | async)">
-  <mat-spinner class="m-auto" color="accent"></mat-spinner>
-</div>
+    <div class="loading" *ngIf="!(loadedCommits | async)">
+      <mat-spinner class="m-auto" color="accent"></mat-spinner>
+    </div>
+
+  </mat-tab>
+
+
+  <!-- LANGUAGES TAB -->
+  <mat-tab label="Languages">
+    <div class="mt-2">
+      <div *ngFor="let value of languages" class="alert alert-success">{{ value[0] }} => {{ value[1] }}%</div>
+    </div>
+  </mat-tab>
+
+
+<!--  <mat-tab label="Third"> </mat-tab>-->
+
+</mat-tab-group>
 

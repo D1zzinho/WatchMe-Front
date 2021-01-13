@@ -11,6 +11,10 @@ import {ThemePalette} from '@angular/material/core';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {SnackBarComponent} from '../snack-bar/snack-bar.component';
+import {MatDialog} from '@angular/material/dialog';
+import {MatMenuTrigger} from '@angular/material/menu';
+import {EditCommentDialogComponent} from '../dialogs/edit-comment-dialog/edit-comment-dialog.component';
+import {EditVideoDialogComponent} from '../dialogs/edit-video-dialog/edit-video-dialog.component';
 
 @Component({
   selector: 'app-player',
@@ -26,6 +30,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   videoLoaded: Promise<boolean>;
   error: string = null;
 
+  video: any = null;
   id = '';
   title = '';
   description = '';
@@ -51,6 +56,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
   isAdmin = false;
   isOwner = false;
+  currentUser = '';
   userAvatar = '';
 
   comments: Array<CommentDto> = new Array<CommentDto>();
@@ -81,6 +87,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   @ViewChild('showDescLink', { static: false }) showDescLink: ElementRef;
   @ViewChild('editPanel', { static: false }) editPanel: ElementRef;
   @ViewChild('commentInput', { static: false }) commentInput: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -89,7 +96,8 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     private router: Router,
     private titleService: Title,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    public dialog: MatDialog
   ) {}
 
 
@@ -113,6 +121,8 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
           }
           else {
             this.videoLoaded = Promise.resolve(true);
+            this.video = res;
+            this.video._id = res.id;
 
             this.id = res?.id;
             this.title = res?.title;
@@ -204,9 +214,11 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     this.authService.getUser().subscribe(result => {
       if (result.avatar_url) {
         this.userAvatar = result.avatar_url;
+        this.currentUser = result.login;
       }
       else {
         this.userAvatar = result.avatar;
+        this.currentUser = result.username;
       }
     });
   }
@@ -273,14 +285,14 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
-  showEditPanel(): void {
-    if (this.editPanel.nativeElement.style.display === 'none') {
-      this.editPanel.nativeElement.removeAttribute('style');
-    }
-    else {
-      this.editPanel.nativeElement.style.display = 'none';
-    }
-  }
+  // showEditPanel(): void {
+  //   if (this.editPanel.nativeElement.style.display === 'none') {
+  //     this.editPanel.nativeElement.removeAttribute('style');
+  //   }
+  //   else {
+  //     this.editPanel.nativeElement.style.display = 'none';
+  //   }
+  // }
 
 
   deleteCurrentVideo(): void {
@@ -938,6 +950,19 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
+  onAutoPlayToggle(event: MatSlideToggleChange): void {
+    localStorage.setItem('autoNext', String(event.checked));
+
+    const autoplayVideo = document.getElementById('autoplayVideo');
+    if (event.checked) {
+      autoplayVideo.style.backgroundColor = '#69f0aaaa';
+    }
+    else {
+      autoplayVideo.removeAttribute('style');
+    }
+  }
+
+
   addComment(): void {
     this.authService.postResource(`${this.COMMENTS_URL}/${this.id}`, { text: this.commentForm.value.text }).subscribe(res => {
       if (res.added) {
@@ -962,16 +987,58 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
-  onAutoPlayToggle(event: MatSlideToggleChange): void {
-    localStorage.setItem('autoNext', String(event.checked));
+  deleteComment(commentId: string): void {
+    this.authService.deleteResource(`${this.COMMENTS_URL}/${commentId}`).subscribe(res => {
+      if (res.deleted) {
+        const index = this.comments.findIndex(comment => comment.id === commentId);
+        console.log(index);
+        if (index > -1) {
+          this.comments.splice(index, 1);
+        }
 
-    const autoplayVideo = document.getElementById('autoplayVideo');
-    if (event.checked) {
-      autoplayVideo.style.backgroundColor = '#69f0aaaa';
-    }
-    else {
-      autoplayVideo.removeAttribute('style');
-    }
+        this.snackBar.openFromComponent(SnackBarComponent, {
+          data: { message: res.message, type: 'success' },
+          duration: 4 * 1000,
+          panelClass: ['darkBar']
+        });
+      }
+      else {
+        this.snackBar.openFromComponent(SnackBarComponent, {
+          data: { message: res.message, type: 'error' },
+          duration: 4 * 1000,
+          panelClass: ['darkBar']
+        });
+      }
+    }, err => {
+      this.snackBar.openFromComponent(SnackBarComponent, {
+        data: { message: err.message, type: 'error' },
+        duration: 4 * 1000,
+        panelClass: ['darkBar']
+      });
+    });
+  }
+
+
+  openEditCommentDialog(comment: CommentDto): void {
+    const dialogRef = this.dialog.open(EditCommentDialogComponent, {
+      data: comment,
+      restoreFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.menuTrigger.focus();
+    });
+  }
+
+
+  openEditVideoDialog(video: VideoDto): void {
+    this.dialog.open(EditVideoDialogComponent, {
+      data: video,
+      restoreFocus: false
+    });
+
+    // dialogRef.afterClosed().subscribe(() => {
+    // });
   }
 
 }

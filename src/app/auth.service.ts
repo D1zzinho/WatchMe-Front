@@ -122,11 +122,6 @@ export class AuthService {
   }
 
 
-  // isLoggedOut(): boolean {
-  //   return !this.isLoggedIn();
-  // }
-
-
   isAdmin(): boolean {
     if (localStorage.getItem('token') !== null) {
       const tokenInfo = jwt_decode(AuthService.getAccessToken());

@@ -43,7 +43,7 @@ export class ProfileComponent implements OnInit {
   pageSizeOptions: number[] = [5, 10, 15, 20, 40];
 
 
-  displayedColumns: string[] = ['name', 'language', 'description', 'commits', 'external_link'];
+  displayedColumns: string[] = ['name', 'description', 'status', 'commits', 'external_link'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
   tableLoaded = Promise.resolve(false);
 
@@ -58,7 +58,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.authService.getUser().subscribe(res => {
       this.currentUserData = res;
-      console.log(res);
+
       if (res.login) {
         this.userType = 'github';
         this.username = res.login;
@@ -171,9 +171,9 @@ export class ProfileComponent implements OnInit {
   }
 
 
-  openShowCommitsDialog(repo: string): void {
+  openShowCommitsDialog(name: string, owner: string, isPrivate: boolean): void {
     this.dialog.open(ShowRepoInfoDialogComponent, {
-      data: repo,
+      data: { name, owner, isPrivate },
       restoreFocus: false
     });
   }

@@ -1,0 +1,21 @@
+<h1 mat-dialog-title class="mt-0 pt-0">Create repository</h1>
+
+<form [formGroup]="editCommentForm" enctype="multipart/form-data">
+
+  <div mat-dialog-content>
+    <p>Type short information about your new repository.</p>
+
+    <mat-form-field class="w-100" color="accent" appearance="outline">
+      <mat-label>New comment message (min. 5 signs)</mat-label>
+      <textarea matInput #newMessage name="text" formControlName="text" type="text" minlength="5" maxlength="500"></textarea>
+      <mat-hint align="end">{{newMessage.value.length}} / 500</mat-hint>
+    </mat-form-field>
+
+  </div>
+
+  <div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">Cancel</button>
+    <button mat-button [disabled]="editCommentForm.invalid" (click)="edit()">Edit comment</button>
+  </div>
+
+</form>

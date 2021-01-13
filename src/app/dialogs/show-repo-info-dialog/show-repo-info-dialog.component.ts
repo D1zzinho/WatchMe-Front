@@ -15,27 +15,71 @@ export class ShowRepoInfoDialogComponent implements OnInit {
   readonly durationInSeconds = 5;
 
   loadedCommits: Promise<boolean>;
+  accessible: Promise<boolean>;
   commits: Array<any> = new Array<any>();
+  languages: Array<any> = new Array<any>();
 
-  constructor(@Inject(MAT_DIALOG_DATA) public repo: string, private authService: AuthService, private snackBar: MatSnackBar) { }
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: {
+      name: string,
+      owner: string,
+      isPrivate: boolean
+    },
+    private authService: AuthService,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit(): void {
     this.loadedCommits = Promise.resolve(false);
+    this.accessible = Promise.resolve(false);
 
-    this.authService.getResource(`${this.baseUrl}/users/github/${this.repo}/commits`).subscribe(commits => {
-      const withFormattedDate = new Array<any>();
+    const getRepoBody = {
+      name: this.data.name,
+      owner: this.data.owner
+    };
 
-      commits.forEach(commit => {
-        withFormattedDate.push({
-          date: new Date(commit.date).toDateString(),
-          commits: commit.commits
-        });
-      });
-console.log(withFormattedDate)
-      this.commits = withFormattedDate;
-
+    if (this.data.owner !== this.authService.getUsernameFromToken() && this.data.isPrivate) {
       this.loadedCommits = Promise.resolve(true);
-    });
+    }
+    else {
+      this.authService.postResource(`${this.baseUrl}/users/github/commits`, getRepoBody).subscribe(commits => {
+        const withFormattedDate = new Array<any>();
+
+        commits.forEach(commit => {
+          commit.commits.forEach(commitData => {
+            const date = new Date(commitData.date);
+            commitData.date = date.toLocaleString();
+          });
+
+          withFormattedDate.push({
+            date: new Date(commit.date).toDateString(),
+            commits: commit.commits
+          });
+        });
+
+        this.commits = withFormattedDate;
+
+        this.accessible = Promise.resolve(true);
+        this.loadedCommits = Promise.resolve(true);
+      });
+
+      this.authService.postResource(`${this.baseUrl}/users/github/languages`, getRepoBody).subscribe(languages => {
+        const languagesMap = Object.keys(languages).map((key) => [String(key), languages[key]]);
+
+        let languageSum = 0;
+        languagesMap.forEach((value, key) => {
+          languageSum += value[1];
+        });
+
+        const percentArr = new Array<any>();
+        languagesMap.forEach((value, key) => {
+          percentArr.push([value[0], (Math.round((value[1] / languageSum) * 100) / 100) * 100 ]);
+        });
+
+        this.languages = percentArr;
+      });
+    }
+
   }
 
 }
