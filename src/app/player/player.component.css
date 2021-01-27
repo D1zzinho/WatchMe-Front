@@ -471,7 +471,6 @@ h1.page-header {
 
 .video-section .views {
     display: inline-flex;
-    float: left;
 }
 
 .votes .th_up {
@@ -937,11 +936,16 @@ h1.page-header {
   grid-area: svs;
 }
 
+.playlist-section {
+  grid-area: pl;
+}
+
 .next-video-section {
   display: grid;
   grid-template-areas:
     'os'
-    'svs';
+    'svs'
+    'pl';
   grid-gap: 20px;
   font-weight: 400;
 }
@@ -950,7 +954,8 @@ h1.page-header {
   .next-video-section {
     grid-template-columns: 1fr 2fr;
     grid-template-areas:
-    'os svs svs';
+    'os svs svs'
+    'pl pl pl';
   }
 }
 

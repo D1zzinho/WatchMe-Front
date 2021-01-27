@@ -44,6 +44,13 @@ import { DeleteVideoDialogComponent } from './dialogs/delete-video-dialog/delete
 import { ShowRepoInfoDialogComponent } from './dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
 import {MatStepperModule, MatVerticalStepper} from '@angular/material/stepper';
 import { EditCommentDialogComponent } from './dialogs/edit-comment-dialog/edit-comment-dialog.component';
+import {MatSelectModule} from '@angular/material/select';
+import { PlaylistActionsDialogComponent } from './dialogs/playlist-actions-dialog/playlist-actions-dialog.component';
+import {MatListModule} from '@angular/material/list';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatGridListModule} from '@angular/material/grid-list';
+import { PlaylistComponent } from './player/playlist/playlist.component';
+import { CommentsComponent } from './player/comments/comments.component';
 
 
 @NgModule({
@@ -63,37 +70,44 @@ import { EditCommentDialogComponent } from './dialogs/edit-comment-dialog/edit-c
     CreateRepoDialogComponent,
     DeleteVideoDialogComponent,
     ShowRepoInfoDialogComponent,
-    EditCommentDialogComponent
+    EditCommentDialogComponent,
+    PlaylistActionsDialogComponent,
+    PlaylistComponent,
+    CommentsComponent
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    MDBBootstrapModule.forRoot(),
-    MatPaginatorModule,
-    MatSlideToggleModule,
-    MatTooltipModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatInputModule,
-    MatTableModule,
-    MatSortModule,
-    MatIconModule,
-    MatMenuModule,
-    MatCardModule,
-    MatDividerModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatCheckboxModule,
-    MatChipsModule,
-    MatStepperModule
-  ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        MDBBootstrapModule.forRoot(),
+        MatPaginatorModule,
+        MatSlideToggleModule,
+        MatTooltipModule,
+        MatProgressBarModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        MatInputModule,
+        MatTableModule,
+        MatSortModule,
+        MatIconModule,
+        MatMenuModule,
+        MatCardModule,
+        MatDividerModule,
+        MatDialogModule,
+        MatSnackBarModule,
+        MatCheckboxModule,
+        MatChipsModule,
+        MatStepperModule,
+        MatSelectModule,
+        MatListModule,
+        MatGridListModule,
+        MatExpansionModule
+    ],
   providers: [
     AuthService,
     AuthGuardService

@@ -1,0 +1,29 @@
+.mat-list-item {
+  height: auto !important;
+}
+
+.item-cover {
+  grid-area: ic;
+}
+
+.item-title {
+  grid-area: it;
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+}
+
+.playlist-item {
+  height: 105px;
+  display: grid;
+  grid-template-columns: 2fr 2fr;
+  grid-template-areas:
+    'ic it';
+  grid-gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.playlist-close:hover {
+  transition-duration: .2s;
+  color: rgba(255,0,100,0.8);
+}

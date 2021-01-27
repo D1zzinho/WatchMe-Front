@@ -1,0 +1,54 @@
+<div *ngIf="playlist !== null">
+
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon style="vertical-align: middle; font-size: 30px; width: 30px; height: 30px;">playlist_play</mat-icon>
+        <span class="ml-2 my-auto">{{ playlist.name }}</span>
+        <mat-icon
+          *ngIf="!playlist['isPrivate']"
+          class="ml-1 my-auto"
+          style="color: rgba(255,255,255,0.7); font-size: 20px; width: 20px; height: 20px;"
+          title="Private"
+        >lock</mat-icon>
+      </mat-panel-title>
+      <mat-panel-description>
+        <mat-icon (click)="close()" style="vertical-align: middle;" class="ml-auto my-auto playlist-close" title="Exit playlist">close</mat-icon>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <mat-selection-list #videos [multiple]="false">
+      <mat-list-option *ngFor="let video of playlist['videos']; index as i">
+        <div class="playlist-item" (click)="open(i)">
+          <div class="item-cover">
+            <img class="img-fluid mr-4" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">
+          </div>
+
+          <div class="item-title">
+            {{ video['title'] }}
+          </div>
+        </div>
+      </mat-list-option>
+    </mat-selection-list>
+
+
+<!--    <mat-grid-list cols="5" rowHeight="120px">-->
+<!--      <a class="playlist-item" *ngFor="let video of playlist['videos']" [href]="'/player?vid=' + video['_id'] + '&list=' + playlist['_id']">-->
+<!--        <mat-grid-tile-->
+<!--          [colspan]="2"-->
+<!--          [rowspan]="1"-->
+<!--        >-->
+<!--          <img class="img-fluid mr-4" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">-->
+<!--        </mat-grid-tile>-->
+<!--        <mat-grid-tile-->
+<!--          [colspan]="3"-->
+<!--          [rowspan]="1"-->
+<!--        >-->
+<!--          {{ video['title'] }}-->
+<!--        </mat-grid-tile>-->
+<!--      </a>-->
+<!--    </mat-grid-list>-->
+
+  </mat-expansion-panel>
+
+</div>

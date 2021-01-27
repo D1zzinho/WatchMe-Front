@@ -118,14 +118,16 @@ export class EditVideoDialogComponent implements OnInit {
       const editStat = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.video._id}/stat`, {id: this.video._id}).toPromise();
 
       if (editStat.updated) {
-        window.location.reload();
+        this.video.stat = this.video.stat === 0 ? 1 : 0;
+
+        this.openSnackBar(editStat.message, 'success');
       }
       else {
-        console.log(editStat.message);
+        this.openSnackBar(editStat.message, 'error');
       }
     }
     catch (err) {
-      console.log(err.message);
+      this.openSnackBar(err.message, 'error');
     }
   }
 

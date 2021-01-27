@@ -152,6 +152,7 @@ button.navbar-toggler {
 }
 
 .video img {
+  width: 100%;
   position: relative;
   transition: ease .3s;
   z-index: 2;

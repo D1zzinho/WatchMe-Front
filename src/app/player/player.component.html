@@ -51,11 +51,12 @@
             <div class="top-info-holder">
 
               <div class="title-views-section">
-                <h2 class="video-title"><span *ngIf="stat === 0">[PRIVATE] </span><span id="vtitle">{{ video['title'] }}</span></h2>
-                <div class="views" id="visits">{{ visits }} views</div>
+                <h2 class="video-title"><span *ngIf="video['stat'] === 0">[PRIVATE] </span><span id="vtitle">{{ video['title'] }}</span></h2>
+                <div class="d-flex">
+                  <div class="mr-auto" id="visits">{{ visits }} views</div>
 
-                <button *ngIf="isAdmin || isOwner" class="btn btn-outline-danger float-right m-1" (click)="openEditVideoDialog(video)">Edit</button>
-
+                  <a *ngIf="isAdmin || isOwner" class="ml-auto" (click)="openEditVideoDialog(video)"><mat-icon color="accent">settings</mat-icon></a>
+                </div>
 <!--                <div #editPanel class="m-0" style="display: none;" *ngIf="isAdmin || isOwner">-->
 <!--                  <input #valueInput class="form-control float-right m-1" type="text" id="editValue" placeholder="Value to set when editing" />-->
 <!--                  <button class="btn btn-warning float-right m-1" (click)="deleteCurrentVideo()">Delete video</button>-->
@@ -86,6 +87,7 @@
             </div>
 
 
+            <app-comments></app-comments>
             <div class="comment-section" [ngStyle]="{ 'display': timeoutEnded ? '' : 'none;' }">
               <h3>Comments</h3>
 
@@ -151,6 +153,16 @@
                 >
                 Autoplay next video
               </mat-slide-toggle>
+
+              <button
+                class="mt-2 w-100"
+                mat-raised-button
+                color="primary"
+                matTooltip="Save to playlist"
+                matTooltipPosition="before"
+                (click)="openPlaylistActionsDialog()"
+              ><mat-icon>star</mat-icon></button>
+
             </div>
 
             <div class="selected-video-section">
@@ -162,6 +174,45 @@
                 </div>
               </div>
             </div>
+
+            <app-playlist
+              class="playlist-section"
+              *ngIf="playlistLoaded | async"
+              [playlist]="playlist"
+              [video]="video"
+              (playlistChange)="playlist = $event"
+            ></app-playlist>
+<!--            <div class="playlist-section" *ngIf="playlist !== null">-->
+<!--              <mat-expansion-panel hideToggle>-->
+<!--                <mat-expansion-panel-header>-->
+<!--                  <mat-panel-title>-->
+<!--                    <mat-icon style="vertical-align: middle;" >playlist_play</mat-icon> {{ playlist.name }}-->
+<!--                  </mat-panel-title>-->
+<!--                  <mat-panel-description *ngIf="playlist['isPrivate']" >-->
+<!--                    <mat-icon style="vertical-align: middle;" class="ml-auto" title="Private">https</mat-icon>-->
+<!--                  </mat-panel-description>-->
+<!--                </mat-expansion-panel-header>-->
+
+<!--                <mat-grid-list cols="5" rowHeight="120px">-->
+<!--                  <a class="playlist-item" *ngFor="let video of playlist['videos']" [href]="'/player?vid=' + video['_id'] + '&list=' + playlist['_id']">-->
+<!--                    <mat-grid-tile-->
+<!--                      [colspan]="2"-->
+<!--                      [rowspan]="1"-->
+<!--                    >-->
+<!--                      <img class="img-fluid mr-4" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">-->
+<!--                    </mat-grid-tile>-->
+<!--                    <mat-grid-tile-->
+<!--                      [colspan]="3"-->
+<!--                      [rowspan]="1"-->
+<!--                    >-->
+<!--                      {{ video['title'] }}-->
+<!--                    </mat-grid-tile>-->
+<!--                  </a>-->
+<!--                </mat-grid-list>-->
+
+<!--              </mat-expansion-panel>-->
+
+<!--            </div>-->
 
           </div>
 

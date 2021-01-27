@@ -1,6 +1,6 @@
-import {AfterContentInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterContentInit, Component, ElementRef, HostListener, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {Title} from '@angular/platform-browser';
 import {VideoDto} from '../models/VideoDto';
 import {AuthService} from '../auth.service';
@@ -15,6 +15,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatMenuTrigger} from '@angular/material/menu';
 import {EditCommentDialogComponent} from '../dialogs/edit-comment-dialog/edit-comment-dialog.component';
 import {EditVideoDialogComponent} from '../dialogs/edit-video-dialog/edit-video-dialog.component';
+import {PlaylistActionsDialogComponent} from '../dialogs/playlist-actions-dialog/playlist-actions-dialog.component';
 
 @Component({
   selector: 'app-player',
@@ -53,6 +54,10 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   similarVideos: Array<VideoDto> = new Array<VideoDto>();
   similarOnPage = 11;
   similarVideosColumnLimit = 21;
+
+  playlists: Array<any>;
+  playlistLoaded: Promise<boolean>;
+  playlist = null;
 
   isAdmin = false;
   isOwner = false;
@@ -100,6 +105,9 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     public dialog: MatDialog
   ) {}
 
+  do(value: any): void {
+    console.log(value);
+  }
 
   ngOnInit(): void {
     this.commentForm = this.formBuilder.group({
@@ -107,13 +115,16 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
         [
           Validators.required,
           Validators.minLength(5),
-          Validators.maxLength(500)
+          Validators.maxLength(500),
+          this.noWhitespaceValidator
         ]
       )
     });
 
     this.currentRoute.queryParams.subscribe(params => {
-      this.authService.getResource(`${this.VIDEOS_URL}/${params.vid}`).subscribe(res => {
+      const videoId = params.vid;
+
+      this.authService.getResource(`${this.VIDEOS_URL}/${videoId}`).subscribe(res => {
         if (res !== null) {
           if (res.err) {
             this.error = 'Video not found!';
@@ -154,6 +165,10 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
               }
             });
 
+            this.authService.getResource(`${this.baseUrl}/playlist/user`).subscribe(playlists => {
+              this.playlists = playlists.userPlaylists.playlists;
+            });
+
             if (res.id !== '') {
               this.getSimilarVideos().then(videos => {
                 let currentIndex = videos.length;
@@ -178,25 +193,25 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
             }
 
             if (this.error === null) {
-                if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
-                  const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
-                  if (watchedVideos !== null) {
-                    const result = watchedVideos.findIndex(v => v.vid === this.id);
+              if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
+                const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
+                if (watchedVideos !== null) {
+                  const result = watchedVideos.findIndex(v => v.vid === this.id);
 
-                    if (result === -1) {
-                      this.authService.patchResource(
-                        `${this.VIDEOS_URL}/${params.vid}/views`,
-                        null
-                      ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
-                    }
-                  }
-                  else {
+                  if (result === -1) {
                     this.authService.patchResource(
-                      `${this.VIDEOS_URL}/${params.vid}/views`,
+                      `${this.VIDEOS_URL}/${videoId}/views`,
                       null
                     ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
                   }
                 }
+                else {
+                  this.authService.patchResource(
+                    `${this.VIDEOS_URL}/${videoId}/views`,
+                    null
+                  ).subscribe(updated => { if (updated.updated) { this.visits += 1; } });
+                }
+              }
             }
 
             this.titleService.setTitle(res.title + ' - WatchMe');
@@ -207,6 +222,20 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
           throw new Error('Video not found!');
         }
       });
+
+
+      if (params.list !== undefined && params.list !== null) {
+        this.playlistLoaded = Promise.resolve(false);
+
+        this.authService.getResource(`${this.baseUrl}/playlist/${params.list}`).subscribe(res => {
+          if (res.playlist !== null) {
+            this.playlistLoaded = Promise.resolve(true);
+            this.playlist = res.playlist;
+          }
+        }, err => {
+          console.log(err.message);
+        });
+      }
     });
 
     this.isAdmin = this.authService.isAdmin();
@@ -250,7 +279,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
         this.loadPlayer();
       }
-      }, 2000);
+    }, 2000);
   }
 
 
@@ -276,7 +305,12 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   play(id: string): void {
-    window.location.href = `/player?vid=${id}`;
+    if (this.playlist !== null) {
+      window.location.href = `/player?vid=${id}&list=${this.playlist._id}`;
+    }
+    else {
+      window.location.href = `/player?vid=${id}`;
+    }
   }
 
 
@@ -963,6 +997,11 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
+  // addVideoToPlaylist(): void {
+  //
+  // }
+
+
   addComment(): void {
     this.authService.postResource(`${this.COMMENTS_URL}/${this.id}`, { text: this.commentForm.value.text }).subscribe(res => {
       if (res.added) {
@@ -991,7 +1030,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     this.authService.deleteResource(`${this.COMMENTS_URL}/${commentId}`).subscribe(res => {
       if (res.deleted) {
         const index = this.comments.findIndex(comment => comment.id === commentId);
-        console.log(index);
+
         if (index > -1) {
           this.comments.splice(index, 1);
         }
@@ -1019,6 +1058,21 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
+  openPlaylistActionsDialog(): void {
+    const dialogRef = this.dialog.open(PlaylistActionsDialogComponent, {
+      data: { playlists: this.playlists, video: this.video, playlist: this.playlist },
+      restoreFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.playlist = res;
+        this.playlistLoaded = Promise.resolve(true);
+      }
+    });
+  }
+
+
   openEditCommentDialog(comment: CommentDto): void {
     const dialogRef = this.dialog.open(EditCommentDialogComponent, {
       data: comment,
@@ -1039,6 +1093,12 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
     // dialogRef.afterClosed().subscribe(() => {
     // });
+  }
+
+  private noWhitespaceValidator(control: FormControl): any {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { whitespace: true };
   }
 
 }

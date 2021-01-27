@@ -45,6 +45,14 @@
     <button mat-raised-button color="accent" class="ml-2" (click)="editTags()">Edit tags</button>
   </form>
 
+  <mat-divider class="my-3"></mat-divider>
+
+  <form class="example-form text-center pb-2">
+    <span>This video is {{ video.stat === 0 ? 'private' : 'public' }}</span>
+    <br />
+    <button mat-raised-button color="accent" class="m-auto" (click)="editStat()">Set as {{ video.stat === 0 ? 'public' : 'private' }}</button>
+  </form>
+
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button mat-dialog-close>Close</button>

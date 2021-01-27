@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Save video in...</h1>
+<div mat-dialog-content>
+
+  <form [formGroup]="saveVideoInForm" enctype="multipart/form-data">
+    <mat-form-field appearance="fill" color="accent">
+      <mat-label>Choose playlist</mat-label>
+      <mat-select formControlName="playlist">
+        <mat-option [value]="playlist['_id']" *ngFor="let playlist of playlists">{{ playlist['name'] }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button class="ml-2" [disabled]="saveVideoInForm.invalid" (click)="onSaveVideoInPlaylistSubmit()">Save</button>
+  </form>
+
+  <mat-divider class="mb-3"></mat-divider>
+
+  <button mat-button (click)="createAutoPlaylist()"><mat-icon class="mr-2">add_to_queue</mat-icon> new playlist</button>
+</div>
