@@ -258,7 +258,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
     setTimeout(() => {
       if (this.error === null) {
-        if (this.similarVideos.length > 0) {
+        if (this.similarVideos.length > 0 || this.playlist !== null) {
 
           if (localStorage.getItem('autoNext') !== null) {
             this.autoPlayNext = (localStorage.getItem('autoNext') === 'true');
@@ -268,12 +268,14 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
             this.autoPlayNext = true;
           }
 
-          const autoplayVideo = document.getElementById('autoplayVideo');
-          if (this.autoPlayNext) {
-            autoplayVideo.style.backgroundColor = '#69f0aaaa';
-          }
-          else {
-            autoplayVideo.removeAttribute('style');
+          if (this.playlist === null) {
+            const autoplayVideo = document.getElementById('autoplayVideo');
+            if (this.autoPlayNext) {
+              autoplayVideo.style.backgroundColor = '#69f0aaaa';
+            }
+            else {
+              autoplayVideo.removeAttribute('style');
+            }
           }
         }
 
@@ -317,16 +319,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   videoEnded(): void {
     console.log(this.videoElement.nativeElement.played);
   }
-
-
-  // showEditPanel(): void {
-  //   if (this.editPanel.nativeElement.style.display === 'none') {
-  //     this.editPanel.nativeElement.removeAttribute('style');
-  //   }
-  //   else {
-  //     this.editPanel.nativeElement.style.display = 'none';
-  //   }
-  // }
 
 
   deleteCurrentVideo(): void {
@@ -939,41 +931,17 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   playFirstFromOthers(autoPlayNext: boolean): void {
-    const info = document.createElement('h2');
-    const image = document.createElement('img');
-    info.style.position = 'absolute';
-    info.style.top = '0';
-    info.style.left = '0';
-    info.style.zIndex = '3';
-    image.style.position = 'absolute';
-    image.style.top = '0';
-    image.style.left = '0';
-    image.style.width = '100%';
-    image.src = `${environment.baseUrl}/${this.similarVideos[0].cover}`;
-    image.onclick = () => { this.play(this.similarVideos[0].id); };
-    info.innerText = `Next video: ${this.similarVideos[0].title} in 5 seconds`;
-    this.playerElement.nativeElement.appendChild(info);
-    this.playerElement.nativeElement.appendChild(image);
-
-    if (autoPlayNext) {
-      let time = 5;
-      setInterval(() => {
-        time--;
-        info.innerText = `Next video: ${this.similarVideos[0].title} in ${time} seconds`;
-      }, 1000);
-
-      setTimeout((): void => {
-        this.play(this.similarVideos[0].id);
-      }, 5000);
+    if (this.playlist === null) {
+      this.playNextVideo(autoPlayNext, this.similarVideos[0]);
     }
     else {
-      info.innerText = `Click to play next video: ${this.similarVideos[0].title}`;
-    }
+      const index = this.playlist.videos.findIndex(video => {
+        return video._id === this.video._id;
+      });
 
-    // this.play(this.similarVideos[0].id);
-    // function play(similarVideos: Array<VideoDto>): void {
-    //   window.location.href = `/player?vid=${similarVideos[0].id}`;
-    // }
+      const next = (index + 1) % this.playlist.videos.length;
+      this.playNextVideo(autoPlayNext, this.playlist.videos[next]);
+    }
   }
 
 
@@ -987,19 +955,16 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   onAutoPlayToggle(event: MatSlideToggleChange): void {
     localStorage.setItem('autoNext', String(event.checked));
 
-    const autoplayVideo = document.getElementById('autoplayVideo');
-    if (event.checked) {
-      autoplayVideo.style.backgroundColor = '#69f0aaaa';
-    }
-    else {
-      autoplayVideo.removeAttribute('style');
+    if (this.playlist === null) {
+      const autoplayVideo = document.getElementById('autoplayVideo');
+      if (event.checked) {
+        autoplayVideo.style.backgroundColor = '#69f0aaaa';
+      }
+      else {
+        autoplayVideo.removeAttribute('style');
+      }
     }
   }
-
-
-  // addVideoToPlaylist(): void {
-  //
-  // }
 
 
   addComment(): void {
@@ -1099,6 +1064,40 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     const isWhitespace = (control.value || '').trim().length === 0;
     const isValid = !isWhitespace;
     return isValid ? null : { whitespace: true };
+  }
+
+
+  private playNextVideo(autoPlayNext: boolean, video: any): void {
+    const info = document.createElement('h2');
+    const image = document.createElement('img');
+    info.style.position = 'absolute';
+    info.style.top = '0';
+    info.style.left = '0';
+    info.style.zIndex = '3';
+    image.style.position = 'absolute';
+    image.style.top = '0';
+    image.style.left = '0';
+    image.style.width = '100%';
+    image.src = `${environment.baseUrl}/${video.cover}`;
+    image.onclick = () => { this.play(video._id); };
+    info.innerText = `Next video: ${video.title} in 5 seconds`;
+    this.playerElement.nativeElement.appendChild(info);
+    this.playerElement.nativeElement.appendChild(image);
+
+    if (autoPlayNext) {
+      let time = 5;
+      setInterval(() => {
+        time--;
+        info.innerText = `Next video: ${video.title} in ${time} seconds`;
+      }, 1000);
+
+      setTimeout((): void => {
+        this.play(video._id);
+      }, 5000);
+    }
+    else {
+      info.innerText = `Click to play next video: ${video.title}`;
+    }
   }
 
 }

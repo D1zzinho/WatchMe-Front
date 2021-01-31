@@ -23,9 +23,9 @@ export class FinderComponent implements OnInit {
   message = '';
   q = '';
 
-  searchControl: FormControl = new FormControl();
-  searchOptions: Array<string> = new Array<string>();
-  filteredSearchOptions: Observable<Array<string>>;
+  // searchControl: FormControl = new FormControl();
+  // searchOptions: Array<string> = new Array<string>();
+  // filteredSearchOptions: Observable<Array<string>>;
 
   constructor(private http: HttpClient, private router: Router, private currentRoute: ActivatedRoute, private authService: AuthService) { }
 
@@ -43,18 +43,18 @@ export class FinderComponent implements OnInit {
     });
 
 
-    this.authService.getResource(`${environment.baseUrl}/videos/mostUsedTags`).subscribe(res => {
-        if (res.found) {
-          this.searchOptions = res.options;
-        }
-      }, err => {
-        console.log(err);
-    });
-
-    this.filteredSearchOptions = this.searchControl.valueChanges.pipe(
-      startWith(''),
-      map(value => this.filter(value))
-    );
+    // this.authService.getResource(`${environment.baseUrl}/videos/mostUsedTags`).subscribe(res => {
+    //     if (res.found) {
+    //       this.searchOptions = res.options;
+    //     }
+    //   }, err => {
+    //     console.log(err);
+    // });
+    //
+    // this.filteredSearchOptions = this.searchControl.valueChanges.pipe(
+    //   startWith(''),
+    //   map(value => this.filter(value))
+    // );
   }
 
   loadPreview(event: any): void {
@@ -97,9 +97,9 @@ export class FinderComponent implements OnInit {
   }
 
 
-  filter(value: string): Array<string> {
-    const filterValue = value.toLowerCase();
-    return this.searchOptions.filter((item: string) => item.toLowerCase().includes(filterValue));
-  }
+  // filter(value: string): Array<string> {
+  //   const filterValue = value.toLowerCase();
+  //   return this.searchOptions.filter((item: string) => item.toLowerCase().includes(filterValue));
+  // }
 
 }

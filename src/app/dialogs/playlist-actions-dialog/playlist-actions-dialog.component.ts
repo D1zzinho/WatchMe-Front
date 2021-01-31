@@ -7,6 +7,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
+import {MatSelectionListChange} from '@angular/material/list';
 
 @Component({
   selector: 'app-playlist-actions-dialog',
@@ -37,6 +38,14 @@ export class PlaylistActionsDialogComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.data.playlists.forEach(playlist => {
+      const isAdded = playlist.videos.findIndex(video => {
+        return video._id === this.data.video._id;
+      });
+
+      playlist.hasCurrentVideo = isAdded !== -1;
+    });
+
     this.playlists = this.data.playlists;
     this.video = this.data.video;
 
@@ -62,19 +71,71 @@ export class PlaylistActionsDialogComponent implements OnInit {
   }
 
 
-  onSaveVideoInPlaylistSubmit(): void {
-    const selectedPlaylistId = this.saveVideoInForm.value.playlist;
+  saveVideoInPlaylist(event: MatSelectionListChange): void {
+    event.options.forEach(option => {
+      if (option.selected) {
+        this.saveVideoInPlaylistRequest(option.value);
+      }
+      else {
+        this.deleteVideoFromPlaylistRequest(option.value);
+      }
+    });
+  }
 
-    this.authService.patchResource(`${this.PLAYLISTS_URL}/${selectedPlaylistId}`, { videoId: this.video._id }).subscribe(res => {
+
+  private saveVideoInPlaylistRequest(playlistId: string): void {
+    this.authService.patchResource(`${this.PLAYLISTS_URL}/${playlistId}`, { videoId: this.video._id }).subscribe(res => {
       if (res.added) {
         if (this.data.playlist != null) {
-          if (this.data.playlist._id === selectedPlaylistId) {
+          if (this.data.playlist._id === playlistId) {
             this.data.playlist.videos.push(res.addedVideo);
+            this.data.playlist.hasCurrentVideo = true;
           }
         }
 
+        const playlistIndex = this.data.playlists.findIndex(playlist => {
+          return playlist._id === playlistId;
+        });
+        this.data.playlists[playlistIndex].videos.push(res.addedVideo);
+        this.data.playlists[playlistIndex].hasCurrentVideo = true;
+
         this.openSnackBar(res.message, 'success');
-        this.dialogRef.close();
+      }
+      else {
+        this.openSnackBar(res.message, 'error');
+      }
+    }, err => {
+      this.openSnackBar(err.message, 'error');
+    });
+  }
+
+
+  private deleteVideoFromPlaylistRequest(playlistId: string): void {
+    this.authService.patchResource(`${this.PLAYLISTS_URL}/deleteFrom/${playlistId}`, { videoId: this.video._id }).subscribe(res => {
+      if (res.deleted) {
+        if (this.data.playlist != null) {
+          if (this.data.playlist._id === playlistId) {
+            const index = this.data.playlist.videos.findIndex(video => {
+              return video._id === res.deletedVideo;
+            });
+
+            this.data.playlist.videos.splice(index, 1);
+            this.data.playlist.hasCurrentVideo = false;
+          }
+        }
+
+        const playlistIndex = this.data.playlists.findIndex(playlist => {
+          return playlist._id === playlistId;
+        });
+
+        const videoIndex = this.data.playlists[playlistIndex].videos.findIndex(video => {
+          return video._id === this.data.video._id;
+        });
+
+        this.data.playlists[playlistIndex].videos.splice(videoIndex, 1);
+        this.data.playlists[playlistIndex].hasCurrentVideo = false;
+
+        this.openSnackBar(res.message, 'success');
       }
       else {
         this.openSnackBar(res.message, 'error');

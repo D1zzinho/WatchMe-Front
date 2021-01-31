@@ -173,3 +173,97 @@
   overflow-x: auto;
 }
 
+
+
+/* PLAYLISTS TABLE WITH EXPANDABLE ROWS */
+.playlists-table-holder {
+  min-width: 700px;
+  overflow-x: auto;
+}
+
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  transition-duration: .2s;
+  background: rgba(255,255,255,0.3);
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: rgba(255,255,255,0.4);
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
+  max-height: 300px;
+  overflow: auto;
+  display: flex;
+}
+
+.example-element-diagram {
+  min-width: 80px;
+  font-weight: lighter;
+  margin: 8px 0;
+  height: 120px;
+}
+
+.example-cover {
+  height: 120px;
+}
+
+.example-element-symbol {
+  font-weight: bold;
+  font-size: 40px;
+  line-height: normal;
+}
+
+.example-element-description {
+  padding: 16px;
+}
+
+.example-element-description-attribution {
+  opacity: 0.5;
+}
+
+.mat-list-item {
+  height: auto !important;
+}
+
+.item-cover {
+  min-width: 210px;
+}
+.item-cover img {
+  height: 105px;
+  margin-right: 20px;
+}
+
+.item-title {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+}
+
+.playlist-item {
+  height: 115px;
+  display: flex;
+  align-items: center;
+}
+
+
+
+/* CUSTOM SCROLL BAR */
+
+::-webkit-scrollbar {
+  width: 4px;
+  overflow-y: scroll;
+  background: grey;
+  box-shadow: inset 0 0 4px #707070;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+}

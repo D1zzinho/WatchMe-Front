@@ -6,7 +6,7 @@
         <mat-icon style="vertical-align: middle; font-size: 30px; width: 30px; height: 30px;">playlist_play</mat-icon>
         <span class="ml-2 my-auto">{{ playlist.name }}</span>
         <mat-icon
-          *ngIf="!playlist['isPrivate']"
+          *ngIf="playlist['isPrivate']"
           class="ml-1 my-auto"
           style="color: rgba(255,255,255,0.7); font-size: 20px; width: 20px; height: 20px;"
           title="Private"
@@ -17,9 +17,9 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <mat-selection-list #videos [multiple]="false">
-      <mat-list-option *ngFor="let video of playlist['videos']; index as i">
-        <div class="playlist-item" (click)="open(i)">
+    <mat-selection-list style="max-height: 420px; overflow: auto;" #videos [multiple]="false">
+      <mat-list-option *ngFor="let video of playlist['videos']; index as i" (click)="open(i)">
+        <div class="playlist-item">
           <div class="item-cover">
             <img class="img-fluid mr-4" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">
           </div>

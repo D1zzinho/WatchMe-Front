@@ -55,7 +55,26 @@
                 <div class="d-flex">
                   <div class="mr-auto" id="visits">{{ visits }} views</div>
 
-                  <a *ngIf="isAdmin || isOwner" class="ml-auto" (click)="openEditVideoDialog(video)"><mat-icon color="accent">settings</mat-icon></a>
+                  <div class="ml-auto d-flex">
+                    <a
+                      (click)="openPlaylistActionsDialog()"
+                      matTooltip="Save to playlist"
+                      matTooltipPosition="above"
+                    >
+                      <mat-icon class="yellow-text">star</mat-icon>
+                    </a>
+
+                    <a
+                      *ngIf="isAdmin || isOwner"
+                      class="ml-2 ml-md-3"
+                      (click)="openEditVideoDialog(video)"
+                      matTooltip="Edit video"
+                      matTooltipPosition="above"
+                    >
+                      <mat-icon color="accent">settings</mat-icon>
+                    </a>
+                  </div>
+
                 </div>
 <!--                <div #editPanel class="m-0" style="display: none;" *ngIf="isAdmin || isOwner">-->
 <!--                  <input #valueInput class="form-control float-right m-1" type="text" id="editValue" placeholder="Value to set when editing" />-->
@@ -153,19 +172,9 @@
                 >
                 Autoplay next video
               </mat-slide-toggle>
-
-              <button
-                class="mt-2 w-100"
-                mat-raised-button
-                color="primary"
-                matTooltip="Save to playlist"
-                matTooltipPosition="before"
-                (click)="openPlaylistActionsDialog()"
-              ><mat-icon>star</mat-icon></button>
-
             </div>
 
-            <div class="selected-video-section">
+            <div class="selected-video-section" *ngIf="playlist === null">
               <div id="autoplayVideo" class="suggestedVideo h-100" (click)="play(similarVideos[0].id)" matTooltip="Play: {{ similarVideos[0].title }}" matTooltipPosition="before">
                 <img src="{{ baseUrl }}/{{ similarVideos[0].cover }}" class="img-fluid" alt="{{ similarVideos[0].title }}">
                 <div class="similar-movie-info">

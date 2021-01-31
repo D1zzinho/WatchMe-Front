@@ -12,12 +12,21 @@ import {MatMenuTrigger} from '@angular/material/menu';
 import {CreateRepoDialogComponent} from '../dialogs/create-repo-dialog/create-repo-dialog.component';
 import {DeleteVideoDialogComponent} from '../dialogs/delete-video-dialog/delete-video-dialog.component';
 import {ShowRepoInfoDialogComponent} from '../dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
+import {animate, state, style, transition, trigger} from '@angular/animations';
+import {Router} from '@angular/router';
 
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+  styleUrls: ['./profile.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ]
 })
 export class ProfileComponent implements OnInit {
 
@@ -31,6 +40,7 @@ export class ProfileComponent implements OnInit {
 
   currentUserData = {};
   currentUserVideos = new Array<VideoDto>();
+  currentUserPlaylists = [];
   currentUserComments = [];
   currentUserRepos = [];
   userType = '';
@@ -42,22 +52,35 @@ export class ProfileComponent implements OnInit {
   videosPerPage = 10;
   pageSizeOptions: number[] = [5, 10, 15, 20, 40];
 
-
   displayedColumns: string[] = ['name', 'description', 'status', 'commits', 'external_link'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
   tableLoaded = Promise.resolve(false);
 
+  playlistsDisplayedColumns: string[] = ['name', 'status', 'videos', 'actions'];
+  playlistsDataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
+  playlistsTableLoaded = Promise.resolve(false);
+  expandedElement: any;
+
+  @ViewChild('playlistsPaginator') playlistsPaginator: MatPaginator;
   @ViewChild('repoPaginator') paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
 
 
-  constructor(private authService: AuthService, public dialog: MatDialog) { }
+  constructor(private authService: AuthService, private router: Router, public dialog: MatDialog) { }
 
 
   ngOnInit(): void {
     this.authService.getUser().subscribe(res => {
       this.currentUserData = res;
+
+      this.authService.getResource(`${this.baseUrl}/playlist/user`).subscribe(playlists => {
+        this.currentUserPlaylists = playlists.userPlaylists.playlists;
+        this.playlistsDataSource = new MatTableDataSource(playlists.userPlaylists.playlists);
+        this.playlistsDataSource.paginator = this.playlistsPaginator;
+
+        this.playlistsTableLoaded = Promise.resolve(true);
+      });
 
       if (res.login) {
         this.userType = 'github';
@@ -176,6 +199,11 @@ export class ProfileComponent implements OnInit {
       data: { name, owner, isPrivate },
       restoreFocus: false
     });
+  }
+
+
+  playFromPlaylist(videoId: string, listId: string): void {
+    this.router.navigate(['/player'], { queryParams: { vid: videoId, list: listId }});
   }
 
 

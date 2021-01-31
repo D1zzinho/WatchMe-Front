@@ -1,16 +1,23 @@
-<h1 mat-dialog-title>Save video in...</h1>
+<h1 class="mb-1" mat-dialog-title>Save video</h1>
 <div mat-dialog-content>
 
-  <form [formGroup]="saveVideoInForm" enctype="multipart/form-data">
-    <mat-form-field appearance="fill" color="accent">
-      <mat-label>Choose playlist</mat-label>
-      <mat-select formControlName="playlist">
-        <mat-option [value]="playlist['_id']" *ngFor="let playlist of playlists">{{ playlist['name'] }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+<!--  <form [formGroup]="saveVideoInForm" enctype="multipart/form-data">-->
+<!--    <mat-form-field appearance="fill" color="accent">-->
+<!--      <mat-label>Choose playlist</mat-label>-->
+<!--      <mat-select formControlName="playlist">-->
+<!--        <mat-option [value]="playlist['_id']" *ngFor="let playlist of playlists">{{ playlist['name'] }}</mat-option>-->
+<!--      </mat-select>-->
+<!--    </mat-form-field>-->
 
-    <button mat-stroked-button class="ml-2" [disabled]="saveVideoInForm.invalid" (click)="onSaveVideoInPlaylistSubmit()">Save</button>
-  </form>
+<!--    <button mat-stroked-button class="ml-2" [disabled]="saveVideoInForm.invalid" (click)="onSaveVideoInPlaylistSubmit()">Save</button>-->
+<!--  </form>-->
+
+  <mat-selection-list #selectPlaylists (selectionChange)="saveVideoInPlaylist($event)">
+    <mat-list-option *ngFor="let playlist of playlists" [selected]="!!playlist['hasCurrentVideo']" [value]="playlist['_id']">
+      {{ playlist['name'] }}
+    </mat-list-option>
+  </mat-selection-list>
+
 
   <mat-divider class="mb-3"></mat-divider>
 

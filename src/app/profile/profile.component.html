@@ -44,6 +44,8 @@
 
     </mat-tab>
 
+
+
     <mat-tab label="Videos">
 
       <h2 class="mt-4">Your videos ({{ currentUserVideos.length }})</h2>
@@ -98,6 +100,125 @@
       </mat-paginator>
 
     </mat-tab>
+
+
+
+    <mat-tab label="Playlists">
+
+      <div class="alert alert-warning mt-3" *ngIf="currentUserPlaylists.length === 0 && (playlistsTableLoaded | async)">
+        You don't have any playlists! Maybe create new one?
+      </div>
+
+      <div class="playlists-table-holder mat-elevation-z8">
+
+
+        <table mat-table
+               [dataSource]="playlistsDataSource" multiTemplateDataRows
+               class="w-100">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let playlist">{{ playlist.name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="videos">
+            <th mat-header-cell *matHeaderCellDef>Videos count</th>
+            <td mat-cell *matCellDef="let playlist">{{ playlist['videos'].length }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Private</th>
+            <td mat-cell *matCellDef="let playlist">{{ (playlist['isPrivate'] ? 'Yes' : 'No') }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let playlist">soon</td>
+          </ng-container>
+
+<!--          <ng-container matColumnDef="play">-->
+<!--            <th mat-header-cell *matHeaderCellDef>Link</th>-->
+<!--            <td mat-cell *matCellDef="let playlist">-->
+<!--              <a [href]="'/player?vid=' + playlist['videos'][0]['_id'] + '&list=' + playlist['_id']">-->
+<!--                <mat-icon>play_arrow</mat-icon>-->
+<!--              </a>-->
+<!--            </td>-->
+<!--          </ng-container>-->
+
+          <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let playlist" [attr.colspan]="playlistsDisplayedColumns.length">
+              <div class="example-element-detail" [@detailExpand]="playlist == expandedElement ? 'expanded' : 'collapsed'">
+                <mat-selection-list class="mb-2 w-100" [multiple]="false">
+                  <mat-list-option *ngFor="let video of playlist['videos']" (click)="playFromPlaylist(video['_id'], playlist['_id'])">
+                    <div class="playlist-item">
+                      <div class="item-cover">
+                        <img class="img-fluid" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">
+                      </div>
+                      <div class="item-title">
+                        {{ video['title'] }}
+                      </div>
+                    </div>
+                  </mat-list-option>
+                </mat-selection-list>
+
+<!--                <div class="example-element-diagram">-->
+<!--                  <div class="example-element-cover">-->
+<!--                    <img class="example-cover" [src]="baseUrl + '/' + playlist['videos'][0]['cover']" [alt]="playlist['videos'][0]['title'] + ' cover image'">-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--                <div class="example-element-description">-->
+<!--                  {{ playlist['videos'][0]['title'] }}-->
+<!--                  <span class="example-element-description-attribution"> &#45;&#45; first video inside </span>-->
+<!--                </div>-->
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="playlistsDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let element; columns: playlistsDisplayedColumns;"
+              class="example-element-row"
+              [class.example-expanded-row]="expandedElement === element"
+              (click)="expandedElement = expandedElement === element ? null : element">
+          </tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+        </table>
+
+
+<!--        <table class="w-100" mat-table [dataSource]="playlistsDataSource">-->
+
+<!--          <ng-container matColumnDef="name">-->
+<!--            <th mat-header-cell *matHeaderCellDef>Name</th>-->
+<!--            <td mat-cell *matCellDef="let playlist">{{ playlist.name }}</td>-->
+<!--          </ng-container>-->
+
+<!--          <ng-container matColumnDef="status">-->
+<!--            <th mat-header-cell *matHeaderCellDef>Private</th>-->
+<!--            <td mat-cell *matCellDef="let playlist">{{ (playlist['isPrivate'] ? 'Yes' : 'No') }}</td>-->
+<!--          </ng-container>-->
+
+<!--          <ng-container matColumnDef="videos">-->
+<!--            <th mat-header-cell *matHeaderCellDef>Videos count</th>-->
+<!--            <td mat-cell *matCellDef="let playlist">{{ playlist['videos'].length }}</td>-->
+<!--          </ng-container>-->
+
+<!--          <ng-container matColumnDef="play">-->
+<!--            <th mat-header-cell *matHeaderCellDef>Link</th>-->
+<!--            <td mat-cell *matCellDef="let playlist">-->
+<!--              <a [href]="'/player?vid=' + playlist['videos'][0]['_id'] + '&list=' + playlist['_id']">-->
+<!--                <mat-icon>play_arrow</mat-icon>-->
+<!--              </a>-->
+<!--            </td>-->
+<!--          </ng-container>-->
+
+<!--          <tr mat-header-row *matHeaderRowDef="playlistsDisplayedColumns"></tr>-->
+<!--          <tr mat-row *matRowDef="let row; columns: playlistsDisplayedColumns;"></tr>-->
+<!--        </table>-->
+
+        <mat-paginator color="accent" #playlistsPaginator [pageSizeOptions]="[5, 10, 15]" showFirstLastButtons></mat-paginator>
+      </div>
+
+    </mat-tab>
+
 
 
     <mat-tab *ngIf="userType === 'github'" label="Repositories">

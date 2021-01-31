@@ -1,13 +1,13 @@
 <div class="container py-4">
 
   <form #form class="form-inline md-form mr-auto mb-4" [action]="['/finder']" enctype="multipart/form-data">
-    <input type="text"
-           class="form-control"
-           placeholder="Search"
-           aria-label="Search"
-           name="q"
-           (keyup)="liveSearch($event)"
-           [formControl]="searchControl"
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search"
+      aria-label="Search"
+      name="q"
+      (keyup)="liveSearch($event)"
     >
     <input type="hidden" name="page" value="1" />
     <button mdbBtn color="success" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
