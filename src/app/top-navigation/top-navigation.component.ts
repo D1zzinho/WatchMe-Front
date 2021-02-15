@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {Title} from '@angular/platform-browser';
-import {NavigationEnd, Router} from '@angular/router';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {map, startWith} from 'rxjs/operators';
 import {Observable} from 'rxjs';
@@ -15,16 +15,15 @@ import {environment} from '../../environments/environment';
 export class TopNavigationComponent implements OnInit {
 
   searchControl: FormControl = new FormControl();
-  searchOptions: Array<string> = new Array<string>();
-  filteredSearchOptions: Observable<Array<string>>;
 
   username = '';
   collapsed = true;
   isLoggedIn: boolean;
   isAdmin = false;
+  isLogging: Promise<boolean>;
 
 
-  constructor(private authService: AuthService, private titleService: Title, private router: Router) {
+  constructor(private authService: AuthService, private titleService: Title, private router: Router, private currentRoute: ActivatedRoute) {
     this.authService.getLoginStatus().subscribe((status: boolean) => this.isLoggedIn = status);
 
     router.events.subscribe(event => {
@@ -58,28 +57,24 @@ export class TopNavigationComponent implements OnInit {
       this.authService.getUser().subscribe(res => {
         if (res.login) {
           this.username = res.login;
-        }
-        else if (res.username) {
+        } else if (res.username) {
           this.username = res.username;
         }
       });
     }
 
+    this.currentRoute.queryParams.subscribe(param => {
+      if (param.token) {
+        this.isLogging = Promise.resolve(true);
+      }
+      else {
+        this.isLogging = Promise.resolve(false);
+      }
+    });
+
     setTimeout(() => {
       this.isAdmin = this.authService.isAdmin();
     }, 100);
-
-    this.filteredSearchOptions = this.searchControl.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value))
-    );
-  }
-
-
-  private _filter(value: string): Array<string> {
-    const filterValue = value.toLowerCase();
-
-    return this.searchOptions.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
   }
 
 

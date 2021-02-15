@@ -154,7 +154,7 @@
         </div>
       </li>
 
-      <li class="nav-item" *ngIf="!isLoggedIn">
+      <li class="nav-item" *ngIf="!isLoggedIn && !(isLogging | async)">
         <a [routerLink]="['/login']" class="nav-link waves-light" mdbWavesEffect href="#"><mdb-icon fas icon="sign-in-alt"></mdb-icon> Login</a>
       </li>
 

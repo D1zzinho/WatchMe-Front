@@ -51,6 +51,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatGridListModule} from '@angular/material/grid-list';
 import { PlaylistComponent } from './player/playlist/playlist.component';
 import { CommentsComponent } from './player/comments/comments.component';
+import { EditPlaylistDialogComponent } from './dialogs/edit-playlist-dialog/edit-playlist-dialog.component';
 
 
 @NgModule({
@@ -73,7 +74,8 @@ import { CommentsComponent } from './player/comments/comments.component';
     EditCommentDialogComponent,
     PlaylistActionsDialogComponent,
     PlaylistComponent,
-    CommentsComponent
+    CommentsComponent,
+    EditPlaylistDialogComponent
   ],
     imports: [
         BrowserModule,

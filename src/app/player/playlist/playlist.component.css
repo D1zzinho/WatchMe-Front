@@ -2,6 +2,12 @@
   height: auto !important;
 }
 
+.item-number {
+  grid-area: itmn;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+}
+
 .item-cover {
   grid-area: ic;
 }
@@ -15,10 +21,10 @@
 .playlist-item {
   height: 105px;
   display: grid;
-  grid-template-columns: 2fr 2fr;
+  grid-template-columns: 0.1fr 2fr 2fr;
   grid-template-areas:
-    'ic it';
-  grid-gap: 20px;
+    'itmn ic it';
+  grid-gap: 15px;
   justify-content: center;
   align-items: center;
 }

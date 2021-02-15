@@ -23,6 +23,7 @@ export class PlaylistActionsDialogComponent implements OnInit {
   playlists: Array<any>;
   video: any;
 
+  createNamedPlaylistForm: FormGroup;
   saveVideoInForm: FormGroup;
 
   constructor(
@@ -49,6 +50,11 @@ export class PlaylistActionsDialogComponent implements OnInit {
     this.playlists = this.data.playlists;
     this.video = this.data.video;
 
+    this.createNamedPlaylistForm = this.formBuilder.group({
+      name: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]),
+      isPrivate: new FormControl(false, Validators.required)
+    });
+
     this.saveVideoInForm = this.formBuilder.group({
       playlist: new FormControl('', Validators.required)
     });
@@ -58,12 +64,42 @@ export class PlaylistActionsDialogComponent implements OnInit {
   createAutoPlaylist(): void {
     this.authService.postResource(`${this.PLAYLISTS_URL}/auto`, { video: this.video._id }).subscribe(res => {
       if (res.created) {
-        this.data.playlists.push(res.playlist);
+        const playlist = res.playlist;
+        playlist.author = this.authService.getUsernameFromToken();
+
+        this.data.playlists.push(playlist);
         this.location.replaceState(`/player`, `?vid=${this.video._id}&list=${res.playlist._id}`);
-        this.data.playlist = res.playlist;
-        this.dialogRef.close(res.playlist);
+        this.data.playlist = playlist;
+        this.dialogRef.close(playlist);
 
         this.openSnackBar(res.message, 'success');
+      }
+    }, err => {
+      this.openSnackBar(err.message, 'error');
+    });
+  }
+
+
+  createNamedPlaylist(): void {
+    const body = {
+      name: this.createNamedPlaylistForm.value.name,
+      isPrivate: this.createNamedPlaylistForm.value.isPrivate
+    };
+
+    this.authService.postResource(`${this.PLAYLISTS_URL}`, body).subscribe(res => {
+      if (res.created) {
+        const playlist = res.playlist;
+        playlist.author = this.authService.getUsernameFromToken();
+
+        this.data.playlists.push(playlist);
+        this.location.replaceState(`/player`, `?vid=${this.video._id}&list=${res.playlist._id}`);
+        this.saveVideoInPlaylistRequest(res.playlist._id);
+        this.dialogRef.close(playlist);
+
+        this.openSnackBar(res.message, 'success');
+      }
+      else {
+        this.openSnackBar(res.message, 'warning');
       }
     }, err => {
       this.openSnackBar(err.message, 'error');

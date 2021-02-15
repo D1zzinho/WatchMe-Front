@@ -252,6 +252,11 @@ tr.example-element-row:not(.example-expanded-row):active {
   align-items: center;
 }
 
+.delete-item:hover {
+  color: rgba(200,0,50,0.8);
+  transition-duration: .2s;
+}
+
 
 
 /* CUSTOM SCROLL BAR */

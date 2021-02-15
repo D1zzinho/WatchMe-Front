@@ -112,9 +112,11 @@
       <div class="playlists-table-holder mat-elevation-z8">
 
 
-        <table mat-table
-               [dataSource]="playlistsDataSource" multiTemplateDataRows
-               class="w-100">
+        <table
+          mat-table
+          [dataSource]="playlistsDataSource" multiTemplateDataRows
+          class="w-100"
+        >
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Name</th>
             <td mat-cell *matCellDef="let playlist">{{ playlist.name }}</td>
@@ -132,7 +134,11 @@
 
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let playlist">soon</td>
+            <td mat-cell *matCellDef="let playlist">
+              <a (click)="openEditPlaylistDialog(playlist)">
+                <mat-icon>delete_outline</mat-icon>
+              </a>
+            </td>
           </ng-container>
 
 <!--          <ng-container matColumnDef="play">-->
@@ -149,13 +155,16 @@
             <td mat-cell *matCellDef="let playlist" [attr.colspan]="playlistsDisplayedColumns.length">
               <div class="example-element-detail" [@detailExpand]="playlist == expandedElement ? 'expanded' : 'collapsed'">
                 <mat-selection-list class="mb-2 w-100" [multiple]="false">
-                  <mat-list-option *ngFor="let video of playlist['videos']" (click)="playFromPlaylist(video['_id'], playlist['_id'])">
+                  <mat-list-option *ngFor="let video of playlist['videos']">
                     <div class="playlist-item">
-                      <div class="item-cover">
+                      <div class="item-cover" (click)="playFromPlaylist(video['_id'], playlist['_id'])" matTooltip="Click to play {{ video['title'] }}" matTooltipPosition="right">
                         <img class="img-fluid" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">
                       </div>
                       <div class="item-title">
                         {{ video['title'] }}
+                      </div>
+                      <div class="ml-auto delete-item" (click)="deleteVideoFromPlaylist(playlist['_id'], video['_id'])">
+                        <mat-icon style="vertical-align: middle;" class="ml-auto my-auto" title="Delete video from playlist">close</mat-icon>
                       </div>
                     </div>
                   </mat-list-option>

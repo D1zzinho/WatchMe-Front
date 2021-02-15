@@ -1,10 +1,10 @@
 <div *ngIf="playlist !== null">
 
-  <mat-expansion-panel hideToggle>
+  <mat-expansion-panel [expanded]="playlistPanelState" (opened)="openPlaylistPanel()" (closed)="closePlaylistPanel()">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon style="vertical-align: middle; font-size: 30px; width: 30px; height: 30px;">playlist_play</mat-icon>
-        <span class="ml-2 my-auto">{{ playlist.name }}</span>
+        <span class="ml-2 my-auto">{{ playlist['name'] }} <span *ngIf="playlist['author'] !== user" class="text-muted">by {{ playlist['author'] }}</span></span>
         <mat-icon
           *ngIf="playlist['isPrivate']"
           class="ml-1 my-auto"
@@ -18,14 +18,19 @@
     </mat-expansion-panel-header>
 
     <mat-selection-list style="max-height: 420px; overflow: auto;" #videos [multiple]="false">
-      <mat-list-option *ngFor="let video of playlist['videos']; index as i" (click)="open(i)">
+      <mat-list-option *ngFor="let playlistVideo of playlist['videos']; index as i" (click)="open(i)">
         <div class="playlist-item">
+          <div class="item-number">
+            <mat-icon *ngIf="playlistVideo['_id'] === video['_id']">play_arrow</mat-icon>
+            <span *ngIf="playlistVideo['_id'] !== video['_id']">{{ (i+1) }}</span>
+          </div>
+
           <div class="item-cover">
-            <img class="img-fluid mr-4" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">
+            <img class="img-fluid mr-4" [src]="baseUrl + '/' + playlistVideo['cover']" [alt]="playlistVideo['title'] + ' cover image'">
           </div>
 
           <div class="item-title">
-            {{ video['title'] }}
+            {{ playlistVideo['title'] }}
           </div>
         </div>
       </mat-list-option>

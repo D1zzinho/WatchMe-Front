@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
 import {VideoDto} from '../models/VideoDto';
@@ -14,6 +14,9 @@ import {DeleteVideoDialogComponent} from '../dialogs/delete-video-dialog/delete-
 import {ShowRepoInfoDialogComponent} from '../dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {Router} from '@angular/router';
+import {EditPlaylistDialogComponent} from '../dialogs/edit-playlist-dialog/edit-playlist-dialog.component';
+import {SnackBarComponent} from '../snack-bar/snack-bar.component';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 
 @Component({
@@ -30,6 +33,7 @@ import {Router} from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
 
+  readonly durationInSeconds = 4;
   baseUrl = environment.baseUrl;
   pageEvent: void;
   dataLoaded = Promise.resolve(false);
@@ -67,7 +71,7 @@ export class ProfileComponent implements OnInit {
   @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
 
 
-  constructor(private authService: AuthService, private router: Router, public dialog: MatDialog) { }
+  constructor(private authService: AuthService, private router: Router, public dialog: MatDialog, private snackBar: MatSnackBar) { }
 
 
   ngOnInit(): void {
@@ -187,6 +191,26 @@ export class ProfileComponent implements OnInit {
   }
 
 
+  openEditPlaylistDialog(playlist: any): void {
+    const dialogRef = this.dialog.open(EditPlaylistDialogComponent, {
+      data: playlist
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result.deleted) {
+        const index = this.currentUserPlaylists.findIndex(pl => {
+          return pl._id === playlist._id;
+        });
+
+        if (index !== -1) {
+          this.currentUserPlaylists.splice(index, 1);
+          this.playlistsDataSource = new MatTableDataSource(this.currentUserPlaylists);
+        }
+      }
+    });
+  }
+
+
   openCreateRepoDialog(): void {
     this.dialog.open(CreateRepoDialogComponent, {
       restoreFocus: false
@@ -207,10 +231,48 @@ export class ProfileComponent implements OnInit {
   }
 
 
+  deleteVideoFromPlaylist(playlistId: string, videoId: string): void {
+    this.authService.patchResource(`${this.baseUrl}/playlist/deleteFrom/${playlistId}`, { videoId }).subscribe(res => {
+      if (res.deleted) {
+        const playlistIndex = this.currentUserPlaylists.findIndex(pl => {
+          return pl._id === playlistId;
+        });
+
+        if (playlistIndex !== -1) {
+          const videoIndex = this.currentUserPlaylists[playlistIndex].videos.findIndex(video => {
+            return video._id === res.deletedVideo;
+          });
+
+          this.currentUserPlaylists[playlistIndex].videos.splice(videoIndex, 1);
+
+          this.openSnackBar(res.message, 'success');
+        }
+        else {
+          this.openSnackBar(res.message, 'error');
+        }
+      }
+      else {
+        this.openSnackBar(res.message, 'error');
+      }
+    }, err => {
+      this.openSnackBar(err.message, 'error');
+    });
+  }
+
+
   private iterator(): void {
     const end = (this.currentPage + 1) * this.videosPerPage;
     const start = this.currentPage * this.videosPerPage;
     this.videosOnPage = this.currentUserVideos.slice(start, end);
+  }
+
+
+  private openSnackBar(message: string, type: string): void {
+    this.snackBar.openFromComponent(SnackBarComponent, {
+      data: { message, type },
+      duration: this.durationInSeconds * 1000,
+      panelClass: ['darkBar']
+    });
   }
 
 }

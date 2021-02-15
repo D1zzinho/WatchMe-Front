@@ -13,8 +13,8 @@
 <!--              <canvas id="thumbnail" style="opacity: 0.4;"></canvas>-->
 
               <button *ngIf="videoIsMuted" (click)="videoIsMuted = false;" mdbBtn color="danger" class="position-absolute w-100 h-100 rounded-0 m-0 opacity-50" mdbWavesEffect><strong style="font-size: 20px;" class="text-white">Click to unmute</strong></button>
-              <video #playerVideo preload="auto" [muted]="videoIsMuted" id="video" poster="{{ baseUrl }}/{{ cover }}" (ended)="videoEnded()">
-                <source #playerSource id="source" src="{{ baseUrl }}/{{ path }}" type="video/mp4" />
+              <video #playerVideo preload="auto" [muted]="videoIsMuted" id="video" [poster]="baseUrl + '/' + cover" (ended)="videoEnded()">
+                <source #playerSource id="source" [src]="baseUrl + '/' + path" type="video/mp4" />
               </video>
 
               <div #playerControls class="player-controls">
@@ -189,6 +189,7 @@
               *ngIf="playlistLoaded | async"
               [playlist]="playlist"
               [video]="video"
+              [user]="currentUser"
               (playlistChange)="playlist = $event"
             ></app-playlist>
 <!--            <div class="playlist-section" *ngIf="playlist !== null">-->

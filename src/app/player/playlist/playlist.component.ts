@@ -14,13 +14,35 @@ export class PlaylistComponent implements OnInit {
   @Output() playlistChange: EventEmitter<any> = new EventEmitter<any>();
 
   @Input() video: any;
+  @Input() user: string;
+
+  playlistPanelState = true;
 
 
   constructor(private location: Location) { }
 
 
   ngOnInit(): void {
-    console.log(this.playlist);
+    const panelState = localStorage.getItem('playlistPanelState');
+
+    if (panelState === null) {
+      this.openPlaylistPanel();
+    }
+    else {
+      this.playlistPanelState = localStorage.getItem('playlistPanelState') === 'true';
+    }
+  }
+
+
+  openPlaylistPanel(): void {
+    this.playlistPanelState = true;
+    localStorage.setItem('playlistPanelState', 'true');
+  }
+
+
+  closePlaylistPanel(): void {
+    this.playlistPanelState = false;
+    localStorage.setItem('playlistPanelState', 'false');
   }
 
 

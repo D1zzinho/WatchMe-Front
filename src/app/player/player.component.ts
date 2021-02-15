@@ -16,6 +16,7 @@ import {MatMenuTrigger} from '@angular/material/menu';
 import {EditCommentDialogComponent} from '../dialogs/edit-comment-dialog/edit-comment-dialog.component';
 import {EditVideoDialogComponent} from '../dialogs/edit-video-dialog/edit-video-dialog.component';
 import {PlaylistActionsDialogComponent} from '../dialogs/playlist-actions-dialog/playlist-actions-dialog.component';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-player',
@@ -23,7 +24,6 @@ import {PlaylistActionsDialogComponent} from '../dialogs/playlist-actions-dialog
   styleUrls: ['./player.component.css']
 })
 export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
-
 
   readonly VIDEOS_URL: string = `${environment.baseUrl}/videos`;
   readonly COMMENTS_URL: string = `${environment.baseUrl}/comments`;
@@ -71,9 +71,9 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   color: ThemePalette = 'accent';
   timeoutEnded: boolean;
 
-  @ViewChild('player') playerElement: ElementRef;
-  @ViewChild('playerVideo') videoElement: ElementRef<HTMLVideoElement>;
-  @ViewChild('playerSource') videoSource: ElementRef<HTMLSourceElement>;
+  @ViewChild('player', { static: false }) playerElement: ElementRef;
+  @ViewChild('playerVideo', { static: false }) videoElement: ElementRef<HTMLVideoElement>;
+  @ViewChild('playerSource', { static: false }) videoSource: ElementRef<HTMLSourceElement>;
   @ViewChild('playerControls', { static: false }) playerControls: ElementRef;
   @ViewChild('progress', { static: false }) progressSection: ElementRef;
   @ViewChild('filledProgress', { static: false }) progressBar: ElementRef;
@@ -102,14 +102,18 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     private titleService: Title,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    public dialog: MatDialog
-  ) {}
-
-  do(value: any): void {
-    console.log(value);
+    public dialog: MatDialog,
+    private location: Location
+  ) {
+    this.router.routeReuseStrategy.shouldReuseRoute = () => {
+      return false;
+    };
   }
 
+
   ngOnInit(): void {
+    console.log('Testing init event');
+
     this.commentForm = this.formBuilder.group({
       text: new FormControl('',
         [
@@ -308,10 +312,21 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
   play(id: string): void {
     if (this.playlist !== null) {
-      window.location.href = `/player?vid=${id}&list=${this.playlist._id}`;
+      // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      //   this.router.navigate(['/player'], { queryParams: { vid: id, list: this.playlist._id }});
+      // });
+      // this.router.navigate(['/player'], { queryParams: { vid: id, list: this.playlist._id }});
+      // window.location.href = `/player?vid=${id}&list=${this.playlist._id}`;
     }
     else {
-      window.location.href = `/player?vid=${id}`;
+      // this.router.onSameUrlNavigation = 'reload';
+      // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      //   this.router.navigate(['/player'], { queryParams: { vid: id }});
+      // });
+      this.router.navigate(['/player'], { queryParams: { vid: id }}).then(() => console.log(this.video));
+      // window.location.href = `/player?vid=${id}`;
+      // this.location.go(`/player?vid=${id}`);
+
     }
   }
 
@@ -421,6 +436,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       const progress = this.progressSection.nativeElement;
       const toggle = this.playButton.nativeElement;
       const fullscreenButton = this.fullScreenBtn.nativeElement;
+      const fullScreenState = localStorage.getItem('fullScreenState');
 
       let watchedVideos;
       let result;
@@ -457,6 +473,14 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       this.showMoreOrLessOfVideoDescription();
       this.localStorageSetOrGetTimeVolumeAndPlayRate(watchedVideosResult);
       this.videoPlayOrMute();
+
+
+      // if (fullScreenState !== null) {
+      //   if (fullScreenState === 'true') {
+      //     this.toggleFullscreen();
+      //   }
+      // }
+
 
       video.addEventListener('ended', () => {
         if (this.similarVideos.length > 0) {
@@ -586,6 +610,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
     if (!document.fullscreenElement) {
       document.getElementById('full-screen').innerHTML = '<i class="fa fa-compress"></i>';
+      // localStorage.setItem('fullScreenState', 'true');
       if (player.requestFullScreen) {
         player.requestFullScreen();
       }
@@ -602,7 +627,9 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     else {
       document.getElementById('full-screen').innerHTML = '<i class="fa fa-expand"></i>';
       if (document.exitFullscreen) {
-        document.exitFullscreen().then();
+        document.exitFullscreen().then(() => {
+          // localStorage.setItem('fullScreenState', 'false');
+        });
       }
     }
   }
@@ -877,7 +904,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     const video = this.videoElement.nativeElement;
 
     document.addEventListener('keydown', (e) => {
-      if (this.playerElement.nativeElement === document.activeElement) {
+      // if (this.playerElement.nativeElement === document.activeElement) {
         if (e.key === 'ArrowLeft') {
           video.currentTime -= 10;
         }
@@ -895,7 +922,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
         else if (e.key === 'm') {
           video.muted = !video.muted;
         }
-      }
+      // }
     });
   }
 
@@ -946,9 +973,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    if (!this.router.isActive('/player', true)) {
-      window.location.reload();
-    }
+    console.log('Testing destroy event');
   }
 
 
