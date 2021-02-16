@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { EditPlaylistDialogComponent } from './edit-playlist-dialog.component';
 
@@ -6,7 +6,7 @@ describe('EditPlaylistDialogComponent', () => {
   let component: EditPlaylistDialogComponent;
   let fixture: ComponentFixture<EditPlaylistDialogComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ EditPlaylistDialogComponent ]
     })

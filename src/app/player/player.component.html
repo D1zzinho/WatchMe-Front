@@ -1,4 +1,5 @@
 <mat-progress-bar mode="indeterminate" color="warn" *ngIf="!timeoutEnded && (videoLoaded | async)"></mat-progress-bar>
+<button *ngIf="isAdmin" mat-raised-button color="accent" class="w-100 my-2" (click)="showData()">Show component data</button>
 <div class="content" *ngIf="videoLoaded | async">
   <div class="container">
 <!--      <div class="row justify-content-md-center">-->
@@ -13,8 +14,8 @@
 <!--              <canvas id="thumbnail" style="opacity: 0.4;"></canvas>-->
 
               <button *ngIf="videoIsMuted" (click)="videoIsMuted = false;" mdbBtn color="danger" class="position-absolute w-100 h-100 rounded-0 m-0 opacity-50" mdbWavesEffect><strong style="font-size: 20px;" class="text-white">Click to unmute</strong></button>
-              <video #playerVideo preload="auto" [muted]="videoIsMuted" id="video" [poster]="baseUrl + '/' + cover" (ended)="videoEnded()">
-                <source #playerSource id="source" [src]="baseUrl + '/' + path" type="video/mp4" />
+              <video #playerVideo preload="auto" [muted]="videoIsMuted" id="video" [poster]="baseUrl + '/' + video['cover']" (ended)="videoEnded()">
+                <source [src]="baseUrl + '/' + video['path']" type="video/mp4" />
               </video>
 
               <div #playerControls class="player-controls">
@@ -98,7 +99,7 @@
                   <div #descriptionDiv class="desc">
                     <span class="description" style="white-space: pre-wrap;">{{ video['desc'] }}</span>
                     <br><br><hr class="mt-4 mb-0 pb-2 border-light"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
-                    <a *ngFor="let tag of video['tags']" class="btn btn-sm btn-outline-info ml-0 mr-1 my-1 px-1" [routerLink]="['/finder']" [queryParams]="{ q: tag, page: 1 }">{{ tag }}</a>
+                    <a *ngFor="let tag of video['tags']" mat-button class="indigo-text" [routerLink]="['/finder']" [queryParams]="{ q: tag }">{{ tag }}</a>
                   </div>
                   <a #showDescLink href="javascript:void(0)" id="sh_desc">Show more</a>
                 </div>

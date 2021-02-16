@@ -10,6 +10,11 @@
 
 .item-cover {
   grid-area: ic;
+  text-align: center;
+}
+
+.item-cover-image {
+  max-height: 105px;
 }
 
 .item-title {
@@ -19,7 +24,7 @@
 }
 
 .playlist-item {
-  height: 105px;
+  min-height: 105px;
   display: grid;
   grid-template-columns: 0.1fr 2fr 2fr;
   grid-template-areas:
@@ -27,6 +32,15 @@
   grid-gap: 15px;
   justify-content: center;
   align-items: center;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+@media screen and (min-width: 768px) {
+  .playlist-item {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
 }
 
 .playlist-close:hover {

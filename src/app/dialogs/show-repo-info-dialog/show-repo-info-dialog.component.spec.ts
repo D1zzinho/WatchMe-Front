@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ShowRepoInfoDialogComponent } from './show-repo-info-dialog.component';
 
@@ -6,7 +6,7 @@ describe('ShowRepoInfoDialogComponent', () => {
   let component: ShowRepoInfoDialogComponent;
   let fixture: ComponentFixture<ShowRepoInfoDialogComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ShowRepoInfoDialogComponent ]
     })

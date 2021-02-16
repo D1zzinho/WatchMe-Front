@@ -17,6 +17,7 @@ import {EditCommentDialogComponent} from '../dialogs/edit-comment-dialog/edit-co
 import {EditVideoDialogComponent} from '../dialogs/edit-video-dialog/edit-video-dialog.component';
 import {PlaylistActionsDialogComponent} from '../dialogs/playlist-actions-dialog/playlist-actions-dialog.component';
 import {Location} from '@angular/common';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-player',
@@ -30,6 +31,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   readonly baseUrl: string = environment.baseUrl;
   videoLoaded: Promise<boolean>;
   error: string = null;
+  videoSub: Subscription;
 
   video: any = null;
   id = '';
@@ -73,7 +75,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
   @ViewChild('player', { static: false }) playerElement: ElementRef;
   @ViewChild('playerVideo', { static: false }) videoElement: ElementRef<HTMLVideoElement>;
-  @ViewChild('playerSource', { static: false }) videoSource: ElementRef<HTMLSourceElement>;
   @ViewChild('playerControls', { static: false }) playerControls: ElementRef;
   @ViewChild('progress', { static: false }) progressSection: ElementRef;
   @ViewChild('filledProgress', { static: false }) progressBar: ElementRef;
@@ -128,7 +129,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     this.currentRoute.queryParams.subscribe(params => {
       const videoId = params.vid;
 
-      this.authService.getResource(`${this.VIDEOS_URL}/${videoId}`).subscribe(res => {
+      this.videoSub = this.authService.getResource(`${this.VIDEOS_URL}/${videoId}`).subscribe(res => {
         if (res !== null) {
           if (res.err) {
             this.error = 'Video not found!';
@@ -290,9 +291,9 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   private loadPlayer(): void {
-      this.initPlayer();
-      this.loadMediaSessionData();
-      this.timeoutEnded = true;
+    this.initPlayer();
+    this.loadMediaSessionData();
+    this.timeoutEnded = true;
   }
 
 
@@ -316,14 +317,14 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       //   this.router.navigate(['/player'], { queryParams: { vid: id, list: this.playlist._id }});
       // });
       // this.router.navigate(['/player'], { queryParams: { vid: id, list: this.playlist._id }});
-      // window.location.href = `/player?vid=${id}&list=${this.playlist._id}`;
+      window.location.href = `/player?vid=${id}&list=${this.playlist._id}`;
     }
     else {
       // this.router.onSameUrlNavigation = 'reload';
       // this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       //   this.router.navigate(['/player'], { queryParams: { vid: id }});
       // });
-      this.router.navigate(['/player'], { queryParams: { vid: id }}).then(() => console.log(this.video));
+      this.router.navigate(['/player'], { queryParams: { vid: id }, replaceUrl: true }).then(() => console.log(this.video));
       // window.location.href = `/player?vid=${id}`;
       // this.location.go(`/player?vid=${id}`);
 
@@ -332,7 +333,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   videoEnded(): void {
-    console.log(this.videoElement.nativeElement.played);
+
   }
 
 
@@ -354,74 +355,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
-  async editTitle(title: string): Promise<void> {
-    try {
-      const editTitle = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/title`, {title}).toPromise();
-
-      if (editTitle.updated) {
-        window.location.reload();
-      }
-      else {
-        console.log(editTitle.message);
-      }
-    }
-    catch (err) {
-      console.log(err.message);
-    }
-  }
-
-
-  async editDesc(desc: string): Promise<void> {
-    try {
-      const editDesc = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/desc`, {desc}).toPromise();
-
-      if (editDesc.updated) {
-        window.location.reload();
-      }
-      else {
-        console.log(editDesc.message);
-      }
-    }
-    catch (err) {
-      console.log(err.message);
-    }
-  }
-
-
-  async editTags(tags: string): Promise<void> {
-    try {
-      const editTags = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/tags`, {tags}).toPromise();
-
-      if (editTags.updated) {
-        window.location.reload();
-      }
-      else {
-        console.log(editTags.message);
-      }
-    }
-    catch (err) {
-      console.log(err.message);
-    }
-  }
-
-
-  async editStat(): Promise<void> {
-    try {
-      const editStat = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.id}/stat`, {id: this.id}).toPromise();
-
-      if (editStat.updated) {
-        window.location.reload();
-      }
-      else {
-        console.log(editStat.message);
-      }
-    }
-    catch (err) {
-      console.log(err.message);
-    }
-  }
-
-
   private async getSimilarVideos(): Promise<Array<VideoDto>> {
     return await this.authService.getResource(`${this.VIDEOS_URL}/${this.id}/similar`).toPromise();
   }
@@ -436,7 +369,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       const progress = this.progressSection.nativeElement;
       const toggle = this.playButton.nativeElement;
       const fullscreenButton = this.fullScreenBtn.nativeElement;
-      const fullScreenState = localStorage.getItem('fullScreenState');
 
       let watchedVideos;
       let result;
@@ -974,6 +906,11 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
   ngOnDestroy(): void {
     console.log('Testing destroy event');
+    this.videoSub.unsubscribe();
+    this.videoElement.nativeElement.pause();
+    this.videoElement.nativeElement.pause();
+    this.videoElement.nativeElement.src = '';
+    this.videoElement.nativeElement.load();
   }
 
 
@@ -1125,4 +1062,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     }
   }
 
+  showData(): void {
+    console.log(this);
+  }
 }

@@ -125,7 +125,6 @@
       <li class="nav-item">
         <form #form class="form-inline mr-auto md-form m-0 p-0" [action]="['/finder']" enctype="multipart/form-data">
           <input id="search-nav-input" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" [formControl]="searchControl">
-          <input type="hidden" name="page" value="1" />
           <button mdbBtn size="sm" color="elegant" rounded="true" (click)="form.submit()" class="ml-0 mb-0 waves-light mt-sm-1 ml-md-2 mt-lg-0" mdbWavesEffect type="submit">Search</button>
         </form>
       </li>

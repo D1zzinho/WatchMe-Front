@@ -1,5 +1,125 @@
-<div class="container py-4">
+<!--<div class="container py-4">-->
 
+<!--  <form #form class="form-inline md-form mr-auto mb-4" [action]="['/finder']" enctype="multipart/form-data">-->
+<!--    <input-->
+<!--      type="text"-->
+<!--      class="form-control"-->
+<!--      placeholder="Search"-->
+<!--      aria-label="Search"-->
+<!--      name="q"-->
+<!--      (keyup)="liveSearch($event)"-->
+<!--    >-->
+<!--    <input type="hidden" name="page" value="1" />-->
+<!--    <button mdbBtn color="success" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>-->
+<!--  </form>-->
+
+<!--&lt;!&ndash;  <form #form class="form-inline my-2 my-lg-0" [action]="['/finder']" enctype="multipart/form-data">&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;        <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    &ndash;&gt;-->
+<!--&lt;!&ndash;    <mat-form-field class="mr-sm-2" appearance="fill">&ndash;&gt;-->
+<!--&lt;!&ndash;      <mat-label>Search query</mat-label>&ndash;&gt;-->
+<!--&lt;!&ndash;      <input type="text"&ndash;&gt;-->
+<!--&lt;!&ndash;             name="q"&ndash;&gt;-->
+<!--&lt;!&ndash;             (keyup)="liveSearch($event)"&ndash;&gt;-->
+<!--&lt;!&ndash;             placeholder="Search query"&ndash;&gt;-->
+<!--&lt;!&ndash;             aria-label="Search query"&ndash;&gt;-->
+<!--&lt;!&ndash;             matInput&ndash;&gt;-->
+<!--&lt;!&ndash;             [formControl]="searchControl"&ndash;&gt;-->
+<!--&lt;!&ndash;             [matAutocomplete]="auto">&ndash;&gt;-->
+<!--&lt;!&ndash;      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">&ndash;&gt;-->
+<!--&lt;!&ndash;        <mat-option *ngFor="let option of filteredSearchOptions | async" [value]="option">&ndash;&gt;-->
+<!--&lt;!&ndash;          {{option}}&ndash;&gt;-->
+<!--&lt;!&ndash;        </mat-option>&ndash;&gt;-->
+<!--&lt;!&ndash;      </mat-autocomplete>&ndash;&gt;-->
+<!--&lt;!&ndash;    </mat-form-field>&ndash;&gt;-->
+<!--&lt;!&ndash;    <input type="hidden" name="page" value="1" />&ndash;&gt;-->
+<!--&lt;!&ndash;    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" (click)="form.submit()">Search</button>&ndash;&gt;-->
+<!--&lt;!&ndash;  </form>&ndash;&gt;-->
+
+<!--  <h3 class="pb-2 text-center">{{ message }}</h3>-->
+
+<!--  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">-->
+<!--    <ul class="pagination justify-content-md-center">-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: 1}" class="page-link">First</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage - 1}" class="page-link">Previous</a>-->
+<!--      </li>-->
+<!--      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: page}" class="page-link">{{ page }}</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage + 1}" class="page-link">Next</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.totalPages}" class="page-link">Last</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </div>-->
+
+
+<!--  <div class="videos">-->
+
+<!--    <a class="text-left h-100" *ngFor="let video of videos" [routerLink]="['/player']" [queryParams]="{vid: video.id}">-->
+<!--      <div class="video h-100 rgba-pink-light" [title]="video.title">-->
+
+<!--          <div class="preview">-->
+
+<!--            <img-->
+<!--              src="{{ baseUrl }}/{{ video.cover }}"-->
+<!--              class="img-fluid"-->
+<!--              (mouseover)="loadPreview($event)"-->
+<!--              (mouseleave)="unloadPreview($event)"-->
+<!--             alt="{{ video.title }}">-->
+
+<!--            <video-->
+<!--              preload="auto"-->
+<!--              poster="{{ baseUrl }}/{{ video.cover }}"-->
+<!--              muted-->
+<!--              loop-->
+<!--              class="img-fluid"-->
+<!--              id="{{ video.id }}"-->
+<!--            >-->
+<!--              <source src="{{ baseUrl }}/{{ video.thumb }}" type="video/webm">-->
+<!--            </video>-->
+
+<!--          </div>-->
+
+<!--          <div class="movie-info">-->
+<!--            <h3 style="font-size: 13px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</h3>-->
+<!--            <span class="blue-text" title="Views">{{ video.visits }}</span>-->
+<!--          </div>-->
+
+<!--      </div>-->
+
+<!--    </a>-->
+<!--  </div>-->
+
+
+<!--  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 pt-3 w-100 overflow-auto">-->
+<!--    <ul class="pagination justify-content-md-center">-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: 1}" class="page-link">First</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage - 1}" class="page-link">Previous</a>-->
+<!--      </li>-->
+<!--      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: page}" class="page-link">{{ page }}</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage + 1}" class="page-link">Next</a>-->
+<!--      </li>-->
+<!--      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">-->
+<!--        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.totalPages}" class="page-link">Last</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </div>-->
+
+<!--</div>-->
+
+<div class="container py-4">
   <form #form class="form-inline md-form mr-auto mb-4" [action]="['/finder']" enctype="multipart/form-data">
     <input
       type="text"
@@ -9,73 +129,33 @@
       name="q"
       (keyup)="liveSearch($event)"
     >
-    <input type="hidden" name="page" value="1" />
     <button mdbBtn color="success" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
   </form>
 
-<!--  <form #form class="form-inline my-2 my-lg-0" [action]="['/finder']" enctype="multipart/form-data">-->
-<!--    &lt;!&ndash;        <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search">&ndash;&gt;-->
-<!--    -->
-<!--    <mat-form-field class="mr-sm-2" appearance="fill">-->
-<!--      <mat-label>Search query</mat-label>-->
-<!--      <input type="text"-->
-<!--             name="q"-->
-<!--             (keyup)="liveSearch($event)"-->
-<!--             placeholder="Search query"-->
-<!--             aria-label="Search query"-->
-<!--             matInput-->
-<!--             [formControl]="searchControl"-->
-<!--             [matAutocomplete]="auto">-->
-<!--      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">-->
-<!--        <mat-option *ngFor="let option of filteredSearchOptions | async" [value]="option">-->
-<!--          {{option}}-->
-<!--        </mat-option>-->
-<!--      </mat-autocomplete>-->
-<!--    </mat-form-field>-->
-<!--    <input type="hidden" name="page" value="1" />-->
-<!--    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" (click)="form.submit()">Search</button>-->
-<!--  </form>-->
+  <div *ngIf="videosLoaded | async">
+    <h1 class="pb-2 text-center">
+      <span *ngIf="videosLength > 0">Found videos ({{ videosLength }})</span>
+      <span *ngIf="videosLength <= 0">Not found any video for query: {{ q }}</span>
+    </h1>
 
-  <h3 class="pb-2 text-center">{{ message }}</h3>
+    <mat-spinner class="mx-auto mt-4" *ngIf="!(videosLoaded | async)"></mat-spinner>
+    <div class="videos" *ngIf="videosLoaded | async">
 
-  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">
-    <ul class="pagination justify-content-md-center">
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: 1}" class="page-link">First</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage - 1}" class="page-link">Previous</a>
-      </li>
-      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: page}" class="page-link">{{ page }}</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage + 1}" class="page-link">Next</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.totalPages}" class="page-link">Last</a>
-      </li>
-    </ul>
-  </div>
-
-
-  <div class="videos">
-
-    <a class="text-left h-100" *ngFor="let video of videos" [routerLink]="['/player']" [queryParams]="{vid: video.id}">
-      <div class="video h-100 rgba-pink-light" [title]="video.title">
+      <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video?.id}">
+        <div class="video h-100 rgba-pink-light" [title]="video?.title">
 
           <div class="preview">
 
             <img
-              src="{{ baseUrl }}/{{ video.cover }}"
-              class="img-fluid"
+              src="{{ baseUrl }}/{{ video?.cover }}"
+              class="img-fluid prev"
               (mouseover)="loadPreview($event)"
               (mouseleave)="unloadPreview($event)"
-             alt="{{ video.title }}">
+              alt="{{ video?.title }}">
 
             <video
               preload="auto"
-              poster="{{ baseUrl }}/{{ video.cover }}"
+              poster="{{ baseUrl }}/{{ video?.cover }}"
               muted
               loop
               class="img-fluid"
@@ -91,30 +171,29 @@
             <span class="blue-text" title="Views">{{ video.visits }}</span>
           </div>
 
-      </div>
+        </div>
 
-    </a>
+      </a>
+    </div>
+
+    <mat-paginator
+      class="mt-2"
+      color="accent"
+      [showFirstLastButtons]="true"
+      [length]="videosLength"
+      [pageSize]="videosPerPage"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="pageEvent = handlePage($event)"
+      [pageIndex]="currentPage"
+    >
+    </mat-paginator>
   </div>
 
-
-  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 pt-3 w-100 overflow-auto">
-    <ul class="pagination justify-content-md-center">
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: 1}" class="page-link">First</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item previous-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage - 1}" class="page-link">Previous</a>
-      </li>
-      <li *ngFor="let page of pages.pages" [ngClass]="{'active':pages.currentPage === page}" class="page-item number-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: page}" class="page-link">{{ page }}</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item next-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.currentPage + 1}" class="page-link">Next</a>
-      </li>
-      <li [ngClass]="{'disabled':pages.currentPage === pages.totalPages}" class="page-item last-item">
-        <a [routerLink]="['/finder']" [queryParams]="{q: q, page: pages.totalPages}" class="page-link">Last</a>
-      </li>
-    </ul>
-  </div>
 
 </div>
+
+
+<div class="container my-4" *ngIf="noVideos">
+  <div class="alert alert-warning">{{ message }}</div>
+</div>
+
