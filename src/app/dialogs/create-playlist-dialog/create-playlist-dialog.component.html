@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Create new playlist</h1>
+<div mat-dialog-content>
+  <form [formGroup]="createPlaylistForm">
+    <mat-form-field color="accent" appearance="outline">
+      <mat-label>Name</mat-label>
+      <input formControlName="name" matInput #name maxlength="50" placeholder="Type here new playlist name...">
+      <mat-hint align="start">Set logic name.</mat-hint>
+      <mat-hint align="end">{{name.value.length}} / 50</mat-hint>
+    </mat-form-field>
+
+    <mat-checkbox
+      class="ml-2"
+      formControlName="isPrivate"
+    >
+      Private
+    </mat-checkbox>
+
+    <button mat-stroked-button color="accent" class="w-100 mt-2" [disabled]="createPlaylistForm.invalid" (click)="createPlaylist()">Create</button>
+  </form>
+</div>
+
