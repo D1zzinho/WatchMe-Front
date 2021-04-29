@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {AuthService} from '../../auth.service';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {SnackBarComponent} from '../../snack-bar/snack-bar.component';
 import {MatDialogRef} from '@angular/material/dialog';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {environment} from '../../../environments/environment';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-repo-dialog',
@@ -12,8 +11,6 @@ import {environment} from '../../../environments/environment';
   styleUrls: ['./create-repo-dialog.component.css']
 })
 export class CreateRepoDialogComponent implements OnInit {
-
-  readonly durationInSeconds = 5;
 
   createRepoForm: FormGroup;
 
@@ -23,7 +20,7 @@ export class CreateRepoDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<CreateRepoDialogComponent>,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private toastService: ToastrService
   ) {}
 
 
@@ -45,20 +42,13 @@ export class CreateRepoDialogComponent implements OnInit {
       private: this.checked
     };
 
-    this.authService.postResource(`${environment.baseUrl}/users/github/repos`, newRepo).subscribe(result => {
-      this.openSnackBar(`Repository ${result.name} successfully created!`, 'success');
+    this.authService.postResource(`${environment.baseUrl}/gitHubUsers/repos`, newRepo).subscribe(result => {
+      this.toastService.success(`Repository ${result.name} successfully created!`);
       this.dialogRef.close();
     }, error => {
-      this.openSnackBar(error.message, 'error');
+      this.toastService.error(error.message);
       throw new Error(error.message);
     });
   }
 
-  private openSnackBar(message: string, type: string): void {
-    this.snackBar.openFromComponent(SnackBarComponent, {
-      data: { message, type },
-      duration: this.durationInSeconds * 1000,
-      panelClass: ['darkBar']
-    });
-  }
 }

@@ -1,7 +1,8 @@
+import {CommentAuthor} from './CommentAuthor';
+
 export interface CommentDto {
-  id: string;
+  _id: string;
   text: string;
   date: Date;
-  author: string;
-  authorAvatar: string;
+  author: CommentAuthor;
 }

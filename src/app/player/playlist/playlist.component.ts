@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {environment} from '../../../environments/environment';
 import {Location} from '@angular/common';
 
@@ -7,7 +7,7 @@ import {Location} from '@angular/common';
   templateUrl: './playlist.component.html',
   styleUrls: ['./playlist.component.css']
 })
-export class PlaylistComponent implements OnInit {
+export class PlaylistComponent implements OnInit, AfterViewInit {
 
   readonly baseUrl = environment.baseUrl;
   @Input() playlist: any;
@@ -30,6 +30,18 @@ export class PlaylistComponent implements OnInit {
     }
     else {
       this.playlistPanelState = localStorage.getItem('playlistPanelState') === 'true';
+    }
+  }
+
+
+  ngAfterViewInit(): void {
+    const index = this.playlist.videos.findIndex(video => {
+      return video._id === this.video._id;
+    });
+
+    if (index !== -1) {
+      const videoItem = document.getElementById(this.video._id);
+      document.getElementById('playlistVideos').scrollTop = videoItem.offsetTop - Math.ceil(videoItem.offsetHeight / 1.65);
     }
   }
 
@@ -58,5 +70,4 @@ export class PlaylistComponent implements OnInit {
     this.playlistChange.emit(null);
     this.location.replaceState(`/player`, `?vid=${this.video._id}`);
   }
-
 }

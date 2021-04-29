@@ -118,82 +118,86 @@
 <!--  </div>-->
 
 <!--</div>-->
+<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!(pageLoaded | async)"></mat-progress-bar>
 
 <div class="container py-4">
-  <form #form class="form-inline md-form mr-auto mb-4" [action]="['/finder']" enctype="multipart/form-data">
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Search"
-      aria-label="Search"
-      name="q"
-      (keyup)="liveSearch($event)"
-    >
-    <button mdbBtn color="success" rounded="true" (click)="form.submit()" class="my-0 waves-light" mdbWavesEffect type="submit">Search</button>
-  </form>
 
-  <div *ngIf="videosLoaded | async">
-    <h1 class="pb-2 text-center">
-      <span *ngIf="videosLength > 0">Found videos ({{ videosLength }})</span>
-      <span *ngIf="videosLength <= 0">Not found any video for query: {{ q }}</span>
-    </h1>
+  <mat-card class="mb-4">
+    <mat-card-title>
+      <h1>Search for videos</h1>
+    </mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="mb-4 text-center" enctype="multipart/form-data">
+        <mat-form-field color="accent" appearance="outline" class="ml-auto w-100">
+          <mat-label>Search</mat-label>
+          <input matInput #searchInput maxlength="50" formControlName="q" placeholder="Type search query here...">
+          <mat-hint align="start">Search for video you want to watch.</mat-hint>
+          <mat-hint align="end">{{searchInput.value.length}} / 50</mat-hint>
+        </mat-form-field>
+        <button mat-raised-button color="accent" class="ml-auto mt-2 w-50" type="submit" [disabled]="searchForm.invalid" (click)="onSubmit()">Search</button>
+      </form>
+    </mat-card-content>
+    <mat-card-footer *ngIf="noVideos" class="m-2">
+      <div class="alert alert-warning my-2">{{ message === '' ? 'No matching videos found' : message }}</div>
+    </mat-card-footer>
+  </mat-card>
 
-    <mat-spinner class="mx-auto mt-4" *ngIf="!(videosLoaded | async)"></mat-spinner>
-    <div class="videos" *ngIf="videosLoaded | async">
 
-      <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video?.id}">
-        <div class="video h-100 rgba-pink-light" [title]="video?.title">
+  <div *ngIf="(videosLoaded | async) && videosLength > 0">
+    <h1 class="pb-2 text-center">Found {{ videosLength }} videos</h1>
 
-          <div class="preview">
+    <mat-card style="border-radius: 0;">
+      <div class="videos">
+        <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video._id}">
+          <div class="video h-100 rgba-pink-light" [title]="video.title">
 
-            <img
-              src="{{ baseUrl }}/{{ video?.cover }}"
-              class="img-fluid prev"
-              (mouseover)="loadPreview($event)"
-              (mouseleave)="unloadPreview($event)"
-              alt="{{ video?.title }}">
+            <div class="preview">
 
-            <video
-              preload="auto"
-              poster="{{ baseUrl }}/{{ video?.cover }}"
-              muted
-              loop
-              class="img-fluid"
-              id="{{ video.id }}"
-            >
-              <source src="{{ baseUrl }}/{{ video.thumb }}" type="video/webm">
-            </video>
+              <img
+                [src]="baseUrl + '/videos/' + video._id + '/poster'"
+                class="img-fluid prev"
+                (mouseover)="loadPreview($event)"
+                (mouseleave)="unloadPreview($event)"
+                alt="{{ video?.title }}">
+
+              <video
+                preload="auto"
+                [poster]="baseUrl + '/videos/' + video._id + '/poster'"
+                muted
+                loop
+                class="img-fluid"
+              >
+                <source [src]="baseUrl + '/videos/' + video._id + '/preview'" type="video/webm">
+              </video>
+
+            </div>
+
+            <div class="movie-info">
+              <h3 style="font-size: 13px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</h3>
+              <span class="blue-text" title="Views">{{ video.visits }}</span>
+            </div>
 
           </div>
 
-          <div class="movie-info">
-            <h3 style="font-size: 13px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</h3>
-            <span class="blue-text" title="Views">{{ video.visits }}</span>
-          </div>
+        </a>
+      </div>
 
-        </div>
+      <mat-paginator
+        class="mt-2"
+        color="accent"
+        [showFirstLastButtons]="true"
+        [length]="videosLength"
+        [pageSize]="videosPerPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="pageEvent = handlePage($event)"
+        [pageIndex]="currentPage"
+      >
+      </mat-paginator>
 
-      </a>
-    </div>
+    </mat-card>
 
-    <mat-paginator
-      class="mt-2"
-      color="accent"
-      [showFirstLastButtons]="true"
-      [length]="videosLength"
-      [pageSize]="videosPerPage"
-      [pageSizeOptions]="pageSizeOptions"
-      (page)="pageEvent = handlePage($event)"
-      [pageIndex]="currentPage"
-    >
-    </mat-paginator>
   </div>
 
 
-</div>
-
-
-<div class="container my-4" *ngIf="noVideos">
-  <div class="alert alert-warning">{{ message }}</div>
 </div>
 

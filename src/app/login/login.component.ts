@@ -115,32 +115,32 @@ export class LoginComponent implements OnInit, AfterViewInit {
       }
     }
 
-    const { usernameExists, emailExists } = await this.authService.checkCredentials(
-      this.registerForm.value.email,
-      this.registerForm.value.username
-    );
-
-    if (usernameExists) {
-      this.usernameInput.nativeElement.style.border = '1px solid';
-      this.usernameInput.nativeElement.style.borderColor = 'rgba(255,0,0,0.75)';
-      this.error.push('Username already exists!');
-    }
-    else {
-      if (this.usernameInput.nativeElement.hasAttribute('style')) {
-        this.usernameInput.nativeElement.removeAttribute('style');
-      }
-    }
-
-    if (emailExists) {
-      this.emailInput.nativeElement.style.border = '1px solid';
-      this.emailInput.nativeElement.style.borderColor = 'rgba(255,0,0,0.75)';
-      this.error.push('E-mail already exists!');
-    }
-    else {
-      if (this.emailInput.nativeElement.hasAttribute('style')) {
-        this.emailInput.nativeElement.removeAttribute('style');
-      }
-    }
+    // const { usernameExists, emailExists } = await this.authService.checkCredentials(
+    //   this.registerForm.value.email,
+    //   this.registerForm.value.username
+    // );
+    //
+    // if (usernameExists) {
+    //   this.usernameInput.nativeElement.style.border = '1px solid';
+    //   this.usernameInput.nativeElement.style.borderColor = 'rgba(255,0,0,0.75)';
+    //   this.error.push('Username already exists!');
+    // }
+    // else {
+    //   if (this.usernameInput.nativeElement.hasAttribute('style')) {
+    //     this.usernameInput.nativeElement.removeAttribute('style');
+    //   }
+    // }
+    //
+    // if (emailExists) {
+    //   this.emailInput.nativeElement.style.border = '1px solid';
+    //   this.emailInput.nativeElement.style.borderColor = 'rgba(255,0,0,0.75)';
+    //   this.error.push('E-mail already exists!');
+    // }
+    // else {
+    //   if (this.emailInput.nativeElement.hasAttribute('style')) {
+    //     this.emailInput.nativeElement.removeAttribute('style');
+    //   }
+    // }
 
     if (this.passwordInput.nativeElement.hasAttribute('style')) {
       this.passwordInput.nativeElement.removeAttribute('style');
@@ -230,6 +230,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
 
   gitHubLogin(): void {
-    window.location.href = `${this.baseUrl}/auth/github`;
+    window.location.href = `${this.baseUrl}/auth/github/`;
   }
 }

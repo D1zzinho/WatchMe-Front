@@ -1,20 +1,19 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild, ViewChildren} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
-import {map, startWith} from 'rxjs/operators';
-import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
 import {VideoDto} from '../models/VideoDto';
 import {PageEvent} from '@angular/material/paginator';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-finder',
   templateUrl: './finder.component.html',
   styleUrls: ['./finder.component.css']
 })
-export class FinderComponent implements OnInit {
+export class FinderComponent implements OnInit, AfterViewInit {
 
   readonly VIDEOS_URL: string = `${environment.baseUrl}/videos/search`;
   readonly baseUrl: string = environment.baseUrl;
@@ -24,6 +23,7 @@ export class FinderComponent implements OnInit {
   pageEvent: void;
 
   videosLoaded: Promise<boolean>;
+  pageLoaded: Promise<boolean> = Promise.resolve(false);
 
   videos: Array<VideoDto> = new Array<VideoDto>();
   videosOnPage: Array<VideoDto> = new Array<VideoDto>();
@@ -36,16 +36,28 @@ export class FinderComponent implements OnInit {
   loading = true;
   noVideos = false;
 
-  // searchControl: FormControl = new FormControl();
-  // searchOptions: Array<string> = new Array<string>();
-  // filteredSearchOptions: Observable<Array<string>>;
+  searchForm: FormGroup;
 
-  constructor(private http: HttpClient, private router: Router, private currentRoute: ActivatedRoute, private authService: AuthService) { }
+  @ViewChild('searchInput', { static: false }) searchInput: ElementRef<HTMLInputElement>;
+
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private currentRoute: ActivatedRoute,
+    private authService: AuthService,
+    private location: Location,
+    private formBuilder: FormBuilder
+  ) { }
 
   ngOnInit(): void {
+    this.searchForm = this.formBuilder.group({
+      q: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)])
+    });
+
     this.loading = true;
 
     this.currentRoute.queryParams.subscribe(params => {
+      this.pageLoaded = Promise.resolve(true);
       if (params.limit) {
         if (params.limit < 0) {
           this.videosPerPage = 1;
@@ -57,41 +69,62 @@ export class FinderComponent implements OnInit {
       }
 
       this.q = params.q;
-      this.authService.getResource(this.VIDEOS_URL + '?query=' + params.q).subscribe(res => {
-        if (res.isResult) {
-        this.videos = res.videos;
-        this.videosLength = res.videos.length;
-
-        if (res.videos.length > 0) {
-          this.iterator();
-        } else {
+      if (params.q === '' || params.q === null) {
+        this.noVideos = true;
+        this.message = 'Query cannot be empty or blank!';
+      }
+      else {
+        this.authService.getResource(this.VIDEOS_URL + '?query=' + params.q).subscribe(res => {
+          if (res.length > 0) {
+            this.videos = res;
+            this.videosLength = res.length;
+            this.iterator();
+            this.videosLoaded = Promise.resolve(true);
+          } else {
+            this.noVideos = true;
+          }
+        }, error => {
           this.noVideos = true;
-        }
-
-        this.videosLoaded = Promise.resolve(true);
-        }
-        else {
-          this.noVideos = true;
-        }
-
-        this.message = res.message;
-      });
+          this.message = error.error.message;
+        });
+      }
     });
-
-
-    // this.authService.getResource(`${environment.baseUrl}/videos/mostUsedTags`).subscribe(res => {
-    //     if (res.found) {
-    //       this.searchOptions = res.options;
-    //     }
-    //   }, err => {
-    //     console.log(err);
-    // });
-    //
-    // this.filteredSearchOptions = this.searchControl.valueChanges.pipe(
-    //   startWith(''),
-    //   map(value => this.filter(value))
-    // );
   }
+
+
+  ngAfterViewInit(): void {
+    this.pageLoaded.then(loaded => {
+      if (loaded) {
+        this.searchInput.nativeElement.value = this.q;
+      }
+    });
+  }
+
+
+  onSubmit(): void {
+    this.videos = [];
+    this.videosLength = 0;
+    this.videosLoaded = Promise.resolve(false);
+    this.noVideos = false;
+
+    this.q = this.searchForm.value.q;
+    this.location.go(`/finder?q=${this.searchForm.value.q}`);
+
+    this.authService.getResource(this.VIDEOS_URL + '?query=' + this.searchForm.value.q).subscribe(res => {
+      this.videos = res;
+      this.videosLength = res.length;
+      this.videosLoaded = Promise.resolve(true);
+      if (res.length > 0) {
+        this.iterator();
+      }
+      else {
+        this.noVideos = true;
+      }
+    }, error => {
+      this.message = error.error.message;
+    });
+  }
+
 
   handlePage(e: PageEvent): void {
     this.currentPage = e.pageIndex;
@@ -132,12 +165,12 @@ export class FinderComponent implements OnInit {
   }
 
 
-  liveSearch(event: any): void {
-    this.router.navigate([], {
-      relativeTo: this.currentRoute,
-      queryParams: { q: event.target.value, limit: this.videosPerPage },
-      queryParamsHandling: 'merge'
-    });
+  // liveSearch(event: any): void {
+  //   this.router.navigate([], {
+  //     relativeTo: this.currentRoute,
+  //     queryParams: { q: event.target.value, limit: this.videosPerPage },
+  //     queryParamsHandling: 'merge'
+  //   });
 
     // this.authService.getResource(this.VIDEOS_URL + '?query=' + event.target.value).subscribe(res => {
     //   if (res.isResult) {
@@ -147,7 +180,7 @@ export class FinderComponent implements OnInit {
     //   }
     //   this.message = res.message;
     // });
-  }
+  // }
 
 
   // filter(value: string): Array<string> {

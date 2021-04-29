@@ -1,8 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {AuthService} from '../../auth.service';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {environment} from '../../../environments/environment';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-show-repo-info-dialog',
@@ -12,12 +12,47 @@ import {environment} from '../../../environments/environment';
 export class ShowRepoInfoDialogComponent implements OnInit {
 
   readonly baseUrl = environment.baseUrl;
-  readonly durationInSeconds = 5;
 
   loadedCommits: Promise<boolean>;
   accessible: Promise<boolean>;
   commits: Array<any> = new Array<any>();
   languages: Array<any> = new Array<any>();
+
+  error: string;
+
+  chartType = 'horizontalBar';
+  chartDatasets: Array<any>;
+  chartLabels: Array<any>;
+  chartColors: Array<any>;
+  chartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    legend: {
+      labels: {
+        fontColor: 'white'
+      }
+    },
+    scales: {
+      yAxes: [{
+        ticks: {
+          fontColor: 'white',
+          fontSize: 15,
+          stepSize: 1,
+          beginAtZero: true
+        }
+      }],
+      xAxes: [{
+        ticks: {
+          fontColor: 'white',
+          fontSize: 12,
+          stepSize: 1,
+          beginAtZero: true
+        }
+      }]
+    }
+  };
+  chartClicked(e: any): void { }
+  chartHovered(e: any): void { }
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: {
@@ -26,7 +61,7 @@ export class ShowRepoInfoDialogComponent implements OnInit {
       isPrivate: boolean
     },
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private toastService: ToastrService
   ) { }
 
   ngOnInit(): void {
@@ -42,7 +77,7 @@ export class ShowRepoInfoDialogComponent implements OnInit {
       this.loadedCommits = Promise.resolve(true);
     }
     else {
-      this.authService.postResource(`${this.baseUrl}/users/github/commits`, getRepoBody).subscribe(commits => {
+      this.authService.postResource(`${this.baseUrl}/gitHubUsers/commits`, getRepoBody).subscribe(commits => {
         const withFormattedDate = new Array<any>();
 
         commits.forEach(commit => {
@@ -61,9 +96,13 @@ export class ShowRepoInfoDialogComponent implements OnInit {
 
         this.accessible = Promise.resolve(true);
         this.loadedCommits = Promise.resolve(true);
+      }, error => {
+        this.error = error.error.message;
+        this.loadedCommits = Promise.resolve(true);
+        this.toastService.error(error.error.message);
       });
 
-      this.authService.postResource(`${this.baseUrl}/users/github/languages`, getRepoBody).subscribe(languages => {
+      this.authService.postResource(`${this.baseUrl}/gitHubUsers/languages`, getRepoBody).subscribe(languages => {
         const languagesMap = Object.keys(languages).map((key) => [String(key), languages[key]]);
 
         let languageSum = 0;
@@ -76,7 +115,25 @@ export class ShowRepoInfoDialogComponent implements OnInit {
           percentArr.push([value[0], (Math.round((value[1] / languageSum) * 100) / 100) * 100 ]);
         });
 
-        this.languages = percentArr;
+        this.chartDatasets = [];
+        this.chartLabels = [];
+        this.chartColors = [];
+        const data = [];
+        const colors = [];
+        const labels = [];
+        percentArr.forEach(lang => {
+          data.push(Math.floor(lang[1]));
+          colors.push('#' + Math.floor(Math.random() * 16777215).toString(16));
+          labels.push(lang[0]);
+        });
+        this.chartDatasets = [{ data, label: '% of used languages' }];
+        this.chartLabels = labels;
+        this.chartColors = [{
+          backgroundColor: colors
+        }];
+
+      }, error => {
+        this.toastService.error(error.error.message);
       });
     }
 

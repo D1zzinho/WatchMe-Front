@@ -1,16 +1,3 @@
-<!--<form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">-->
-<!--  <input type="file" class="form-control-file" (change)="onFileSelect($event)" accept="video/mp4" required />-->
-
-<!--  <div class="options">-->
-<!--    <input type="text" class="form-control" name="title" formControlName="title" placeholder="Title" maxlength="200" required />-->
-<!--    <input type="text" class="form-control" name="desc" formControlName="desc" placeholder="Description" maxlength="300" />-->
-<!--    <input type="text" class="form-control" name="tags" formControlName="tags" placeholder="Tags" />-->
-<!--  </div>-->
-
-
-<!--  <button type="submit" class="btn btn-outline-primary" [disabled]="uploadForm.invalid">Upload video</button>-->
-<!--</form>-->
-
 <div class="container-fluid">
   <div class="upload-page">
     <div class="form">
@@ -26,7 +13,7 @@
             <input type="file" class="drop-zone__input" accept="video/mp4" required />
           </div>
 
-          <div class="text-inputs" style="display: none;" *ngIf="!uploadResponse['status'] || uploadResponse['status'] !== 'progress'">
+          <div class="text-inputs" style="display: none;" *ngIf="!uploadResponse">
             <mat-form-field class="w-100" color="accent" appearance="outline">
               <mat-label>Video title (min. 10 signs)</mat-label>
               <input matInput #videoTitle name="title" formControlName="title" type="text" minlength="10" maxlength="200">
@@ -69,51 +56,50 @@
         <p class="p-0 m-0">{{ error }}</p>
       </div>
 
-      <div #UPLOAD_ERROR class="alert alert-danger mx-2" *ngIf="uploadResponse['status'] && uploadResponse['status'] === 'error'">
+      <div #UPLOAD_ERROR class="alert alert-danger mx-2" *ngIf="uploadResponse && uploadResponse['status'] && uploadResponse['status'] === 'error'">
         <a href="javascript:void(0)" class="close" (click)="UPLOAD_ERROR.style.display = 'none'" aria-label="close">&times;</a>
         <p class="p-0 m-0">{{ uploadResponse['message'] }}</p>
       </div>
 
 
 
-      <a class="text-left newVideo" *ngIf="uploadResponse['uploaded']" [routerLink]="['/player']" [queryParams]="{vid: uploadResponse['saved'].video._id}">
-        <div class="suggestedVideo h-100" [title]="uploadResponse['saved'].video.title">
+      <a class="text-left newVideo" *ngIf="uploadResponse && uploadResponse['uploaded']" [routerLink]="['/player']" [queryParams]="{vid: uploadResponse['video']._id}">
+        <div class="suggestedVideo h-100" [title]="uploadResponse['video'].title">
           <div class="preview text-center">
 
             <img *ngIf="newImageLoaded | async" id="newVideoThumbnail"
               class="img-fluid prev"
-              alt="{{ uploadResponse['saved'].video.title }}" src="">
+              alt="{{ uploadResponse['video'].title }}" src="">
 
             <mat-spinner class="my-3 mx-auto" color="accent" *ngIf="!(newImageLoaded | async)"></mat-spinner>
 
           </div>
           <div class="upload-movie-info">
-            <strong style="font-size: 12px; word-break: break-word;">{{ (uploadResponse['saved'].video.title.length > 30 ? uploadResponse['saved'].video.title.slice(0, 30) + '...' : uploadResponse['saved'].video.title) }}</strong>
-            <span style="color: rgba(50,170,255,0.8)" title="Views">{{ uploadResponse['saved'].video.visits }}</span>
+            <strong style="font-size: 12px; word-break: break-word;">{{ (uploadResponse['video'].title.length > 30 ? uploadResponse['video'].title.slice(0, 30) + '...' : uploadResponse['video'].title) }}</strong>
           </div>
         </div>
       </a>
 
 
-      <div #SUCCESS class="alert alert-success mx-2 mt-2" *ngIf="uploadResponse['uploaded']">
+      <div #SUCCESS class="alert alert-success mx-2 mt-2" *ngIf="uploadResponse && uploadResponse['uploaded']">
         <a href="javascript:void(0)" class="close" (click)="SUCCESS.style.display = 'none'" aria-label="close">&times;</a>
-        <p class="p-0 m-0">Video <strong>{{ uploadResponse['saved'].video.title }}</strong> successfully uploaded!</p>
+        <p class="p-0 m-0">Video <strong>{{ uploadResponse['video'].title }}</strong> successfully uploaded!</p>
       </div>
 
-      <div class="text-center" *ngIf="uploadResponse['uploaded']">
-        <button mat-stroked-button class="rgba-pink-light text-uppercase" style="font-size: 18px; padding: 6px 12px;" onclick="window.location.reload();">Upload another video</button>
+      <div class="text-center" *ngIf="uploadResponse && uploadResponse['uploaded']">
+        <button mat-stroked-button class="rgba-pink-light text-uppercase" style="font-size: 18px; padding: 6px 12px; margin-top: 10px;" onclick="window.location.reload();">Upload another video</button>
       </div>
 
-      <div *ngIf="uploadResponse['status'] && uploadResponse['status'] === 'progress'" class="progress mx-2">
-<!--          <div class="progress-bar" role="progressbar" [style.width]="uploadResponse.message + '%'" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>-->
+      <div *ngIf="uploadResponse && uploadResponse['status'] && uploadResponse['status'] === 'progress'" class="mx-2">
+        <div *ngIf="uploadResponse['message'] < 100">
+          <mat-progress-bar style="height: 50px !important;" [value]="uploadResponse['message']"></mat-progress-bar>{{ uploadResponse['message'] }}%
+        </div>
 
-        <mat-progress-bar style="height: 50px;" [value]="uploadResponse['message']"></mat-progress-bar>
-
-<!--        <div role="progressbar" [ngStyle]="{'width': uploadResponse.message + '%' }" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">-->
-<!--          <p class="p-0 m-0">{{ uploadResponse.message }}%</p>-->
-<!--        </div>-->
+        <div class="alert alert-warning text-center" *ngIf="uploadResponse['message'] === 100">
+          Encoding in progress... Don't close this page!
+          <mat-spinner class="ml-auto mr-auto mt-2" color="accent" mode="indeterminate"></mat-spinner>
+        </div>
       </div>
     </div>
   </div>
 </div>
-

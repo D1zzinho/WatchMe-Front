@@ -14,6 +14,10 @@ export class AuthGuardService {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    if (!this.loggedIn) {
+      this.router.navigate(['/login']);
+    }
+
     return this.loggedIn;
   }
 

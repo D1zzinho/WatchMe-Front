@@ -17,7 +17,7 @@
               <div>
                 <span style="font-size: 11px;" class="text-white-50">
                   Committed by
-                  <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commitGroup['commits'][0]['author']['login'] }}</span>
+                  <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commitGroup['commits'][0]['author']['name'] }}</span>
                   on {{ commitGroup['commits'][0]['date'] }}
                 </span>
               </div>
@@ -30,7 +30,7 @@
               <div>
                 <span style="font-size: 11px;" class="text-white-50">
                   Committed by
-                  <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commit['author']['login'] }}</span>
+                  <span class="font-weight-bolder" style="letter-spacing: 1px;">{{ commit['author']['name'] }}</span>
                   on {{ commit.date }}
                 </span>
               </div>
@@ -40,9 +40,11 @@
 
       </ul>
 
-      <div class="alert alert-danger" role="alert" *ngIf="!(accessible | async)">
+      <div class="alert alert-danger" role="alert" *ngIf="!(accessible | async) && !error">
         You cannot access other users <strong>private</strong> repository commits!
       </div>
+
+      <div class="alert alert-warning my-2" *ngIf="error">{{ error }}</div>
     </div>
 
     <div class="loading" *ngIf="!(loadedCommits | async)">
@@ -54,9 +56,26 @@
 
   <!-- LANGUAGES TAB -->
   <mat-tab label="Languages">
-    <div class="mt-2">
-      <div *ngFor="let value of languages" class="alert alert-success">{{ value[0] }} => {{ value[1] }}%</div>
+<!--    <div class="mt-2">-->
+<!--      <div *ngFor="let value of languages" class="alert alert-success">{{ value[0] }} => {{ value[1] }}%</div>-->
+<!--    </div>-->
+
+    <div class="d-block my-2">
+      <canvas mdbChart
+              [chartType]="chartType"
+              [datasets]="chartDatasets"
+              [labels]="chartLabels"
+              [colors]="chartColors"
+              [options]="chartOptions"
+              [legend]="true"
+              (chartHover)="chartHovered($event)"
+              (chartClick)="chartClicked($event)"
+              style="min-width: 500px !important; min-height: 200px !important;"
+      >
+      </canvas>
     </div>
+
+    <div class="alert alert-warning my-2" *ngIf="error">{{ error }}</div>
   </mat-tab>
 
 

@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Poppins:300);
+/*@import url(https://fonts.googleapis.com/css?family=Poppins:300);*/
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
@@ -9,7 +9,23 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .bg-dark {
   /*background-color: #303030 !important;*/
-  background-color: rgb(24, 24, 24);
+  background-color: rgb(24, 24, 24) !important;
+}
+
+/*.mat-tooltip-trigger {*/
+/*  touch-action: auto !important;*/
+/*}*/
+.mat-button-focus-overlay {
+  background-color: transparent !important;
+}
+button:focus {
+  outline: none !important;
+}
+
+@media screen and (min-width: 992px) {
+  .navbar {
+    height: 50px;
+  }
 }
 
 button.navbar-toggler {
@@ -135,6 +151,12 @@ button.navbar-toggler {
   text-decoration: none;
 }
 
+.preview {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
 .video {
   /*background-color: #373b69;*/
   border-radius: 3px;
@@ -146,6 +168,7 @@ button.navbar-toggler {
 
 .video video {
   width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
@@ -168,7 +191,7 @@ button.navbar-toggler {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
   letter-spacing: 1px;
   /*position: absolute;*/
   /*bottom: 0;*/
@@ -178,8 +201,9 @@ button.navbar-toggler {
   /*z-index: 10;*/
 }
 
-.movie-info h3 {
+.movie-info p {
   margin: 0;
+  font-weight: 400;
 }
 
 .movie-info span {
@@ -198,4 +222,23 @@ button.navbar-toggler {
 
 .movie-info span.red {
   color: rgb(189, 42, 42);
+}
+
+
+.mat-progress-bar[mode=buffer] .mat-progress-bar-background {
+  display: none !important;
+}
+
+
+
+::-webkit-scrollbar {
+  width: 4px;
+  overflow-y: scroll;
+  background: grey;
+  box-shadow: inset 0 0 4px #707070;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
 }

@@ -1,3 +1,38 @@
 hr {
   border-color: rgba(255,255,255,0.7);
 }
+
+
+
+.shortPreview {
+  position: relative;
+  width: 100%;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.bg-logo {
+  position: absolute;
+  width: 100%;
+  top: 47.5%;
+  font-size: 60px;
+  font-weight: bolder;
+  letter-spacing: 5px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#shortPreviewVideo {
+  width: 100%;
+  margin-top: -7.5%;
+}

@@ -17,8 +17,8 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <mat-selection-list style="max-height: 420px; overflow: auto;" #videos [multiple]="false">
-      <mat-list-option *ngFor="let playlistVideo of playlist['videos']; index as i" (click)="open(i)">
+    <mat-selection-list id="playlistVideos" style="max-height: 420px; overflow: auto;" #videos [multiple]="false">
+      <mat-list-option *ngFor="let playlistVideo of playlist['videos']; index as i" (click)="open(i)" [id]="playlistVideo['_id']">
         <div class="playlist-item">
           <div class="item-number">
             <mat-icon *ngIf="playlistVideo['_id'] === video['_id']">play_arrow</mat-icon>
@@ -26,7 +26,7 @@
           </div>
 
           <div class="item-cover">
-            <img class="item-cover-image img-fluid" [src]="baseUrl + '/' + playlistVideo['cover']" [alt]="playlistVideo['title'] + ' cover image'">
+            <img class="item-cover-image img-fluid" [src]="baseUrl + '/videos/' + playlistVideo['_id'] + '/poster'" [alt]="playlistVideo['title'] + ' cover image'">
           </div>
 
           <div class="item-title">
@@ -34,6 +34,7 @@
           </div>
         </div>
       </mat-list-option>
+      <mat-list-item *ngIf="playlist['videos'].length === 0"><div class="alert alert-warning w-100">This playlist is empty.</div></mat-list-item>
     </mat-selection-list>
 
 

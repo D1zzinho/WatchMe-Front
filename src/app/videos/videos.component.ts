@@ -82,13 +82,12 @@ export class VideosComponent implements OnInit {
 
 
   private showVideos(): void {
-    this.authService.getResource(`${this.VIDEOS_URL}/all`).subscribe(videos => {
+    this.authService.getResource(`${this.VIDEOS_URL}/`).subscribe(videos => {
       this.videos = videos;
       this.videosLength = videos.length;
 
       if (videos.length > 0) {
         this.iterator();
-        // this.randomizePreviews();
         // this.currentRoute.queryParams.subscribe(params => {
         //   const page = params.page || 1;
         // });
@@ -143,26 +142,5 @@ export class VideosComponent implements OnInit {
       });
     }
   }
-
-
-  // randomizePreviews(): void {
-  //   const shortPreview = document.getElementById('shortPreviewVideo') as HTMLVideoElement;
-  //   const videos = this.videos;
-  //   function startRandom(): void {
-  //     const randomVideo = videos[Math.floor(Math.random() * videos.length)];
-  //     shortPreview.src = `${environment.baseUrl}/${randomVideo.thumb}`;
-  //     shortPreview.muted = true;
-  //     shortPreview.load();
-  //     shortPreview.onloadedmetadata = () => {
-  //       shortPreview.playbackRate = 2;
-  //       shortPreview.currentTime = Math.ceil(shortPreview.duration * 0.5);
-  //       shortPreview.play();
-  //     };
-  //   }
-  //   startRandom();
-  //   setInterval(() => {
-  //     startRandom();
-  //   }, 5000);
-  // }
 
 }

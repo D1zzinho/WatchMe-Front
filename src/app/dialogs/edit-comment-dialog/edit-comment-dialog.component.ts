@@ -1,10 +1,9 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {AuthService} from '../../auth.service';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {environment} from '../../../environments/environment';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {SnackBarComponent} from '../../snack-bar/snack-bar.component';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-edit-comment-dialog',
@@ -14,7 +13,6 @@ import {SnackBarComponent} from '../../snack-bar/snack-bar.component';
 export class EditCommentDialogComponent implements OnInit {
 
   readonly COMMENTS_URL: string = `${environment.baseUrl}/comments`;
-  readonly durationInSeconds = 5;
 
   editCommentForm: FormGroup;
 
@@ -23,7 +21,7 @@ export class EditCommentDialogComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<EditCommentDialogComponent>,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private toastService: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -42,29 +40,22 @@ export class EditCommentDialogComponent implements OnInit {
     };
 
     if (editBody.newMessage !== this.comment.text) {
-      this.authService.patchResource(`${this.COMMENTS_URL}/${this.comment.id}`, editBody).subscribe(res => {
+      this.authService.patchResource(`${this.COMMENTS_URL}/${this.comment._id}`, editBody).subscribe(res => {
         if (res.edited) {
-          this.openSnackBar(res.message, 'success');
-          this.comment.text = res.comment;
+          this.toastService.success(res.message);
+          this.comment.text = editBody.newMessage;
           this.dialogRef.close();
         }
         else {
-          this.openSnackBar(res.message, 'error');
+          this.toastService.error(res.message);
         }
       }, err => {
-        this.openSnackBar(err.message, 'error');
+        this.toastService.error(err.error.message);
       });
     }
     else {
-      this.openSnackBar('Edited message cannot be same as current!', 'warning');
+      this.toastService.warning('Edited message cannot be same as current!');
     }
   }
 
-  private openSnackBar(message: string, type: string): void {
-    this.snackBar.openFromComponent(SnackBarComponent, {
-      data: { message, type },
-      duration: this.durationInSeconds * 1000,
-      panelClass: ['darkBar']
-    });
-  }
 }

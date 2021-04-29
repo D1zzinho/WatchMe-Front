@@ -1,17 +1,24 @@
+<!--<div *ngIf="isLoggedIn" class="shortPreview position-fixed">-->
+<!--  <div class="bg"><span class="bg-logo">WatchMe</span></div>-->
+<!--&lt;!&ndash;  <video autoplay id="shortPreviewVideo"></video>&ndash;&gt;-->
+<!--  <img src="./assets/bg4.jpg" class="img-fluid" alt="home bg">-->
+<!--</div>-->
+<mat-progress-bar mode="indeterminate" color="warn" *ngIf="isLoggedIn && !(videosExist | async)"></mat-progress-bar>
+
 <div class="container my-4">
-  <div *ngIf="isLoggedIn && videosExist">
+  <div *ngIf="isLoggedIn && (videosExist | async)">
 
     <h1 class="mt-2">Latest {{ limit }} videos</h1>
 
     <div class="videos">
 
-      <a class="text-left h-100" *ngFor="let video of latestVideos" [routerLink]="['/player']" [queryParams]="{vid: video.id}">
+      <a class="text-left h-100" *ngFor="let video of latestVideos" [routerLink]="['/player']" [queryParams]="{vid: video._id}">
         <div class="video h-100 rgba-pink-light" [title]="video.title">
 
             <div class="preview">
 
               <img
-                src="{{ baseUrl }}/{{ video.cover }}"
+                [src]="baseUrl + '/videos/' + video['_id'] + '/poster'"
                 class="img-fluid hoverable"
                 (mouseover)="loadPreview($event)"
                 (mouseleave)="unloadPreview($event)"
@@ -20,19 +27,19 @@
 
               <video
                 preload="auto"
-                poster="{{ baseUrl }}/{{ video.cover }}"
+                [poster]="baseUrl + '/videos/' + video['_id'] + '/poster'"
                 muted
                 loop
                 class="img-fluid"
-                id="{{ video.id }}"
+                id="{{ video._id }}"
               >
-                <source src="{{ baseUrl }}/{{ video.thumb }}" type="video/webm">
+                <source [src]="baseUrl + '/videos/' + video['_id'] + '/preview'" type="video/webm">
               </video>
 
             </div>
 
             <div class="movie-info">
-              <h3 style="font-size: 13px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</h3>
+              <p style="font-size: 13px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</p>
               <span class="blue-text" title="Views">{{ video.visits }}</span>
             </div>
 
@@ -50,5 +57,13 @@
 
   <div *ngIf="!isLoggedIn" class="text-center">
     <div class="alert alert-info">You cannot access our data without logging in!</div>
+
+<!--    <div class="w-100 overflow-hidden">-->
+<!--      <video width="50%" preload="auto" autoplay controls="controls" [src]="baseUrl + '/videos/' + latestVideos[0]._id + '/stream'"></video>-->
+<!--      <video width="50%" preload="auto" autoplay controls="controls" [src]="baseUrl + '/videos/' + latestVideos[1]._id + '/stream'"></video>-->
+<!--      <video width="50%" preload="auto" autoplay controls="controls" [src]="baseUrl + '/videos/' + latestVideos[2]._id + '/stream'"></video>-->
+<!--      <video width="50%" preload="auto" autoplay controls="controls" [src]="baseUrl + '/videos/' + latestVideos[3]._id + '/stream'"></video>-->
+<!--    </div>-->
+
   </div>
 </div>

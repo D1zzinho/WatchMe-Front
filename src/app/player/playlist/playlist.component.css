@@ -24,12 +24,12 @@
 }
 
 .playlist-item {
-  min-height: 105px;
+  min-height: 115px;
   display: grid;
   grid-template-columns: 0.1fr 2fr 2fr;
   grid-template-areas:
     'itmn ic it';
-  grid-gap: 15px;
+  grid-gap: 10px;
   justify-content: center;
   align-items: center;
   margin-top: 10px !important;

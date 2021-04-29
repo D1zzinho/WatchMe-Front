@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
 import {VideoDto} from '../models/VideoDto';
@@ -15,8 +15,9 @@ import {ShowRepoInfoDialogComponent} from '../dialogs/show-repo-info-dialog/show
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {Router} from '@angular/router';
 import {EditPlaylistDialogComponent} from '../dialogs/edit-playlist-dialog/edit-playlist-dialog.component';
-import {SnackBarComponent} from '../snack-bar/snack-bar.component';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {CreatePlaylistDialogComponent} from '../dialogs/create-playlist-dialog/create-playlist-dialog.component';
+import {ToastrService} from 'ngx-toastr';
+import {SaveInPlaylistDialogComponent} from '../dialogs/save-in-playlist-dialog/save-in-playlist-dialog.component';
 
 
 @Component({
@@ -31,9 +32,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
     ]),
   ]
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, AfterViewInit {
 
-  readonly durationInSeconds = 4;
   baseUrl = environment.baseUrl;
   pageEvent: void;
   dataLoaded = Promise.resolve(false);
@@ -45,46 +45,40 @@ export class ProfileComponent implements OnInit {
   currentUserData = {};
   currentUserVideos = new Array<VideoDto>();
   currentUserPlaylists = [];
-  currentUserComments = [];
   currentUserRepos = [];
   userType = '';
 
   videosOnPage: Array<VideoDto> = new Array<VideoDto>();
   videosLength = 0;
   currentPage = 0;
-  lastPage = 1;
   videosPerPage = 10;
   pageSizeOptions: number[] = [5, 10, 15, 20, 40];
-
   displayedColumns: string[] = ['name', 'description', 'status', 'commits', 'external_link'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
   tableLoaded = Promise.resolve(false);
 
+  private playlistPaginator: MatPaginator;
   playlistsDisplayedColumns: string[] = ['name', 'status', 'videos', 'actions'];
   playlistsDataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
-  playlistsTableLoaded = Promise.resolve(false);
   expandedElement: any;
 
-  @ViewChild('playlistsPaginator') playlistsPaginator: MatPaginator;
+
+  @ViewChild('playlistsPaginator') set playlistMatPaginator(plp: MatPaginator) {
+    this.playlistPaginator = plp;
+    this.playlistsDataSource.paginator = this.playlistPaginator;
+  }
+
   @ViewChild('repoPaginator') paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
 
 
-  constructor(private authService: AuthService, private router: Router, public dialog: MatDialog, private snackBar: MatSnackBar) { }
+  constructor(private authService: AuthService, private router: Router, public dialog: MatDialog, private toastService: ToastrService) { }
 
 
   ngOnInit(): void {
     this.authService.getUser().subscribe(res => {
       this.currentUserData = res;
-
-      this.authService.getResource(`${this.baseUrl}/playlist/user`).subscribe(playlists => {
-        this.currentUserPlaylists = playlists.userPlaylists.playlists;
-        this.playlistsDataSource = new MatTableDataSource(playlists.userPlaylists.playlists);
-        this.playlistsDataSource.paginator = this.playlistsPaginator;
-
-        this.playlistsTableLoaded = Promise.resolve(true);
-      });
 
       if (res.login) {
         this.userType = 'github';
@@ -92,25 +86,23 @@ export class ProfileComponent implements OnInit {
         this.avatar = res.avatar_url;
         this.publicProfile = res.html_url;
 
-        this.authService.getResource(`${this.baseUrl}/users/github/videos`).subscribe(videosCommentsRes => {
-          this.currentUserComments = videosCommentsRes.comments;
+        this.authService.getResource(`${this.baseUrl}/gitHubUsers/me`).subscribe(ghu => {
+          if (ghu.playlists.length > 0) {
+            this.currentUserPlaylists = ghu.playlists;
+            this.playlistsDataSource = new MatTableDataSource(ghu.playlists);
+          }
 
-          this.videosLength = videosCommentsRes.videos.length;
-
-          if (videosCommentsRes.videos.length > 0) {
-            this.currentUserVideos = videosCommentsRes.videos.sort((a, b) => {
+          this.videosLength = ghu.videos.length;
+          if (ghu.videos.length > 0) {
+            this.currentUserVideos = ghu.videos.sort((a, b) => {
               return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime();
-            });
-
-            this.currentUserVideos.forEach(video => {
-              video.author = videosCommentsRes.username;
             });
 
             this.iterator();
           }
         });
 
-        this.authService.getResource(`${environment.baseUrl}/users/github/repos`).subscribe(repos => {
+        this.authService.getResource(`${environment.baseUrl}/gitHubUsers/repos`).subscribe(repos => {
           this.currentUserRepos = repos;
 
           this.dataSource = new MatTableDataSource(repos);
@@ -120,9 +112,7 @@ export class ProfileComponent implements OnInit {
           this.tableLoaded = Promise.resolve(true);
         });
 
-        if (this.currentUserVideos !== null && this.currentUserComments !== null && this.currentUserRepos !== null) {
-          this.dataLoaded = Promise.resolve(true);
-        }
+        this.dataLoaded = Promise.resolve(true);
       }
       else if (res.username) {
         this.userType = 'system';
@@ -130,8 +120,12 @@ export class ProfileComponent implements OnInit {
         this.avatar = res.avatar;
         this.publicProfile = `/profile/${res.username}`;
 
-        this.videosLength = res.videos.length;
+        if (res.playlists.length > 0) {
+          this.currentUserPlaylists = res.playlists;
+          this.playlistsDataSource = new MatTableDataSource<any>(res.playlists);
+        }
 
+        this.videosLength = res.videos.length;
         if (res.videos.length > 0) {
           this.currentUserVideos = res.videos.sort((a, b) => {
             return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime();
@@ -139,13 +133,16 @@ export class ProfileComponent implements OnInit {
           this.iterator();
         }
 
-        this.currentUserComments = res.comments;
+
         this.dataLoaded = Promise.resolve(true);
       }
-
     }, err => {
       throw new Error(err.message);
     });
+  }
+
+
+  ngAfterViewInit(): void {
   }
 
 
@@ -191,13 +188,27 @@ export class ProfileComponent implements OnInit {
   }
 
 
+  openCreatePlaylistDialog(): void {
+    const dialogRef = this.dialog.open(CreatePlaylistDialogComponent, {
+      data: { playlists: this.currentUserPlaylists },
+      restoreFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.created) {
+        this.playlistsDataSource = new MatTableDataSource(this.currentUserPlaylists);
+      }
+    });
+  }
+
+
   openEditPlaylistDialog(playlist: any): void {
     const dialogRef = this.dialog.open(EditPlaylistDialogComponent, {
       data: playlist
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.deleted) {
+      if (result && result.deleted) {
         const index = this.currentUserPlaylists.findIndex(pl => {
           return pl._id === playlist._id;
         });
@@ -245,17 +256,25 @@ export class ProfileComponent implements OnInit {
 
           this.currentUserPlaylists[playlistIndex].videos.splice(videoIndex, 1);
 
-          this.openSnackBar(res.message, 'success');
+          this.toastService.success(res.message);
         }
         else {
-          this.openSnackBar(res.message, 'error');
+          this.toastService.error(res.message);
         }
       }
       else {
-        this.openSnackBar(res.message, 'error');
+        this.toastService.error(res.message);
       }
     }, err => {
-      this.openSnackBar(err.message, 'error');
+      this.toastService.error(err.error.message);
+    });
+  }
+
+
+  openSaveVideoInPlaylistDialog(video): void {
+    this.dialog.open(SaveInPlaylistDialogComponent, {
+      data: { playlists: this.currentUserPlaylists, video },
+      restoreFocus: false
     });
   }
 
@@ -264,15 +283,6 @@ export class ProfileComponent implements OnInit {
     const end = (this.currentPage + 1) * this.videosPerPage;
     const start = this.currentPage * this.videosPerPage;
     this.videosOnPage = this.currentUserVideos.slice(start, end);
-  }
-
-
-  private openSnackBar(message: string, type: string): void {
-    this.snackBar.openFromComponent(SnackBarComponent, {
-      data: { message, type },
-      duration: this.durationInSeconds * 1000,
-      panelClass: ['darkBar']
-    });
   }
 
 }

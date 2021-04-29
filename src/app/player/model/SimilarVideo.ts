@@ -1,6 +1,6 @@
-import {CommentDto} from './CommentDto';
+import {CommentDto} from '../../models/CommentDto';
 
-export interface VideoDto {
+export interface SimilarVideo {
   _id: string;
   title: string;
   desc: string;
@@ -14,4 +14,5 @@ export interface VideoDto {
   author: string;
   authorAvatar: string;
   uploadDate: Date;
+  loaded: boolean;
 }

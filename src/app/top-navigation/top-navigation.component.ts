@@ -21,6 +21,7 @@ export class TopNavigationComponent implements OnInit {
   isLoggedIn: boolean;
   isAdmin = false;
   isLogging: Promise<boolean>;
+  isSearch: Promise<boolean> = Promise.resolve(false);
 
 
   constructor(private authService: AuthService, private titleService: Title, private router: Router, private currentRoute: ActivatedRoute) {
@@ -79,6 +80,8 @@ export class TopNavigationComponent implements OnInit {
 
 
   private getTitle(state, parent): Array<any> {
+    this.isSearch = Promise.resolve(false);
+
     const data = new Array<any>();
     if (parent && parent.snapshot.data && parent.snapshot.data.title) {
       data.push(parent.snapshot.data.title);
@@ -86,6 +89,10 @@ export class TopNavigationComponent implements OnInit {
 
     if (state && parent) {
       data.push(... this.getTitle(state, state.firstChild(parent)));
+    }
+
+    if (state && state.snapshot.url.includes('/finder')) {
+      this.isSearch = Promise.resolve(true);
     }
 
     return data;

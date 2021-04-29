@@ -54,50 +54,60 @@
         You don't have any uploaded videos! Maybe <a [routerLink]="['/uploadVideo']">upload</a> something special?
       </div>
 
-      <div class="user-videos mt-0" *ngIf="currentUserVideos.length > 0">
+      <mat-card class="mt-0" *ngIf="currentUserVideos.length > 0">
 
-        <div class="text-left h-100" *ngFor="let video of videosOnPage">
-          <div class="user-video h-100 rgba-pink-light" [title]="video['title']">
+        <mat-card-content class="user-videos">
+          <div class="text-left h-100" *ngFor="let video of videosOnPage">
+            <div class="user-video h-100 rgba-pink-light" [title]="video['title']">
 
-            <a class="video-link" [routerLink]="['/player']" [queryParams]="{vid: video['_id']}"></a>
-            <img
-              src="{{ baseUrl }}/{{ video['cover'] }}"
-              class="img-fluid"
-              alt="{{ video['title'] }}"
-            >
+              <a class="video-link" [routerLink]="['/player']" [queryParams]="{vid: video['_id']}"></a>
+              <img
+                [src]="baseUrl + '/videos/' + video['_id'] + '/poster'"
+                class="img-fluid"
+                alt="{{ video['title'] }}"
+              >
 
-            <div class="user-video-info">
-              <strong style="font-size: 12px; word-break: break-word;">{{ (video['title'].length > 30 ? video['title'].slice(0, 30) + '...' : video['title']) }}</strong>
+              <div class="user-video-info">
+                <strong style="font-size: 12px; word-break: break-word;">{{ (video['title'].length > 30 ? video['title'].slice(0, 30) + '...' : video['title']) }}</strong>
 
-              <button class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Video actions" #menuTrigger>
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="openEditVideoDialog(video)">
-                  <mat-icon>edit</mat-icon>
-                  <span>Edit</span>
+                <button class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Video actions" #menuTrigger>
+                  <mat-icon>more_vert</mat-icon>
                 </button>
-                <button mat-menu-item (click)="openDeleteVideoDialog(video)">
-                  <mat-icon>delete_forever</mat-icon>
-                  <span>Delete</span>
-                </button>
-              </mat-menu>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="openSaveVideoInPlaylistDialog(video)">
+                    <mat-icon>star</mat-icon>
+                    <span>Save in playlist</span>
+                  </button>
+                  <button mat-menu-item (click)="openEditVideoDialog(video)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button mat-menu-item (click)="openDeleteVideoDialog(video)">
+                    <mat-icon>delete_forever</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </div>
+
             </div>
-
           </div>
-        </div>
-      </div>
+        </mat-card-content>
 
-      <mat-paginator
-        color="accent"
-        [showFirstLastButtons]="true"
-        [length]="videosLength"
-        [pageSize]="videosPerPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (page)="pageEvent = handlePage($event)"
-        [pageIndex]="currentPage"
-      >
-      </mat-paginator>
+
+        <mat-card-footer class="w-100">
+          <mat-paginator
+            color="accent"
+            [showFirstLastButtons]="true"
+            [length]="videosLength"
+            [pageSize]="videosPerPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (page)="pageEvent = handlePage($event)"
+            [pageIndex]="currentPage"
+          >
+          </mat-paginator>
+        </mat-card-footer>
+
+      </mat-card>
 
     </mat-tab>
 
@@ -105,16 +115,25 @@
 
     <mat-tab label="Playlists">
 
-      <div class="alert alert-warning mt-3" *ngIf="currentUserPlaylists.length === 0 && (playlistsTableLoaded | async)">
-        You don't have any playlists! Maybe create new one?
+      <div class="py-2">
+        <div class="m-0 mr-2 mt-auto mb-auto" *ngIf="currentUserPlaylists.length > 0">
+          <button mat-raised-button color="primary" (click)="openCreatePlaylistDialog()" type="submit">Create playlist</button>
+        </div>
+
+        <div class="alert alert-warning mt-3 mr-2 w-100 d-flex" *ngIf="currentUserPlaylists.length === 0">
+          <p class="mt-auto mb-auto">You don't have any playlists! Maybe create new one?</p>
+          <div class="m-0 ml-auto mt-auto mb-auto">
+            <button mat-raised-button color="primary" (click)="openCreatePlaylistDialog()" type="submit">Create playlist</button>
+          </div>
+        </div>
       </div>
 
-      <div class="playlists-table-holder mat-elevation-z8">
-
+      <div *ngIf="currentUserPlaylists.length > 0" class="playlists-table-holder mat-elevation-z8">
 
         <table
           mat-table
-          [dataSource]="playlistsDataSource" multiTemplateDataRows
+          [dataSource]="playlistsDataSource"
+          multiTemplateDataRows
           class="w-100"
         >
           <ng-container matColumnDef="name">
@@ -136,7 +155,7 @@
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let playlist">
               <a (click)="openEditPlaylistDialog(playlist)">
-                <mat-icon>delete_outline</mat-icon>
+                <mat-icon>settings</mat-icon>
               </a>
             </td>
           </ng-container>
@@ -158,7 +177,7 @@
                   <mat-list-option *ngFor="let video of playlist['videos']">
                     <div class="playlist-item">
                       <div class="item-cover" (click)="playFromPlaylist(video['_id'], playlist['_id'])" matTooltip="Click to play {{ video['title'] }}" matTooltipPosition="right">
-                        <img class="img-fluid" [src]="baseUrl + '/' + video['cover']" [alt]="video['title'] + ' cover image'">
+                        <img class="img-fluid" [src]="baseUrl + '/videos/' + video['_id'] + '/poster'" [alt]="video['title'] + ' cover image'">
                       </div>
                       <div class="item-title">
                         {{ video['title'] }}
@@ -222,9 +241,9 @@
 <!--          <tr mat-header-row *matHeaderRowDef="playlistsDisplayedColumns"></tr>-->
 <!--          <tr mat-row *matRowDef="let row; columns: playlistsDisplayedColumns;"></tr>-->
 <!--        </table>-->
-
-        <mat-paginator color="accent" #playlistsPaginator [pageSizeOptions]="[5, 10, 15]" showFirstLastButtons></mat-paginator>
       </div>
+
+      <mat-paginator color="accent" #playlistsPaginator [pageSizeOptions]="[5, 10, 15]" showFirstLastButtons></mat-paginator>
 
     </mat-tab>
 
@@ -244,7 +263,7 @@
         </mat-form-field>
 
         <div class="m-0 ml-auto mt-auto mb-auto">
-          <button mdbBtn size="sm" color="secondary" rounded="true" class="waves-light" (click)="openCreateRepoDialog()" mdbWavesEffect type="submit">Create repository</button>
+          <button mat-raised-button color="primary" (click)="openCreateRepoDialog()" type="submit">Create repository</button>
         </div>
       </div>
 

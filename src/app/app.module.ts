@@ -42,7 +42,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatChipsModule} from '@angular/material/chips';
 import { DeleteVideoDialogComponent } from './dialogs/delete-video-dialog/delete-video-dialog.component';
 import { ShowRepoInfoDialogComponent } from './dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
-import {MatStepperModule, MatVerticalStepper} from '@angular/material/stepper';
+import {MatStepperModule} from '@angular/material/stepper';
 import { EditCommentDialogComponent } from './dialogs/edit-comment-dialog/edit-comment-dialog.component';
 import {MatSelectModule} from '@angular/material/select';
 import { PlaylistActionsDialogComponent } from './dialogs/playlist-actions-dialog/playlist-actions-dialog.component';
@@ -52,6 +52,12 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import { PlaylistComponent } from './player/playlist/playlist.component';
 import { CommentsComponent } from './player/comments/comments.component';
 import { EditPlaylistDialogComponent } from './dialogs/edit-playlist-dialog/edit-playlist-dialog.component';
+import { VideoComponent } from './player/video/video.component';
+import { CreatePlaylistDialogComponent } from './dialogs/create-playlist-dialog/create-playlist-dialog.component';
+import {ToastrModule} from 'ngx-toastr';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
+import { SaveInPlaylistDialogComponent } from './dialogs/save-in-playlist-dialog/save-in-playlist-dialog.component';
 
 
 @NgModule({
@@ -75,41 +81,56 @@ import { EditPlaylistDialogComponent } from './dialogs/edit-playlist-dialog/edit
     PlaylistActionsDialogComponent,
     PlaylistComponent,
     CommentsComponent,
-    EditPlaylistDialogComponent
+    EditPlaylistDialogComponent,
+    VideoComponent,
+    CreatePlaylistDialogComponent,
+    SaveInPlaylistDialogComponent
   ],
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        FormsModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        BrowserAnimationsModule,
-        MDBBootstrapModule.forRoot(),
-        MatPaginatorModule,
-        MatSlideToggleModule,
-        MatTooltipModule,
-        MatProgressBarModule,
-        MatProgressSpinnerModule,
-        MatTabsModule,
-        MatFormFieldModule,
-        MatButtonModule,
-        MatInputModule,
-        MatTableModule,
-        MatSortModule,
-        MatIconModule,
-        MatMenuModule,
-        MatCardModule,
-        MatDividerModule,
-        MatDialogModule,
-        MatSnackBarModule,
-        MatCheckboxModule,
-        MatChipsModule,
-        MatStepperModule,
-        MatSelectModule,
-        MatListModule,
-        MatGridListModule,
-        MatExpansionModule
-    ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    FormsModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    MDBBootstrapModule.forRoot(),
+    ToastrModule.forRoot({
+      timeOut: 5000,
+      extendedTimeOut: 2000,
+      easeTime: 300,
+      tapToDismiss: true,
+      preventDuplicates: true,
+      resetTimeoutOnDuplicate: true,
+      progressBar: true,
+      progressAnimation: 'decreasing',
+      positionClass: 'toast-bottom-center'
+    }),
+    MatPaginatorModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatInputModule,
+    MatTableModule,
+    MatSortModule,
+    MatIconModule,
+    MatMenuModule,
+    MatCardModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatStepperModule,
+    MatSelectModule,
+    MatListModule,
+    MatGridListModule,
+    MatExpansionModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+  ],
   providers: [
     AuthService,
     AuthGuardService

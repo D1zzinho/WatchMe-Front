@@ -1,12 +1,12 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA} from '@angular/material/dialog';
-import {VideoDto} from '../../models/VideoDto';
+import {MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 import {AuthService} from '../../auth.service';
 import {environment} from '../../../environments/environment';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {SnackBarComponent} from '../../snack-bar/snack-bar.component';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {MatChipInputEvent} from '@angular/material/chips';
+import {DeleteVideoDialogComponent} from '../delete-video-dialog/delete-video-dialog.component';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-edit-video-dialog',
@@ -16,7 +16,6 @@ import {MatChipInputEvent} from '@angular/material/chips';
 export class EditVideoDialogComponent implements OnInit {
 
   readonly VIDEOS_URL = `${environment.baseUrl}/videos`;
-  readonly durationInSeconds = 5;
 
   selectable = true;
   removable = true;
@@ -24,7 +23,12 @@ export class EditVideoDialogComponent implements OnInit {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   tags: Array<string> = new Array<string>();
 
-  constructor(@Inject(MAT_DIALOG_DATA) public video: any, private authService: AuthService, private snackBar: MatSnackBar) {
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public video: any,
+    private authService: AuthService,
+    private toastService: ToastrService,
+    private dialog: MatDialog
+  ) {
     this.tags = video.tags;
   }
 
@@ -36,26 +40,25 @@ export class EditVideoDialogComponent implements OnInit {
       if (this.video.title !== title) {
         try {
           const editTitle = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.video._id}/title`, {title}).toPromise();
-
-          if (editTitle.updated) {
+          if (editTitle.edited) {
             this.video.title = title;
 
-            this.openSnackBar(editTitle.message, 'success');
+            this.toastService.success(editTitle.message);
           }
           else {
-            this.openSnackBar(editTitle.message, 'error');
+            this.toastService.error(editTitle.message);
           }
         }
         catch (err) {
-          this.openSnackBar(err.message, 'error');
+          this.toastService.error(err.error.message);
         }
       }
       else {
-        this.openSnackBar('New title cannot be same as current!', 'warning');
+        this.toastService.warning('New title cannot be same as current!');
       }
     }
     else {
-      this.openSnackBar('New title cannot be null!', 'warning');
+      this.toastService.warning('New title cannot be null!');
     }
   }
 
@@ -66,25 +69,25 @@ export class EditVideoDialogComponent implements OnInit {
         try {
           const editDesc = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.video._id}/desc`, {desc}).toPromise();
 
-          if (editDesc.updated) {
+          if (editDesc.edited) {
             this.video.desc = desc;
 
-            this.openSnackBar(editDesc.message, 'success');
+            this.toastService.success(editDesc.message);
           }
           else {
-            this.openSnackBar(editDesc.message, 'error');
+            this.toastService.error(editDesc.message);
           }
         }
         catch (err) {
-          this.openSnackBar(err.message, 'error');
+          this.toastService.error(err.error.message);
         }
       }
       else {
-        this.openSnackBar('New description cannot be same as current!', 'warning');
+        this.toastService.warning('New description cannot be same as current!');
       }
     }
     else {
-      this.openSnackBar('New description cannot be null!', 'warning');
+      this.toastService.warning('New description cannot be null!');
     }
   }
 
@@ -94,21 +97,21 @@ export class EditVideoDialogComponent implements OnInit {
       try {
         const editTags = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.video._id}/tags`, {tags: this.tags}).toPromise();
 
-        if (editTags.updated) {
+        if (editTags.edited) {
           this.video.tags = this.tags;
 
-          this.openSnackBar(editTags.message, 'success');
+          this.toastService.success(editTags.message);
         }
         else {
-          this.openSnackBar(editTags.message, 'error');
+          this.toastService.error(editTags.message);
         }
       }
       catch (err) {
-        this.openSnackBar(err.message, 'error');
+        this.toastService.error(err.error.message);
       }
     }
     else {
-      this.openSnackBar('You have to specify at least 1 tag!', 'warning');
+      this.toastService.warning('You have to specify at least 1 tag!');
     }
   }
 
@@ -117,18 +120,25 @@ export class EditVideoDialogComponent implements OnInit {
     try {
       const editStat = await this.authService.patchResource(`${this.VIDEOS_URL}/${this.video._id}/stat`, {id: this.video._id}).toPromise();
 
-      if (editStat.updated) {
+      if (editStat.edited) {
         this.video.stat = this.video.stat === 0 ? 1 : 0;
 
-        this.openSnackBar(editStat.message, 'success');
+        this.toastService.success(editStat.message);
       }
       else {
-        this.openSnackBar(editStat.message, 'error');
+        this.toastService.error(editStat.message);
       }
     }
     catch (err) {
-      this.openSnackBar(err.message, 'error');
+      this.toastService.error(err.error.message);
     }
+  }
+
+
+  deleteVideo(): void {
+    this.dialog.open(DeleteVideoDialogComponent, {
+      data: this.video
+    });
   }
 
 
@@ -153,14 +163,5 @@ export class EditVideoDialogComponent implements OnInit {
     if (index >= 0) {
       this.tags.splice(index, 1);
     }
-  }
-
-
-  private openSnackBar(message: string, type: string): void {
-    this.snackBar.openFromComponent(SnackBarComponent, {
-      data: { message, type },
-      duration: this.durationInSeconds * 1000,
-      panelClass: ['darkBar']
-    });
   }
 }

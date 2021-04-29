@@ -114,15 +114,9 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
 
   onSubmit(): void {
     const videoBody: UploadVideoDto = {
-      cover: `${this.selectedFile.name.slice(0, -4)}.png`,
       desc: this.uploadForm.value.desc,
-      path: `${this.selectedFile.name}`,
-      stat: 1,
       tags: this.tags,
-      thumb: `${this.selectedFile.name.slice(0, -4)}_preview.webm`,
-      title: this.uploadForm.value.title,
-      visits: 0,
-      uploadDate: Date.now()
+      title: this.uploadForm.value.title
     };
 
     const formData = new FormData();
@@ -132,9 +126,8 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
     this.authService.uploadResource(this.SERVER_URL, formData).subscribe(
       (res) => {
         this.uploadResponse = res;
-
         if (res) {
-          if (res.saved) {
+          if (res.video) {
             (document.querySelector('.drop-zone') as HTMLDivElement).style.display = 'none';
             this.newImageLoaded = Promise.resolve(false);
 
@@ -142,7 +135,7 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
               this.newImageLoaded = Promise.resolve(true);
 
               setTimeout(() => {
-                (document.getElementById('newVideoThumbnail') as HTMLImageElement).src = `${this.baseUrl}/${res.saved.video.cover}`;
+                (document.getElementById('newVideoThumbnail') as HTMLImageElement).src = `${this.baseUrl}/videos/${res.video._id}/poster`;
               }, 100);
 
             }, 5000);
@@ -150,7 +143,8 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
         }
       },
       (err) => {
-        this.error = err.error.message;
+        this.error = err.message;
+        console.log(err.message);
       }
     );
   }

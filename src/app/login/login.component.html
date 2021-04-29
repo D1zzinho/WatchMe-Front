@@ -24,7 +24,7 @@
         <button type="submit" class="btn btn-outline-success" [disabled]="registerForm.invalid">Create account</button>
         <p class="message">Already registered? <a href="javascript:void(0)" class="text-info">Sign in</a></p>
 
-        <a class="btn btn-primary mt-4 w-100" style="background-color: #333333" (click)="gitHubLogin()" href="javascript:void(0)" role="button">Login via <i class="fab fa-github"></i></a>
+        <a class="btn btn-primary mt-4 w-100" style="background-color: #333333" (click)="gitHubLogin()" href="javascript:void(0)" role="button">Login via GitHub</a>
       </form>
 
       <form class="login-form" (ngSubmit)="onLoginSubmit()" [formGroup]="loginForm" enctype="multipart/form-data">
@@ -34,7 +34,7 @@
         <button type="submit" class="btn btn-outline-success" [disabled]="loginForm.invalid">Enter</button>
         <p class="message">Not registered? <a href="javascript:void(0)" class="text-success">Create an account</a></p>
 
-        <a class="btn btn-primary mt-4 w-100" style="background-color: #333333" (click)="gitHubLogin()" href="javascript:void(0)" role="button">Login via <i class="fab fa-github"></i></a>
+        <a class="btn btn-primary mt-4 w-100" style="background-color: #333333" (click)="gitHubLogin()" href="javascript:void(0)" role="button">Login via GitHub</a>
       </form>
     </div>
 

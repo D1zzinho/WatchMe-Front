@@ -1,13 +1,12 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {SnackBarComponent} from '../../snack-bar/snack-bar.component';
 import {AuthService} from '../../auth.service';
 import {environment} from '../../../environments/environment';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 import {MatSelectionListChange} from '@angular/material/list';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-playlist-actions-dialog',
@@ -17,8 +16,6 @@ import {MatSelectionListChange} from '@angular/material/list';
 export class PlaylistActionsDialogComponent implements OnInit {
 
   readonly PLAYLISTS_URL = `${environment.baseUrl}/playlist`;
-  readonly VIDEOS_URL = `${environment.baseUrl}/videos`;
-  readonly durationInSeconds = 5;
 
   playlists: Array<any>;
   video: any;
@@ -32,7 +29,7 @@ export class PlaylistActionsDialogComponent implements OnInit {
     private router: Router,
     private currentRoute: ActivatedRoute,
     private location: Location,
-    private snackBar: MatSnackBar,
+    private toastService: ToastrService,
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<PlaylistActionsDialogComponent>
   ) {}
@@ -72,10 +69,10 @@ export class PlaylistActionsDialogComponent implements OnInit {
         this.data.playlist = playlist;
         this.dialogRef.close(playlist);
 
-        this.openSnackBar(res.message, 'success');
+        this.toastService.success(res.message);
       }
     }, err => {
-      this.openSnackBar(err.message, 'error');
+      this.toastService.error(err.error.message);
     });
   }
 
@@ -96,13 +93,13 @@ export class PlaylistActionsDialogComponent implements OnInit {
         this.saveVideoInPlaylistRequest(res.playlist._id);
         this.dialogRef.close(playlist);
 
-        this.openSnackBar(res.message, 'success');
+        this.toastService.success(res.message);
       }
       else {
-        this.openSnackBar(res.message, 'warning');
+        this.toastService.warning(res.message);
       }
     }, err => {
-      this.openSnackBar(err.message, 'error');
+      this.toastService.error(err.error.message);
     });
   }
 
@@ -135,13 +132,13 @@ export class PlaylistActionsDialogComponent implements OnInit {
         this.data.playlists[playlistIndex].videos.push(res.addedVideo);
         this.data.playlists[playlistIndex].hasCurrentVideo = true;
 
-        this.openSnackBar(res.message, 'success');
+        this.toastService.success(res.message);
       }
       else {
-        this.openSnackBar(res.message, 'error');
+        this.toastService.error(res.message);
       }
     }, err => {
-      this.openSnackBar(err.message, 'error');
+      this.toastService.error(err.error.message);
     });
   }
 
@@ -171,22 +168,13 @@ export class PlaylistActionsDialogComponent implements OnInit {
         this.data.playlists[playlistIndex].videos.splice(videoIndex, 1);
         this.data.playlists[playlistIndex].hasCurrentVideo = false;
 
-        this.openSnackBar(res.message, 'success');
+        this.toastService.success(res.message);
       }
       else {
-        this.openSnackBar(res.message, 'error');
+        this.toastService.error(res.message);
       }
     }, err => {
-      this.openSnackBar(err.message, 'error');
-    });
-  }
-
-
-  private openSnackBar(message: string, type: string): void {
-    this.snackBar.openFromComponent(SnackBarComponent, {
-      data: { message, type },
-      duration: this.durationInSeconds * 1000,
-      panelClass: ['darkBar']
+      this.toastService.error(err.error.message);
     });
   }
 

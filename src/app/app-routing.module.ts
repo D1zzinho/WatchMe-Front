@@ -10,7 +10,6 @@ import {AuthGuardService} from './auth-guard.service';
 import {ProfileComponent} from './profile/profile.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent, data: { title: 'WatchMe' } },
   { path: 'videos', component: VideosComponent, data: { title: 'Videos - WatchMe' }, children: [{
     component: VideosComponent,
     path: 'viewed', data: { title: 'Most viewed videos - WatchMe' }
@@ -19,7 +18,10 @@ const routes: Routes = [
   { path: 'finder', component: FinderComponent, data: { title: 'Search - WatchMe' }, canActivate: [AuthGuardService] },
   { path: 'uploadVideo', component: UploadVideoComponent, data: { title: 'Upload new video - WatchMe' }, canActivate: [AuthGuardService] },
   { path: 'profile', component: ProfileComponent, data: { title: 'Profile - WatchMe' }, canActivate: [AuthGuardService] },
-  { path: 'login', component: LoginComponent, data: { title: 'Login - WatchMe' } }
+  { path: 'login', component: LoginComponent, data: { title: 'Login - WatchMe' } },
+  { path: 'welcome', component: HomeComponent, data: { title: 'WatchMe' } },
+  { path: '', redirectTo: '/welcome', pathMatch: 'full' },
+  { path: '**', component: HomeComponent, data: { title: 'WatchMe' } }
 ]; // sets up routes constant where you define your routes
 
 // configures NgModule imports and exports

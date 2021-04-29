@@ -1,5 +1,6 @@
+<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!(videosLoaded | async)"></mat-progress-bar>
+
 <div *ngIf="videosLoaded | async" class="container py-4">
-<!--  <div class="shortPreview"><div class="bg"><video autoplay id="shortPreviewVideo"></video></div></div>-->
   <h1 class="pb-2 text-center">All videos ({{ videosLength }})</h1>
 
 <!--  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">-->
@@ -21,31 +22,32 @@
 <!--      </li>-->
 <!--    </ul>-->
 <!--  </div>-->
+  <mat-card style="border-radius: 0;">
+    <mat-spinner class="mx-auto mt-4" *ngIf="!(videosLoaded | async)"></mat-spinner>
+    <div class="videos" *ngIf="videosLoaded | async">
 
-  <mat-spinner class="mx-auto mt-4" *ngIf="!(videosLoaded | async)"></mat-spinner>
-  <div class="videos" *ngIf="videosLoaded | async">
-
-    <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video?.id}">
-      <div class="video h-100 rgba-pink-light" [title]="video?.title">
-<!--        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">-->
+      <a class="text-left h-100" *ngFor="let video of videosOnPage" [routerLink]="['/player']" [queryParams]="{vid: video?._id}">
+        <div class="video h-100 rgba-pink-light" [title]="video?.title">
+          <!--        <a [routerLink]="['/player']" [queryParams]="{vid: video.id}">-->
           <div class="preview">
 
             <img
-              src="{{ baseUrl }}/{{ video?.cover }}"
+              [src]="baseUrl + '/videos/' + video['_id'] + '/poster'"
               class="img-fluid prev"
               (mouseover)="loadPreview($event)"
               (mouseleave)="unloadPreview($event)"
-             alt="{{ video?.title }}">
+              alt="{{ video?.title }}"
+            >
 
             <video
               preload="auto"
-              poster="{{ baseUrl }}/{{ video?.cover }}"
+              [poster]="baseUrl + '/videos/' + video['_id'] + '/poster'"
               muted
               loop
               class="img-fluid"
-              id="{{ video.id }}"
+              id="{{ video._id }}"
             >
-              <source src="{{ baseUrl }}/{{ video.thumb }}" type="video/webm">
+              <source [src]="baseUrl + '/videos/' + video['_id'] + '/preview'" type="video/webm">
             </video>
 
           </div>
@@ -55,23 +57,25 @@
             <span class="blue-text" title="Views">{{ video.visits }}</span>
           </div>
 
-<!--        </a>-->
-      </div>
+          <!--        </a>-->
+        </div>
 
-    </a>
-  </div>
+      </a>
+    </div>
 
-  <mat-paginator
-    class="mt-2"
-    color="accent"
-    [showFirstLastButtons]="true"
-    [length]="videosLength"
-    [pageSize]="videosPerPage"
-    [pageSizeOptions]="pageSizeOptions"
-    (page)="pageEvent = handlePage($event)"
-    [pageIndex]="currentPage"
-  >
-  </mat-paginator>
+    <mat-paginator
+      class="mt-2"
+      color="accent"
+      [showFirstLastButtons]="true"
+      [length]="videosLength"
+      [pageSize]="videosPerPage"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="pageEvent = handlePage($event)"
+      [pageIndex]="currentPage"
+    >
+    </mat-paginator>
+  </mat-card>
+
 
 </div>
 

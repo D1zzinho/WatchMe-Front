@@ -1,6 +1,20 @@
 <h3 mat-dialog-title>Edit <strong class="font-italic" style="letter-spacing: 1px;">{{ playlist['name'] }}</strong></h3>
 <mat-dialog-content>
-  <p>Edit content coming soon</p>
+  <form class="example-form text-center mb-2" [formGroup]="editPlaylistNameForm">
+    <mat-form-field color="accent" appearance="outline" class="w-100">
+      <mat-label>Name</mat-label>
+      <input matInput #newName maxlength="50" formControlName="name" placeholder="Type new playlist name here...">
+      <mat-hint align="start">Set logic name.</mat-hint>
+      <mat-hint align="end">{{newName.value.length}} / 50</mat-hint>
+    </mat-form-field>
+    <button mat-raised-button color="accent" class="ml-2" [disabled]="editPlaylistNameForm.invalid" (click)="editName()">Edit name</button>
+  </form>
+
+  <mat-divider class="my-2"></mat-divider>
+
+  <p>This playlist is {{ (playlist['isPrivate'] ? 'private' : 'public') }}.</p>
+  <button mat-raised-button color="accent" class="ml-2" (click)="editPrivateStatus()">Change</button>
+
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button mat-dialog-close>Cancel</button>
