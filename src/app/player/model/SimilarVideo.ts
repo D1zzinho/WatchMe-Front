@@ -15,4 +15,5 @@ export interface SimilarVideo {
   authorAvatar: string;
   uploadDate: Date;
   loaded: boolean;
+  matchingTags: number;
 }

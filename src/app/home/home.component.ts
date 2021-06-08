@@ -11,11 +11,13 @@ import {DomSanitizer} from '@angular/platform-browser';
 })
 export class HomeComponent implements OnInit, AfterContentInit {
 
-  limit = 16;
+  limit = 20;
   latestVideos: Array<VideoDto> = new Array<VideoDto>();
   isLoggedIn = false;
   videosExist: Promise<boolean>;
   readonly baseUrl: string = environment.baseUrl;
+
+  token: string;
 
   constructor(private authService: AuthService, private sanitizer: DomSanitizer) {
   }
@@ -26,6 +28,7 @@ export class HomeComponent implements OnInit, AfterContentInit {
     this.isLoggedIn = this.authService.isLoggedIn();
 
     if (this.authService.isLoggedIn()) {
+      this.token = localStorage.getItem('token');
       this.authService.getResource(`${environment.baseUrl}/videos/latest?limit=${this.limit}`).subscribe(res => {
         // for (const video of res) {
         //   this.authService.getStreamResource(`${environment.baseUrl}/videos/${video.id}/poster`).subscribe(videoPoster => {

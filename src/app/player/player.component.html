@@ -187,7 +187,7 @@
               <div [ngStyle]="autoPlayNext ? { 'background-color':'#69f0aaaa' } : {}" class="suggestedVideo" (click)="play(similarVideos[0]._id)" matTooltip="Play: {{ similarVideos[0].title }}" matTooltipPosition="before" matTooltipTouchGestures="auto">
                 <div class="image-holder">
                   <mat-spinner class="m-auto" *ngIf="!similarVideos[0].loaded" color="primary"></mat-spinner>
-                  <img [hidden]="!similarVideos[0].loaded" (load)="loadSimilarVideoThumb(similarVideos[0]._id)" [src]="baseUrl + '/videos/' + similarVideos[0]._id + '/poster'" class="img-fluid" alt="{{ similarVideos[0].title }}">
+                  <img [hidden]="!similarVideos[0].loaded" (load)="loadSimilarVideoThumb(similarVideos[0]._id)" [src]="baseUrl + '/videos/' + similarVideos[0]._id + '/poster?token=' + token" class="img-fluid" alt="{{ similarVideos[0].title }}">
                 </div>
                 <div class="similar-movie-info">
                   <strong style="word-break: break-word;">{{ (similarVideos[0].title.length > 30 ? similarVideos[0].title.slice(0, 30) + '...' : similarVideos[0].title) }}</strong>
@@ -234,7 +234,7 @@
 
                     <div class="image-holder">
                       <mat-spinner class="m-auto" *ngIf="!similarVideo.loaded" color="primary"></mat-spinner>
-                      <img [hidden]="!similarVideo.loaded" (load)="loadSimilarVideoThumb(similarVideo._id)" [src]="baseUrl + '/videos/' + similarVideo._id + '/poster'" class="img-fluid" alt="{{ similarVideo.title }}">
+                      <img [hidden]="!similarVideo.loaded" (load)="loadSimilarVideoThumb(similarVideo._id)" [src]="baseUrl + '/videos/' + similarVideo._id + '/poster?token=' + token" class="img-fluid" alt="{{ similarVideo.title }}">
                     </div>
 
                     <div class="similar-movie-info">

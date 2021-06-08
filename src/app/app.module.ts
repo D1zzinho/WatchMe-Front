@@ -58,6 +58,7 @@ import {ToastrModule} from 'ngx-toastr';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SaveInPlaylistDialogComponent } from './dialogs/save-in-playlist-dialog/save-in-playlist-dialog.component';
+import { PublicProfileComponent } from './profile/public-profile/public-profile.component';
 
 
 @NgModule({
@@ -84,7 +85,8 @@ import { SaveInPlaylistDialogComponent } from './dialogs/save-in-playlist-dialog
     EditPlaylistDialogComponent,
     VideoComponent,
     CreatePlaylistDialogComponent,
-    SaveInPlaylistDialogComponent
+    SaveInPlaylistDialogComponent,
+    PublicProfileComponent
   ],
   imports: [
     BrowserModule,
@@ -103,7 +105,7 @@ import { SaveInPlaylistDialogComponent } from './dialogs/save-in-playlist-dialog
       resetTimeoutOnDuplicate: true,
       progressBar: true,
       progressAnimation: 'decreasing',
-      positionClass: 'toast-bottom-center'
+      positionClass: 'toast-top-right'
     }),
     MatPaginatorModule,
     MatSlideToggleModule,

@@ -154,7 +154,7 @@
             <div class="preview">
 
               <img
-                [src]="baseUrl + '/videos/' + video._id + '/poster'"
+                [src]="baseUrl + '/videos/' + video._id + '/poster?token=' + token"
                 class="img-fluid prev"
                 (mouseover)="loadPreview($event)"
                 (mouseleave)="unloadPreview($event)"
@@ -162,12 +162,12 @@
 
               <video
                 preload="auto"
-                [poster]="baseUrl + '/videos/' + video._id + '/poster'"
+                [poster]="baseUrl + '/videos/' + video._id + '/poster?token=' + token"
                 muted
                 loop
                 class="img-fluid"
               >
-                <source [src]="baseUrl + '/videos/' + video._id + '/preview'" type="video/webm">
+                <source [src]="baseUrl + '/videos/' + video._id + '/preview?token=' + token" type="video/webm">
               </video>
 
             </div>

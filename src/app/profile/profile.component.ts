@@ -13,7 +13,7 @@ import {CreateRepoDialogComponent} from '../dialogs/create-repo-dialog/create-re
 import {DeleteVideoDialogComponent} from '../dialogs/delete-video-dialog/delete-video-dialog.component';
 import {ShowRepoInfoDialogComponent} from '../dialogs/show-repo-info-dialog/show-repo-info-dialog.component';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {EditPlaylistDialogComponent} from '../dialogs/edit-playlist-dialog/edit-playlist-dialog.component';
 import {CreatePlaylistDialogComponent} from '../dialogs/create-playlist-dialog/create-playlist-dialog.component';
 import {ToastrService} from 'ngx-toastr';
@@ -62,6 +62,12 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   playlistsDataSource: MatTableDataSource<any> = new MatTableDataSource<any>();
   expandedElement: any;
 
+  authenticatedUserId = '';
+  currentUser: Promise<boolean> = Promise.resolve(false);
+  uid = '';
+
+  token: string;
+
 
   @ViewChild('playlistsPaginator') set playlistMatPaginator(plp: MatPaginator) {
     this.playlistPaginator = plp;
@@ -73,10 +79,32 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
 
 
-  constructor(private authService: AuthService, private router: Router, public dialog: MatDialog, private toastService: ToastrService) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    public dialog: MatDialog,
+    private toastService: ToastrService,
+    private currentRoute: ActivatedRoute
+  ) { }
 
 
   ngOnInit(): void {
+    this.token = localStorage.getItem('token');
+
+    this.currentRoute.queryParams.subscribe(params => {
+      if (params.uid && params.uid !== '') {
+        this.uid = params.uid;
+      }
+      else {
+        this.currentUser = Promise.resolve(true);
+      }
+    });
+
+    this.loadCurrentUserProfileData();
+  }
+
+
+  private loadCurrentUserProfileData(): void {
     this.authService.getUser().subscribe(res => {
       this.currentUserData = res;
 
@@ -87,6 +115,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
         this.publicProfile = res.html_url;
 
         this.authService.getResource(`${this.baseUrl}/gitHubUsers/me`).subscribe(ghu => {
+          this.authenticatedUserId = ghu._id;
           if (ghu.playlists.length > 0) {
             this.currentUserPlaylists = ghu.playlists;
             this.playlistsDataSource = new MatTableDataSource(ghu.playlists);
@@ -119,6 +148,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
         this.username = res.username;
         this.avatar = res.avatar;
         this.publicProfile = `/profile/${res.username}`;
+        this.authenticatedUserId = res._id;
 
         if (res.playlists.length > 0) {
           this.currentUserPlaylists = res.playlists;
@@ -140,7 +170,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       throw new Error(err.message);
     });
   }
-
 
   ngAfterViewInit(): void {
   }
@@ -276,6 +305,11 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       data: { playlists: this.currentUserPlaylists, video },
       restoreFocus: false
     });
+  }
+
+
+  showPublicProfile(): void {
+    window.open(`/profile?uid=${this.authenticatedUserId}`, '_blank');
   }
 
 

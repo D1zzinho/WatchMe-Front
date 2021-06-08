@@ -177,7 +177,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
           }
         },
         (err) => {
-          throw new Error(err.error.message);
+          this.error.push(err.error.message);
         }
       );
     }

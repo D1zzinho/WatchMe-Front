@@ -30,13 +30,15 @@ export class FinderComponent implements OnInit, AfterViewInit {
   videosLength = 0;
   currentPage = 0;
   lastPage = 1;
-  videosPerPage = 16;
-  pageSizeOptions: number[] = [4, 8, 12, 24, 48, 64];
+  videosPerPage = 20;
+  pageSizeOptions: number[] = [5, 10, 15, 25, 50, 70];
 
   loading = true;
   noVideos = false;
 
   searchForm: FormGroup;
+
+  token: string;
 
   @ViewChild('searchInput', { static: false }) searchInput: ElementRef<HTMLInputElement>;
 
@@ -50,6 +52,8 @@ export class FinderComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    this.token = localStorage.getItem('token');
+
     this.searchForm = this.formBuilder.group({
       q: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(50)])
     });

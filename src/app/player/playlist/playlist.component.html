@@ -26,7 +26,7 @@
           </div>
 
           <div class="item-cover">
-            <img class="item-cover-image img-fluid" [src]="baseUrl + '/videos/' + playlistVideo['_id'] + '/poster'" [alt]="playlistVideo['title'] + ' cover image'">
+            <img class="item-cover-image img-fluid" [src]="baseUrl + '/videos/' + playlistVideo['_id'] + '/poster?token=' + token" [alt]="playlistVideo['title'] + ' cover image'">
           </div>
 
           <div class="item-title">

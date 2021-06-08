@@ -1,10 +1,11 @@
 import {
+  AfterContentInit,
   AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   Input,
-  NgZone,
+  NgZone, OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -16,6 +17,8 @@ import {environment} from '../../../environments/environment';
 import {Router} from '@angular/router';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {AuthService} from '../../auth.service';
+import {BehaviorSubject, Subscription} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-video',
@@ -36,6 +39,10 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() list: any;
 
   videoBlobSource: SafeUrl;
+  // src$ = new BehaviorSubject(this.videoBlobSource);
+  // dataUrl$ = this.src$.pipe(
+  //   switchMap(url => this.authService.getStreamResource(`${this.baseUrl}/videos/${this.video._id}/stream`).pipe(map(e => this.sanitization.bypassSecurityTrustUrl(URL.createObjectURL(e)))))
+  // );
   videoBlobPoster: SafeUrl;
   options: any;
   player: any;
@@ -43,6 +50,12 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   interval: any;
   timeout: any;
+
+  // mimeType = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+
+
+  @ViewChild('video') videoElement: ElementRef;
+  @ViewChild('source') sourceElement: ElementRef;
 
 
   constructor(
@@ -59,9 +72,10 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
       this.player.destroy();
     }
 
+    const token = localStorage.getItem('token');
+    this.videoBlobSource = `${this.baseUrl}/videos/${this.video._id}/stream?token=` + token;
+    this.videoBlobPoster = `${this.baseUrl}/videos/${this.video._id}/poster?token=` + token;
 
-    this.videoBlobSource = `${this.baseUrl}/videos/${this.video._id}/stream`;
-    this.videoBlobPoster = `${this.baseUrl}/videos/${this.video._id}/poster`;
     // this.videoBlobSource = `${this.baseUrl}/${this.video.path}`;
     // this.videoBlobPoster = `${this.baseUrl}/${this.video.cover}`;
     // this.authService.getStreamResource(`${environment.baseUrl}/videos/${this.video._id}/stream`).subscribe(videoStream => {
@@ -94,7 +108,7 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    if (this.player) {
+    if (this.player.media !== null) {
       this.player.destroy();
 
       if (this.player.pip) {
@@ -119,6 +133,15 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
       ratio: '16:9',
       keyboard: { focused: false, global: true }
     });
+
+    // if ('MediaSource' in window && MediaSource.isTypeSupported(this.mimeType)) {
+    //   console.log('supported');
+    //   const mediaSource = new MediaSource();
+    //   this.sourceElement.nativeElement.src = URL.createObjectURL(mediaSource);
+    //   mediaSource.addEventListener('sourceopen', () => this.sourceOpen(mediaSource));
+    // } else {
+    //   console.error('Unsupported MIME type or codec: ', this.mimeType);
+    // }
 
     this.player.on('loadedmetadata', () => {
       this.initPlayer();
@@ -199,7 +222,6 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
     //   this.videoReady.emit(true);
     // });
   }
-
 
   private watchedVideosListener(): { watchedVideos: Array<{ vid: string, vct: number }>, result: number } {
     const vid = this.video._id;
@@ -315,7 +337,8 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private loadMediaSessionData(): void {
-    const artwork = `${environment.baseUrl}/videos/${this.video._id}/poster`;
+    const token = localStorage.getItem('token');
+    const artwork = `${environment.baseUrl}/videos/${this.video._id}/poster?token=${token}`;
 
     if ('mediaSession' in window.navigator) {
 
@@ -365,21 +388,30 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private playNextVideo(autoPlayNext: boolean, video: any): void {
+    const height = document.getElementById('player').offsetHeight;
+    this.player.destroy();
+    document.getElementById('player').remove();
+
+    const token = localStorage.getItem('token');
     const info = document.createElement('h2');
     const image = document.createElement('img');
+    const div = document.createElement('div');
     info.style.position = 'absolute';
     info.style.top = '0';
     info.style.left = '0';
     info.style.zIndex = '3';
-    image.style.position = 'absolute';
-    image.style.top = '0';
-    image.style.left = '0';
-    image.style.width = '100%';
-    image.src = `${environment.baseUrl}/videos/${video._id}/poster`;
+    div.style.width = '100%';
+    div.style.position = 'relative';
+    div.style.textAlign = 'center';
+    div.style.background = 'rgba(0,0,0,0.7)';
+    image.style.position = 'relative';
+    image.style.maxHeight = `${height}px`;
+    image.src = `${environment.baseUrl}/videos/${video._id}/poster?token=${token}`;
     image.onclick = () => { this.play(video._id); };
     info.innerText = `Next video: ${video.title} in 5 seconds`;
-    this.videoHolder.nativeElement.appendChild(info);
-    this.videoHolder.nativeElement.appendChild(image);
+    div.appendChild(info);
+    div.appendChild(image);
+    this.videoHolder.nativeElement.appendChild(div);
 
     if (autoPlayNext) {
       let time = 5;
@@ -397,5 +429,58 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  //
+  // private sourceOpen(mediaSource): Subscription {
+  //   const sourceBuffer = mediaSource.addSourceBuffer(this.mimeType);
+  //   return this.authService.getStreamResource(`${this.baseUrl}/videos/${this.video._id}/stream`)
+  //     .subscribe(uInt8Array => {
+  //       console.log(uInt8Array);
+  //       const blob = new Blob([uInt8Array], {
+  //         type: 'video/mp4'
+  //       });
+  //       blob.arrayBuffer().then(x => sourceBuffer.appendBuffer(x));
+  //     });
+  //     //   sourceBuffer.addEventListener('updateend', () => {
+  //     //     mediaSource.endOfStream();
+  //     //     this.player.play();
+  //     //   });
+  //     //   blob.arrayBuffer().then(x => sourceBuffer.appendBuffer(x));
+  //     // });
+  // }
+
+  //
+  // private writeToFile(fileEntry, blob): void {
+  //   // Create a FileWriter object for fileEntry
+  //   fileEntry.createWriter(function(fileWriter) {
+  //     fileWriter.onwriteend = function() {
+  //       // read from file
+  //       readFromFile(fileEntry.fullPath);
+  //     };
+  //     fileWriter.onerror = function(e) {
+  //     };
+  //     // Create a new Blob and write it to file
+  //     fileWriter.write(blob);
+  //   }, handleError);
+  // }
+  //
+  //
+  // private readFromFile(fullPath): void {
+  //   window.fileSystem.root.getFile(fullPath, {}, function(fileEntry) {
+  //     // Get a File object representing the file
+  //     // then use FileReader to read its contents
+  //     fileEntry.file(function(file) {
+  //       var reader = new FileReader();
+  //       reader.onloadend = function() {
+  //         // video.src = this.result;
+  //         video.src = URL.createObjectURL(new Blob([this.result]));
+  //       };
+  //       // reader.readAsDataURL(file);
+  //       reader.readAsArrayBuffer(file);
+  //     }, handleError);
+  //   }, handleError);
+  // }
+  //
+  //
+  //
 
 }

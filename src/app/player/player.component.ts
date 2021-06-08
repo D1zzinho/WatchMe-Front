@@ -99,6 +99,8 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   videoReady = false;
   fullDescription = false;
 
+  token: string;
+
   @ViewChild('player', { static: false }) playerElement: ElementRef;
   @ViewChild('nextVideo', { static: false }) nextVideo: ElementRef;
   @ViewChild('commentInput', { static: false }) commentInput: ElementRef<HTMLTextAreaElement>;
@@ -113,6 +115,8 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   ngOnInit(): void {
+    this.token = localStorage.getItem('token');
+
     this.commentForm = this.formBuilder.group({
       text: new FormControl('',
         [
@@ -128,6 +132,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       const videoId = params.vid;
 
       this.videoSub = this.authService.getResource(`${this.VIDEOS_URL}/${videoId}`).subscribe(async res => {
+        console.log(res);
         if (res !== null) {
           if (res.err) {
             this.error = 'Video not found!';

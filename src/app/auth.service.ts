@@ -158,16 +158,16 @@ export class AuthService {
   }
 
 
-  // getStreamResource(resourceUrl: string, httpHeader = new HttpHeaders()): Observable<any> {
-  //   let newHeaders = httpHeader;
-  //     // .append('Content-Type', 'video/mp4')
-  //     // .append('Accept-Ranges', 'bytes');
-  //   if (this.isLoggedIn()) {
-  //     newHeaders = newHeaders.append('Authorization', 'Bearer ' + AuthService.getAccessToken());
-  //   }
-  //
-  //   return this.http.get(resourceUrl, {headers: newHeaders, responseType: 'blob', observe: 'response'});
-  // }
+  getStreamResource(resourceUrl: string, httpHeader = new HttpHeaders()): Observable<any> {
+    let newHeaders = httpHeader;
+      // .append('Content-Type', 'video/mp4')
+      // .append('Accept-Ranges', 'bytes');
+    if (this.isLoggedIn()) {
+      newHeaders = newHeaders.append('Authorization', 'Bearer ' + AuthService.getAccessToken());
+    }
+
+    return this.http.get(resourceUrl, {headers: newHeaders, responseType: 'blob', observe: 'body'});
+  }
 
 
   deleteResource(resourceUrl: string, httpHeader = new HttpHeaders()): Observable<any> {

@@ -3,6 +3,14 @@
 <div *ngIf="videosLoaded | async" class="container py-4">
   <h1 class="pb-2 text-center">All videos ({{ videosLength }})</h1>
 
+  <mat-card>
+    <button mat-stroked-button color="accent" (click)="sortVideosByTitle(true)">Sort by title alphabetically</button>
+    <button mat-stroked-button color="accent" (click)="sortVideosByTitle(false)">Sort by title alphabetically reverse</button>
+    <button mat-stroked-button color="accent" (click)="sortVideosByViews(true)">Sort by views ascending</button>
+    <button mat-stroked-button color="accent" (click)="sortVideosByViews(false)">Sort by views descending</button>
+    <button mat-stroked-button color="accent" (click)="sortVideosByUploadDate(true)">Sort by upload date ascending</button>
+    <button mat-stroked-button color="accent" (click)="sortVideosByUploadDate(false)">Sort by upload date descending</button>
+  </mat-card>
 <!--  <div *ngIf="pages.pages && pages.pages.length > 0" class="pb-0 w-100 overflow-auto">-->
 <!--    <ul class="pagination justify-content-md-center">-->
 <!--      <li [ngClass]="{'disabled':pages.currentPage === 1}" class="page-item first-item">-->
@@ -32,7 +40,7 @@
           <div class="preview">
 
             <img
-              [src]="baseUrl + '/videos/' + video['_id'] + '/poster'"
+              [src]="baseUrl + '/videos/' + video['_id'] + '/poster?token=' + token"
               class="img-fluid prev"
               (mouseover)="loadPreview($event)"
               (mouseleave)="unloadPreview($event)"
@@ -41,13 +49,13 @@
 
             <video
               preload="auto"
-              [poster]="baseUrl + '/videos/' + video['_id'] + '/poster'"
+              [poster]="baseUrl + '/videos/' + video['_id'] + '/poster?token=' + token"
               muted
               loop
               class="img-fluid"
               id="{{ video._id }}"
             >
-              <source [src]="baseUrl + '/videos/' + video['_id'] + '/preview'" type="video/webm">
+              <source [src]="baseUrl + '/videos/' + video['_id'] + '/preview?token=' + token" type="video/webm">
             </video>
 
           </div>

@@ -24,11 +24,7 @@ export class DeleteVideoDialogComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log(this.video.author === this.authService.getUsernameFromToken())
-    console.log(this.video)
-    console.log(this.authService.getUsernameFromToken())
     if (this.video.author === this.authService.getUsernameFromToken()) {
-
       this.isOwner = true;
     }
   }
@@ -41,9 +37,7 @@ export class DeleteVideoDialogComponent implements OnInit {
         }
         else {
           this.toastService.success('Video successfully deleted!');
-          setTimeout(() => {
-            this.router.navigate(['/videos']);
-          }, 2000);
+          this.router.navigate(['/videos']);
         }
       }, error => {
         this.toastService.error(error.error.message);

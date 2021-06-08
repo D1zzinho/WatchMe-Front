@@ -115,6 +115,11 @@ button.navbar-toggler {
     grid-template-columns: repeat(4,1fr);
   }
 }
+@media screen and (min-width: 1400px) {
+  .videos {
+    grid-template-columns: repeat(5,1fr);
+  }
+}
 
 /*.videos {*/
 /*  -webkit-column-count: 1;*/

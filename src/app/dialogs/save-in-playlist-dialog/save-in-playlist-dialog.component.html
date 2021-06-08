@@ -1,10 +1,14 @@
 <h1 class="mb-1" mat-dialog-title>Save video</h1>
 <div mat-dialog-content>
 
-  <mat-selection-list (selectionChange)="saveVideoInPlaylist($event)">
+  <mat-selection-list (selectionChange)="saveVideoInPlaylist($event)" *ngIf="!(noPlaylists | async); else ALERT">
     <mat-list-option *ngFor="let playlist of playlists" [selected]="!!playlist['hasSelectedVideo']" [value]="playlist['_id']">
       {{ playlist['name'] }}
     </mat-list-option>
   </mat-selection-list>
+
+  <ng-template #ALERT>
+    <div class="alert alert-warning">You don't have any playlists</div>
+  </ng-template>
 
 </div>

@@ -17,6 +17,7 @@ export class SaveInPlaylistDialogComponent implements OnInit {
   readonly PLAYLISTS_URL = `${environment.baseUrl}/playlist`;
 
   playlists: Array<any>;
+  noPlaylists: Promise<boolean> = Promise.resolve(false);
   video: any;
 
   constructor(
@@ -31,16 +32,21 @@ export class SaveInPlaylistDialogComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.data.playlists.forEach(playlist => {
-      const isAdded = playlist.videos.findIndex(video => {
-        return video._id === this.data.video._id;
+    if (this.data.playlists.length > 0) {
+      this.data.playlists.forEach(playlist => {
+        const isAdded = playlist.videos.findIndex(video => {
+          return video._id === this.data.video._id;
+        });
+
+        playlist.hasSelectedVideo = isAdded !== -1;
       });
 
-      playlist.hasSelectedVideo = isAdded !== -1;
-    });
-
-    this.playlists = this.data.playlists;
-    this.video = this.data.video;
+      this.playlists = this.data.playlists;
+      this.video = this.data.video;
+    }
+    else {
+      this.noPlaylists = Promise.resolve(true);
+    }
   }
 
 

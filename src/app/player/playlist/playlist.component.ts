@@ -16,6 +16,7 @@ export class PlaylistComponent implements OnInit, AfterViewInit {
   @Input() video: any;
   @Input() user: string;
 
+  token: string;
   playlistPanelState = true;
 
 
@@ -23,6 +24,7 @@ export class PlaylistComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
+    this.token = localStorage.getItem('token');
     const panelState = localStorage.getItem('playlistPanelState');
 
     if (panelState === null) {

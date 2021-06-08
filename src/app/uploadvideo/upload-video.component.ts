@@ -135,7 +135,7 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
               this.newImageLoaded = Promise.resolve(true);
 
               setTimeout(() => {
-                (document.getElementById('newVideoThumbnail') as HTMLImageElement).src = `${this.baseUrl}/videos/${res.video._id}/poster`;
+                (document.getElementById('newVideoThumbnail') as HTMLImageElement).src = `${this.baseUrl}/videos/${res.video._id}/poster?token=` + localStorage.getItem('token');
               }, 100);
 
             }, 5000);
@@ -150,7 +150,7 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
   }
 
   add(event: MatChipInputEvent): void {
-    const input = event.input;
+    const input = event.chipInput;
     const value = event.value;
 
     if ((value || '').trim()) {
@@ -160,7 +160,7 @@ export class UploadVideoComponent implements OnInit, AfterContentInit {
     }
 
     if (input) {
-      input.value = '';
+      input.inputElement.value = '';
     }
   }
 
