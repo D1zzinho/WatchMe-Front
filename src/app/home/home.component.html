@@ -53,6 +53,45 @@
 
     <mat-divider class="mt-4"></mat-divider>
 
+
+    <h1 class="pt-4 mt-2" *ngIf="suggestedExist">Suggested {{ limit }} videos</h1>
+    <div class="videos" *ngIf="suggestedExist">
+
+      <a class="text-left h-100" *ngFor="let video of suggestedVideos" [routerLink]="['/player']" [queryParams]="{vid: video._id}">
+        <div class="video h-100 rgba-pink-light" [title]="video.title">
+
+          <div class="preview">
+
+            <img
+              [src]="baseUrl + '/videos/' + video['_id'] + '/poster?token=' + token"
+              class="img-fluid hoverable"
+              (mouseover)="loadPreview($event)"
+              (mouseleave)="unloadPreview($event)"
+              alt="{{ video.title }}"
+            >
+
+            <video
+              preload="auto"
+              [poster]="baseUrl + '/videos/' + video['_id'] + '/poster?token=' + token"
+              muted
+              loop
+              class="img-fluid"
+              id="{{ video._id }}_suggested"
+            >
+              <source [src]="baseUrl + '/videos/' + video['_id'] + '/preview?token=' + token" type="video/webm">
+            </video>
+
+          </div>
+
+          <div class="movie-info">
+            <p style="font-size: 13px; word-break: break-word;">{{ (video.title.length > 30 ? video.title.slice(0, 30) + '...' : video.title) }}</p>
+            <span class="blue-text" title="Views">{{ video.visits }}</span>
+          </div>
+
+        </div>
+      </a>
+    </div>
+
   </div>
 
   <div *ngIf="!isLoggedIn" class="text-center">

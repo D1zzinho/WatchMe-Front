@@ -13,8 +13,10 @@ export class HomeComponent implements OnInit, AfterContentInit {
 
   limit = 20;
   latestVideos: Array<VideoDto> = new Array<VideoDto>();
+  suggestedVideos: Array<VideoDto> = new Array<VideoDto>();
   isLoggedIn = false;
   videosExist: Promise<boolean>;
+  suggestedExist: Promise<boolean>;
   readonly baseUrl: string = environment.baseUrl;
 
   token: string;
@@ -30,16 +32,13 @@ export class HomeComponent implements OnInit, AfterContentInit {
     if (this.authService.isLoggedIn()) {
       this.token = localStorage.getItem('token');
       this.authService.getResource(`${environment.baseUrl}/videos/latest?limit=${this.limit}`).subscribe(res => {
-        // for (const video of res) {
-        //   this.authService.getStreamResource(`${environment.baseUrl}/videos/${video.id}/poster`).subscribe(videoPoster => {
-        //     video.cover = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(videoPoster));
-        //     this.latestVideos.push(video);
-        //   }, err => {
-        //     console.log(err.message);
-        //   });
-        // }
         this.latestVideos = res;
         this.videosExist = Promise.resolve(true);
+      });
+
+      this.authService.getResource(`${environment.baseUrl}/videos/suggested?limit=${this.limit}`).subscribe(res => {
+        this.suggestedVideos = res;
+        this.suggestedExist = Promise.resolve(true);
       });
     }
   }

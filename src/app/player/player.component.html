@@ -1,276 +1,188 @@
 <mat-progress-bar mode="indeterminate" color="warn" *ngIf="!videoReady"></mat-progress-bar>
-<!--<button *ngIf="isAdmin" mat-raised-button color="accent" class="w-100 my-2" (click)="showData()">Show component data</button>-->
+
 <div class="content" *ngIf="videoLoaded | async">
+
   <div class="container">
-<!--      <div class="row justify-content-md-center">-->
-        <div [ngClass]="(similarVideos.length === 0 && playlist === null ? 'noSimilarVideos' : '') + ' nVideo-section justify-content-md-center'">
 
-<!--            <div [ngClass]="pageType === 'classic' ? 'col-12 col-lg-9 col-xl-7' : 'col-12 col-lg-10 col-xl-9'">-->
-                <!-- LEFT SIDE [VIDEO/COMMENTS] -->
+    <div [ngClass]="(similarVideos.length === 0 && playlist === null ? 'noSimilarVideos' : '') + ' nVideo-section justify-content-md-center'">
 
-          <div class="video-section">
-<!--            <div #player class="player" tabindex="0">-->
+      <div class="video-section">
+        <app-video
+          [video]="video"
+          [list]="playlist"
+          [similarVideos]="similarVideos"
+          (videoReady)="videoReady = $event"
+        ></app-video>
 
-<!--              <canvas id="thumbnail" style="opacity: 0.4;"></canvas>-->
+        <div class="top-info-holder">
 
-<!--              <button *ngIf="videoIsMuted" (click)="videoIsMuted = false;" mdbBtn color="danger" class="position-absolute w-100 h-100 rounded-0 m-0 opacity-50" mdbWavesEffect><strong style="font-size: 20px;" class="text-white">Click to unmute</strong></button>-->
-              <app-video
-                [video]="video"
-                [list]="playlist"
-                [similarVideos]="similarVideos"
-                (videoReady)="videoReady = $event"
-              ></app-video>
-<!--              <video #playerVideo preload="none" [muted]="videoIsMuted" id="video" [poster]="baseUrl + '/' + video['cover']" (ended)="videoEnded()">-->
-<!--                <source [src]="baseUrl + '/' + video['path']" type="video/mp4" />-->
-<!--              </video>-->
+          <div class="title-views-section">
+            <h2 class="video-title"><span *ngIf="video['stat'] === 0">[PRIVATE] </span><span id="vtitle">{{ video['title'] }}</span></h2>
+            <div class="d-flex">
+              <div class="mr-auto" id="visits">{{ video['visits'] }} views</div>
 
-<!--              <div #playerControls class="player-controls">-->
-<!--                <div #progress class="progress">-->
-<!--                  <div #filledProgress class="filled-progress"></div>-->
-<!--                  <div #filledBufferProgress class="filled-buffer-progress"></div>-->
-<!--                </div>-->
-
-<!--                <div #playPauseBtn class="ply-btn">-->
-<!--                  <button #togglePlay class="player-btn toggle-play" title="Toggle Play">-->
-<!--                    <i class="fa fa-play"></i>-->
-<!--                  </button>-->
-<!--                </div>-->
-
-<!--                <div #sliders class="sliders">-->
-<!--                  <div #volumeIcon id="vol"><i class="fa fa-volume-down"></i></div>-->
-<!--                  <input #volumeSlider type="range" id="volume" name="volume" title="Change volume"-->
-<!--                         class="player-slider" min="0" max="1" step="0.05" value="{{ volume }}" />-->
-
-<!--                  <div #speedIcon class="speed"><i class="fa fa-fast-forward"></i></div>-->
-<!--                  <input #speedSlider type="range" id="playbackRate" name="playbackRate" title="Change speed"-->
-<!--                         class="player-slider" min="0.5" max="8" step="0.5" value="{{ playbackRate }}"/>-->
-<!--                  <div #speedValue id="playbackRate_value">x{{ playbackRate }}</div>-->
-<!--                </div>-->
-
-<!--                <div #timeHolder class="time">00:00 / 00:00</div>-->
-
-<!--                <button #fullScreenBtn id="full-screen" class="player-btn" title="Toggle FullScreen">-->
-<!--                  <i class="fa fa-expand"></i>-->
-<!--                </button>-->
-<!--              </div>-->
-<!--            </div>-->
-
-            <div class="top-info-holder">
-
-              <div class="title-views-section">
-                <h2 class="video-title"><span *ngIf="video['stat'] === 0">[PRIVATE] </span><span id="vtitle">{{ video['title'] }}</span></h2>
-                <div class="d-flex">
-                  <div class="mr-auto" id="visits">{{ video['visits'] }} views</div>
-
-                  <div class="ml-auto d-flex">
-                    <a
-                      (click)="openPlaylistActionsDialog()"
-                      matTooltip="Save to playlist"
-                      matTooltipPosition="above"
-                    >
-                      <mat-icon class="yellow-text">star</mat-icon>
-                    </a>
-
-                    <a
-                      *ngIf="isAdmin || isOwner"
-                      class="ml-2 ml-md-3"
-                      (click)="openEditVideoDialog(video)"
-                      matTooltip="Edit video"
-                      matTooltipPosition="above"
-                    >
-                      <mat-icon color="accent">settings</mat-icon>
-                    </a>
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            <div class="info">
-              <div class="add-by">
-                <div class="avatar"><a href="#"><img class="rounded-circle" src="{{ authorAvatar }}"  alt="Author's avatar"/></a></div>
-                <div class="uploaded">
-                  <a href="#" id="author">{{ author }}</a>
-                  <p id="date">Added on {{ uploadDate }}</p>
-
-                  <div class="desc" [ngStyle]="fullDescription ? { 'height': 'auto' } : { 'height': '53px' }">
-                    <span class="description" style="white-space: pre-wrap;">{{ video['desc'] }}</span>
-                    <br><br><hr class="mt-4 mb-0 pb-2 border-light"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
-                    <a *ngFor="let tag of video['tags']" mat-button class="indigo-text" [routerLink]="['/finder']" [queryParams]="{ q: tag }">{{ tag }}</a>
-                  </div>
-
-                  <a id="sh_desc" class="pt-2" (click)="fullDescription = !fullDescription">{{ (fullDescription ? 'Show less' : 'Show more') }}</a>
-
-                </div>
-              </div>
-            </div>
-
-
-            <app-comments></app-comments>
-            <div class="comment-section" [ngStyle]="{ 'display': timeoutEnded ? '' : 'none;' }">
-              <h3>Comments</h3>
-
-              <div class="media mt-3 shadow-textarea mb-4">
-                <mat-spinner [diameter]="40" *ngIf="!currentUserAvatarLoaded" class="mr-3 mt-1" title="Loading current user avatar"></mat-spinner>
-                <img
-                  *ngIf="currentUserAvatarLoaded"
-                  [src]="currentUserAvatar.src"
-                  id="avatar"
-                  class="d-flex rounded-circle avatar z-depth-1-half mr-3 mt-1"
-                  alt="Current user avatar"
+              <div class="ml-auto d-flex">
+                <a
+                  (click)="openPlaylistActionsDialog()"
+                  matTooltip="Save to playlist"
+                  matTooltipPosition="above"
                 >
-                <div class="media-body">
-                  <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="form-group rounded-corners" enctype="multipart/form-data">
+                  <mat-icon class="yellow-text">star</mat-icon>
+                </a>
 
-                    <mat-form-field class="w-100" color="accent" appearance="outline">
-                      <mat-label>Write new comment here (min. 5 signs)</mat-label>
-                      <textarea matInput #commentInput name="text" formControlName="text" type="text" minlength="5" maxlength="500" class="comment-input"></textarea>
-                      <mat-hint align="end">{{commentInput.value.length}} / 500</mat-hint>
-                    </mat-form-field>
-
-                    <div class="comment-form-actions">
-                      <button mat-raised-button color="accent" class="mt-1" [disabled]="commentForm.invalid">Add</button>
-                    </div>
-                  </form>
-                </div>
+                <a
+                  *ngIf="isAdmin || isOwner"
+                  class="ml-2 ml-md-3"
+                  (click)="openEditVideoDialog(video)"
+                  matTooltip="Edit video"
+                  matTooltipPosition="above"
+                >
+                  <mat-icon color="accent">settings</mat-icon>
+                </a>
               </div>
-
-              <div class="comments" *ngIf="comments.length > 0">
-                <div *ngFor="let comment of comments" class="media">
-                  <img class="d-flex rounded-circle avatar z-depth-1-half mr-3" src="{{ comment.author.avatar }}"
-                       alt="{{ comment.author.avatar }}s' avatar">
-                  <div class="media-body">
-                    <h5 class="mt-0 mb-1 font-weight-bold blue-text comment-author">{{ comment.author.username }}</h5>
-                    <p class="comment-message" style="white-space: pre;">{{ comment.text }}</p>
-                  </div>
-
-                  <button *ngIf="comment.author.username === currentUser || isAdmin" mat-icon-button [matMenuTriggerFor]="commentMenu" aria-label="Video actions" #menuTrigger>
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-                  <mat-menu #commentMenu="matMenu">
-                    <button mat-menu-item (click)="openEditCommentDialog(comment)">
-                      <mat-icon>edit</mat-icon>
-                      <span>Edit</span>
-                    </button>
-                    <button mat-menu-item (click)="deleteComment(comment._id)">
-                      <mat-icon>delete_forever</mat-icon>
-                      <span>Delete</span>
-                    </button>
-                  </mat-menu>
-                </div>
-              </div>
-
-              <h4 *ngIf="comments.length === 0">No comments</h4>
 
             </div>
-
 
           </div>
-<!--            </div>-->
 
-          <div class="next-video-section">
+        </div>
 
-            <div class="options-section" *ngIf="playlist !== null || similarVideos.length > 0">
-              <mat-slide-toggle
-                class="example-margin"
-                [checked]="autoPlayNext"
-                (change)="onAutoPlayToggle($event)"
-                [color]="color"
-                >
-                Autoplay next video
-              </mat-slide-toggle>
+
+        <div class="info">
+          <div class="add-by">
+            <div class="avatar"><a href="#"><img class="rounded-circle" src="{{ authorAvatar }}"  alt="Author's avatar"/></a></div>
+            <div class="uploaded">
+              <a href="#" id="author">{{ author }}</a>
+              <p id="date">Added on {{ uploadDate }}</p>
+
+              <div class="desc" [ngStyle]="fullDescription ? { 'height': 'auto' } : { 'height': '53px' }">
+                <span class="description" style="white-space: pre-wrap;">{{ video['desc'] }}</span>
+                <br><br><hr class="mt-4 mb-0 pb-2 border-light"><p class="pb-0 mb-0 text-white-50" style="font-size: 11px;">Tags:</p>
+                <a *ngFor="let tag of video['tags']" mat-button class="indigo-text" [routerLink]="['/finder']" [queryParams]="{ q: tag }">{{ tag }}</a>
+              </div>
+
+              <a id="sh_desc" class="pt-2" (click)="fullDescription = !fullDescription">{{ (fullDescription ? 'Show less' : 'Show more') }}</a>
+
             </div>
+          </div>
+        </div>
 
-            <div class="selected-video-section" *ngIf="playlist === null && similarVideos.length > 0">
-              <div [ngStyle]="autoPlayNext ? { 'background-color':'#69f0aaaa' } : {}" class="suggestedVideo" (click)="play(similarVideos[0]._id)" matTooltip="Play: {{ similarVideos[0].title }}" matTooltipPosition="before" matTooltipTouchGestures="auto">
+
+        <app-comments
+          [comments]="comments"
+          [currentUser]="currentUser"
+          [isAdmin]="isAdmin"
+          [currentUserAvatar]="currentUserAvatar"
+          [currentUserAvatarLoaded]="currentUserAvatarLoaded"
+          [video]="video"
+        ></app-comments>
+
+
+      </div>
+
+
+      <div class="next-video-section">
+
+        <div class="options-section" *ngIf="playlist !== null || similarVideos.length > 0">
+          <mat-slide-toggle
+            class="example-margin"
+            [checked]="autoPlayNext"
+            (change)="onAutoPlayToggle($event)"
+            [color]="color"
+          >
+            Autoplay next video
+          </mat-slide-toggle>
+        </div>
+
+        <div class="selected-video-section" *ngIf="playlist === null && similarVideos.length > 0">
+          <div [ngStyle]="autoPlayNext ? { 'background-color':'#69f0aaaa' } : {}" class="suggestedVideo" (click)="play(similarVideos[0]._id)" matTooltip="Play: {{ similarVideos[0].title }}" matTooltipPosition="before" matTooltipTouchGestures="auto">
+            <div class="image-holder">
+              <mat-spinner class="m-auto" *ngIf="!similarVideos[0].loaded" color="primary"></mat-spinner>
+              <img [hidden]="!similarVideos[0].loaded" (load)="loadSimilarVideoThumb(similarVideos[0]._id)" [src]="baseUrl + '/videos/' + similarVideos[0]._id + '/poster?token=' + token" class="img-fluid" alt="{{ similarVideos[0].title }}">
+            </div>
+            <div class="similar-movie-info">
+              <strong style="word-break: break-word;">{{ (similarVideos[0].title.length > 30 ? similarVideos[0].title.slice(0, 30) + '...' : similarVideos[0].title) }}</strong>
+              <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideos[0].visits }}">{{ similarVideos[0].visits }}</span>
+            </div>
+          </div>
+
+          <button class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Similar video actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="openSaveSimilarVideoInPlaylist(similarVideos[0])">
+              <span>Save in playlist</span>
+            </button>
+            <button mat-menu-item (click)="notInterested(similarVideos[0]._id)">
+              <span>Remove from suggested</span>
+            </button>
+          </mat-menu>
+
+        </div>
+
+        <mat-spinner style="opacity: 0.5 !important;" *ngIf="playlist !== null && !(playlistLoaded | async)"></mat-spinner>
+        <app-playlist
+          class="playlist-section"
+          *ngIf="playlistLoaded | async"
+          [playlist]="playlist"
+          [video]="video"
+          [user]="currentUser"
+          (playlistChange)="playlist = $event"
+        ></app-playlist>
+
+      </div>
+
+      <hr class="my-2" *ngIf="similarVideos.length > 1">
+
+
+      <div class="similar-videos-section" *ngIf="similarVideos.length > 1">
+
+        <div class="font-weight-light">
+          <div class="similar-container">
+
+            <div class="position-relative" *ngFor="let similarVideo of similarVideos.slice(1, similarOnPage)" title="Play: {{ similarVideo.title }}">
+
+              <div class="suggestedVideo" (click)="play(similarVideo._id)">
+
                 <div class="image-holder">
-                  <mat-spinner class="m-auto" *ngIf="!similarVideos[0].loaded" color="primary"></mat-spinner>
-                  <img [hidden]="!similarVideos[0].loaded" (load)="loadSimilarVideoThumb(similarVideos[0]._id)" [src]="baseUrl + '/videos/' + similarVideos[0]._id + '/poster?token=' + token" class="img-fluid" alt="{{ similarVideos[0].title }}">
+                  <mat-spinner class="m-auto" *ngIf="!similarVideo.loaded" color="primary"></mat-spinner>
+                  <img [hidden]="!similarVideo.loaded" (load)="loadSimilarVideoThumb(similarVideo._id)" [src]="baseUrl + '/videos/' + similarVideo._id + '/poster?token=' + token" class="img-fluid" alt="{{ similarVideo.title }}">
                 </div>
+
                 <div class="similar-movie-info">
-                  <strong style="word-break: break-word;">{{ (similarVideos[0].title.length > 30 ? similarVideos[0].title.slice(0, 30) + '...' : similarVideos[0].title) }}</strong>
-                  <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideos[0].visits }}">{{ similarVideos[0].visits }}</span>
+                  <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
+                  <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.visits }}">{{ similarVideo.visits }}</span>
                 </div>
+
               </div>
 
               <button class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Similar video actions">
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="openSaveSimilarVideoInPlaylist(similarVideos[0])">
+                <button mat-menu-item (click)="openSaveSimilarVideoInPlaylist(similarVideo)">
                   <span>Save in playlist</span>
                 </button>
-                <button mat-menu-item (click)="notInterested(similarVideos[0]._id)">
+                <button mat-menu-item (click)="notInterested(similarVideo._id)">
                   <span>Remove from suggested</span>
                 </button>
               </mat-menu>
 
             </div>
 
-            <mat-spinner style="opacity: 0.5 !important;" *ngIf="playlist !== null && !(playlistLoaded | async)"></mat-spinner>
-            <app-playlist
-              class="playlist-section"
-              *ngIf="playlistLoaded | async"
-              [playlist]="playlist"
-              [video]="video"
-              [user]="currentUser"
-              (playlistChange)="playlist = $event"
-            ></app-playlist>
-
           </div>
-
-          <hr class="my-2" *ngIf="similarVideos.length > 1">
-
-          <div class="similar-videos-section" *ngIf="similarVideos.length > 1">
-
-            <div class="font-weight-light">
-              <div class="similar-container">
-
-                <div class="position-relative" *ngFor="let similarVideo of similarVideos.slice(1, similarOnPage)" title="Play: {{ similarVideo.title }}">
-
-                  <div class="suggestedVideo" (click)="play(similarVideo._id)">
-
-                    <div class="image-holder">
-                      <mat-spinner class="m-auto" *ngIf="!similarVideo.loaded" color="primary"></mat-spinner>
-                      <img [hidden]="!similarVideo.loaded" (load)="loadSimilarVideoThumb(similarVideo._id)" [src]="baseUrl + '/videos/' + similarVideo._id + '/poster?token=' + token" class="img-fluid" alt="{{ similarVideo.title }}">
-                    </div>
-
-                    <div class="similar-movie-info">
-                      <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
-                      <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.visits }}">{{ similarVideo.visits }}</span>
-                    </div>
-
-                  </div>
-
-                  <button class="video-actions-menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Similar video actions">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-                  <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="openSaveSimilarVideoInPlaylist(similarVideo)">
-                      <span>Save in playlist</span>
-                    </button>
-                    <button mat-menu-item (click)="notInterested(similarVideo._id)">
-                      <span>Remove from suggested</span>
-                    </button>
-                  </mat-menu>
-
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-
-
         </div>
 
+      </div>
+
+
     </div>
 
-    <div class="container" *ngIf="error !== null">
-      <div class="alert alert-danger">{{ error }}</div>
-    </div>
+  </div>
+
+  <div class="container" *ngIf="error !== null">
+    <div class="alert alert-danger">{{ error }}</div>
+  </div>
 </div>
 
 <div class="container mt-4" *ngIf="error !== null && !(videoLoaded | async)">

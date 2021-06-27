@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpEventType, HttpHeaders} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as moment from 'moment';
-import * as jwt_decode from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 import {Observable, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from '../environments/environment';
@@ -42,7 +42,7 @@ export class AuthService {
 
   static getDecodedAccessToken(token: string): any {
     try {
-      const tokenInfo = jwt_decode(token);
+      const tokenInfo = jwt_decode<any>(token);
       return tokenInfo.exp;
     }
     catch (error) {
@@ -109,7 +109,7 @@ export class AuthService {
 
   getUser(): Observable<any> {
      if (localStorage.getItem('token') !== null) {
-      const tokenInfo = jwt_decode(AuthService.getAccessToken());
+      const tokenInfo = jwt_decode<any>(AuthService.getAccessToken());
       if (tokenInfo.access_token) {
         return this.http.post<any>(`${environment.baseUrl}/auth/github/me`, tokenInfo);
       }
@@ -127,7 +127,7 @@ export class AuthService {
 
   isAdmin(): boolean {
     if (localStorage.getItem('token') !== null) {
-      const tokenInfo = jwt_decode(AuthService.getAccessToken());
+      const tokenInfo = jwt_decode<any>(AuthService.getAccessToken());
       const permissions = tokenInfo.permissions;
 
       if (permissions === 0) {
@@ -225,7 +225,7 @@ export class AuthService {
 
   getUsernameFromToken(token: string = localStorage.getItem('token')): string {
     try {
-      const tokenInfo = jwt_decode(token);
+      const tokenInfo = jwt_decode<any>(token);
       return tokenInfo.username;
     }
     catch (error) {

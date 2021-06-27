@@ -4,7 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
-import * as jwt_decode from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 
 @Component({
   selector: 'app-login',
@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
           }
           else {
             try {
-              const token = jwt_decode(params.token);
+              const token = jwt_decode<any>(params.token);
 
               this.authService.checkOAuthLogin(token).subscribe(result => {
                 if (result.login) {

@@ -13,17 +13,15 @@ import {Title} from '@angular/platform-browser';
 import {VideoDto} from '../models/VideoDto';
 import {AuthService} from '../auth.service';
 import {environment} from '../../environments/environment';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder} from '@angular/forms';
 import {CommentDto} from '../models/CommentDto';
 import {ThemePalette} from '@angular/material/core';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
 import {MatDialog} from '@angular/material/dialog';
 import {MatMenuTrigger} from '@angular/material/menu';
-import {EditCommentDialogComponent} from '../dialogs/edit-comment-dialog/edit-comment-dialog.component';
 import {EditVideoDialogComponent} from '../dialogs/edit-video-dialog/edit-video-dialog.component';
 import {PlaylistActionsDialogComponent} from '../dialogs/playlist-actions-dialog/playlist-actions-dialog.component';
 import {Subscription} from 'rxjs';
-import {ToastrService} from 'ngx-toastr';
 import {SaveInPlaylistDialogComponent} from '../dialogs/save-in-playlist-dialog/save-in-playlist-dialog.component';
 import {SimilarVideo} from './model/SimilarVideo';
 
@@ -41,7 +39,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
     private router: Router,
     private titleService: Title,
     private authService: AuthService,
-    private toastService: ToastrService,
     public dialog: MatDialog
   ) {
     this.router.routeReuseStrategy.shouldReuseRoute = () => {
@@ -50,28 +47,15 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
   readonly VIDEOS_URL: string = `${environment.baseUrl}/videos`;
-  readonly COMMENTS_URL: string = `${environment.baseUrl}/comments`;
   readonly baseUrl: string = environment.baseUrl;
   videoLoaded: Promise<boolean>;
   error: string = null;
   videoSub: Subscription;
 
   video: any = null;
-  // title = '';
-  // description = '';
-  // tags: Array<string> = new Array<string>();
-  // path = '';
-  // cover = '';
-  // thumb = '';
-  // visits = 0;
-  // // thUp = 0;
-  // // thDown = 0;
-  // stat = 1;
   author = '';
   authorAvatar = '';
   uploadDate = '';
-
-  volume = 0.5;
 
   similarVideos: Array<SimilarVideo> = new Array<SimilarVideo>();
   similarOnPage = 11;
@@ -89,12 +73,9 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   userAvatar = '';
 
   comments: Array<CommentDto> = new Array<CommentDto>();
-  commentForm: FormGroup;
 
   autoPlayNext: boolean;
-  nextVideoStatus: boolean;
   color: ThemePalette = 'accent';
-  timeoutEnded: boolean;
 
   videoReady = false;
   fullDescription = false;
@@ -103,30 +84,10 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
   @ViewChild('player', { static: false }) playerElement: ElementRef;
   @ViewChild('nextVideo', { static: false }) nextVideo: ElementRef;
-  @ViewChild('commentInput', { static: false }) commentInput: ElementRef<HTMLTextAreaElement>;
   @ViewChild('menuTrigger') menuTrigger: MatMenuTrigger;
-
-
-  private static noWhitespaceValidator(control: FormControl): any {
-    const isWhitespace = (control.value || '').trim().length === 0;
-    const isValid = !isWhitespace;
-    return isValid ? null : { whitespace: true };
-  }
-
 
   ngOnInit(): void {
     this.token = localStorage.getItem('token');
-
-    this.commentForm = this.formBuilder.group({
-      text: new FormControl('',
-        [
-          Validators.required,
-          Validators.minLength(5),
-          Validators.maxLength(500),
-          PlayerComponent.noWhitespaceValidator
-        ]
-      )
-    });
 
     this.currentRoute.queryParams.subscribe(params => {
       const videoId = params.vid;
@@ -310,13 +271,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
-  loadCurrentUserAvatar(avatar: string): void {
-    console.log(this.currentUserAvatarLoaded);
-    this.currentUserAvatarLoaded = true;
-    console.log(this.currentUserAvatarLoaded);
-  }
-
-
   play(id: string): void {
     if (this.playlist !== null) {
       this.router.navigate(['/player'], { queryParams: { vid: id, list: this.playlist._id }}).then();
@@ -347,45 +301,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   }
 
 
-  addComment(): void {
-    this.authService.postResource(`${this.COMMENTS_URL}/${this.video._id}`, { text: this.commentForm.value.text }).subscribe(res => {
-      if (res.added) {
-        this.commentInput.nativeElement.value = '';
-        this.commentInput.nativeElement.style.height = '45px';
-        this.commentForm.reset();
-        this.comments.unshift(res.comment);
-
-        this.toastService.success(res.message);
-      }
-      else {
-        this.toastService.error(res.message);
-      }
-    }, error => {
-      this.toastService.error(error.error.message);
-    });
-  }
-
-
-  deleteComment(commentId: string): void {
-    this.authService.deleteResource(`${this.COMMENTS_URL}/${commentId}`).subscribe(res => {
-      if (res.deleted) {
-        const index = this.comments.findIndex(comment => comment._id === commentId);
-
-        if (index > -1) {
-          this.comments.splice(index, 1);
-        }
-
-        this.toastService.success(res.message);
-      }
-      else {
-        this.toastService.error(res.message);
-      }
-    }, err => {
-      this.toastService.error(err.error.message);
-    });
-  }
-
-
   notInterested(id: string): void {
     const videoIndex = this.similarVideos.findIndex(video => {
       return video._id === id;
@@ -411,29 +326,9 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
 
   openSaveSimilarVideoInPlaylist(video): void {
-    const dialogRef = this.dialog.open(SaveInPlaylistDialogComponent, {
+    this.dialog.open(SaveInPlaylistDialogComponent, {
       data: { playlists: this.playlists, video, playlist: this.playlist },
       restoreFocus: false
-    });
-
-    // dialogRef.afterClosed().subscribe(res => {
-    //   console.log(res);
-    //   if (res) {
-    //     this.playlist = res.playlist;
-    //     this.playlists = res.playlists;
-    //   }
-    // });
-  }
-
-
-  openEditCommentDialog(comment: CommentDto): void {
-    const dialogRef = this.dialog.open(EditCommentDialogComponent, {
-      data: comment,
-      restoreFocus: false
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      this.menuTrigger.focus();
     });
   }
 
