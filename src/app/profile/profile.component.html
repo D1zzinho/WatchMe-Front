@@ -177,6 +177,7 @@
             <ng-container matColumnDef="expandedDetail">
               <td mat-cell *matCellDef="let playlist" [attr.colspan]="playlistsDisplayedColumns.length">
                 <div class="example-element-detail" [@detailExpand]="playlist == expandedElement ? 'expanded' : 'collapsed'">
+
                   <mat-selection-list class="mb-2 w-100" [multiple]="false">
                     <mat-list-option *ngFor="let video of playlist['videos']">
                       <div class="playlist-item">

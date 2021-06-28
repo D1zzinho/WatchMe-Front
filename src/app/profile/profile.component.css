@@ -182,7 +182,7 @@
 /* PLAYLISTS TABLE WITH EXPANDABLE ROWS */
 .playlists-table-holder {
   min-width: 700px;
-  overflow-x: auto;
+  /*overflow-x: auto;*/
 }
 
 tr.example-detail-row {

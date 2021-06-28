@@ -53,8 +53,7 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
   videoSub: Subscription;
 
   video: any = null;
-  author = '';
-  authorAvatar = '';
+  author: any = null;
   uploadDate = '';
 
   similarVideos: Array<SimilarVideo> = new Array<SimilarVideo>();
@@ -93,7 +92,6 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       const videoId = params.vid;
 
       this.videoSub = this.authService.getResource(`${this.VIDEOS_URL}/${videoId}`).subscribe(async res => {
-        console.log(res);
         if (res !== null) {
           if (res.err) {
             this.error = 'Video not found!';
@@ -112,12 +110,11 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
             // // this.thDown = res.thDown;
             // this.stat = res?.stat;
             this.author = res?.author;
-            this.authorAvatar = res?.authorAvatar;
 
             const date = new Date(res?.uploadDate);
             this.uploadDate = `${date.toDateString()}`;
 
-            if (this.author === this.authService.getUsernameFromToken()) {
+            if (this.author.username === this.authService.getUsernameFromToken()) {
               this.isOwner = true;
             }
             else {
@@ -338,6 +335,16 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
       data: video,
       restoreFocus: false
     });
+  }
+
+
+  goToProfile(userId: string): void {
+    if (this.isOwner) {
+      this.router.navigate(['/profile']);
+    }
+    else {
+      this.router.navigate(['/profile'], { queryParams: { uid: userId }});
+    }
   }
 
 }

@@ -50,9 +50,9 @@
 
         <div class="info">
           <div class="add-by">
-            <div class="avatar"><a href="#"><img class="rounded-circle" src="{{ authorAvatar }}"  alt="Author's avatar"/></a></div>
+            <div class="avatar"><a (click)="goToProfile(author['_id'])"><img class="rounded-circle" src="{{ author['avatar'] }}"  alt="Author's avatar"/></a></div>
             <div class="uploaded">
-              <a href="#" id="author">{{ author }}</a>
+              <a (click)="goToProfile(author['_id'])" id="author">{{ author['username'] }}</a>
               <p id="date">Added on {{ uploadDate }}</p>
 
               <div class="desc" [ngStyle]="fullDescription ? { 'height': 'auto' } : { 'height': '53px' }">
