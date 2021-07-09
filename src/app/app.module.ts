@@ -59,6 +59,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SaveInPlaylistDialogComponent } from './dialogs/save-in-playlist-dialog/save-in-playlist-dialog.component';
 import { PublicProfileComponent } from './profile/public-profile/public-profile.component';
+import { HistoryComponent } from './history/history.component';
 
 
 @NgModule({
@@ -86,7 +87,8 @@ import { PublicProfileComponent } from './profile/public-profile/public-profile.
     VideoComponent,
     CreatePlaylistDialogComponent,
     SaveInPlaylistDialogComponent,
-    PublicProfileComponent
+    PublicProfileComponent,
+    HistoryComponent
   ],
   imports: [
     BrowserModule,

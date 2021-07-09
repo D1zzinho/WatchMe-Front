@@ -1,4 +1,4 @@
-<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!videoReady"></mat-progress-bar>
+<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!videoReady && !error"></mat-progress-bar>
 
 <div class="content" *ngIf="videoLoaded | async">
 

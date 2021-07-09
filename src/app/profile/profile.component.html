@@ -139,10 +139,11 @@
             [dataSource]="playlistsDataSource"
             multiTemplateDataRows
             class="w-100"
+            style="border-collapse: separate;"
           >
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let playlist">{{ playlist.name }}</td>
+              <td mat-cell *matCellDef="let playlist">{{ playlist['name'] }}</td>
             </ng-container>
 
             <ng-container matColumnDef="videos">

@@ -29,7 +29,7 @@
   <div class="comments" *ngIf="comments.length > 0">
     <div *ngFor="let comment of comments" class="media">
       <img class="d-flex rounded-circle avatar z-depth-1-half mr-3" src="{{ comment.author.avatar }}"
-           alt="{{ comment.author.avatar }}s' avatar">
+           alt="{{ comment.author.username }}s' avatar">
       <div class="media-body">
         <h5 class="mt-0 mb-1 font-weight-bold blue-text comment-author">{{ comment.author.username }}</h5>
         <p class="comment-message" style="white-space: pre;">{{ comment.text }}</p>

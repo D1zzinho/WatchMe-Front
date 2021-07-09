@@ -17,8 +17,7 @@ import {environment} from '../../../environments/environment';
 import {Router} from '@angular/router';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import {AuthService} from '../../auth.service';
-import {BehaviorSubject, Subscription} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-video',
@@ -344,7 +343,7 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
 
       navigator.mediaSession.metadata = new MediaMetadata({
         title: this.video.title,
-        artist: this.video.author,
+        artist: this.video.author.username,
         artwork: [
           { src: artwork, sizes: '96x96',   type: 'image/png' },
           { src: artwork, sizes: '128x128', type: 'image/png' },

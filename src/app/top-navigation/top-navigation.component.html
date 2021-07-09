@@ -6,8 +6,8 @@
 
     <ul class="navbar-nav ml-auto" *ngIf="isLoggedIn && !(isSearch | async)">
       <li class="nav-item">
-        <form #form class="form-inline mr-auto md-form m-0 p-0" [action]="['/finder']" enctype="multipart/form-data">
-          <input id="search-nav-input" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" [formControl]="searchControl">
+        <form [formGroup]="searchInput" #form class="form-inline mr-auto md-form m-0 p-0" [action]="['/finder']" enctype="multipart/form-data">
+          <input id="search-nav-input" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="q" formControlName="search" required>
           <button mdbBtn size="sm" color="elegant" rounded="true" (click)="form.submit()" class="ml-0 mb-0 waves-light mt-sm-1 ml-md-2 mt-lg-0" mdbWavesEffect type="submit">Search</button>
         </form>
       </li>
@@ -28,8 +28,9 @@
           <mat-icon [inline]="true">manage_accounts</mat-icon>
           {{ username }}<span class="caret"></span></a>
         <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown dropdown-primary" role="menu">
-          <a class="dropdown-item waves-light" mdbWavesEffect [routerLink]="['/profile']">My account</a>
-          <a (click)="logout()" class="dropdown-item waves-light" mdbWavesEffect href="#"> Log out</a>
+          <a class="dropdown-item" [routerLink]="['/profile']">My profile</a>
+          <a class="dropdown-item" [routerLink]="['/activity']">My activity</a>
+          <a (click)="logout()" class="dropdown-item" href="#">Log out</a>
         </div>
       </li>
 

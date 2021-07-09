@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {Title} from '@angular/platform-browser';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
-import {FormControl} from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {map, startWith} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
@@ -14,7 +14,7 @@ import {environment} from '../../environments/environment';
 })
 export class TopNavigationComponent implements OnInit {
 
-  searchControl: FormControl = new FormControl();
+  searchInput: FormGroup;
 
   username = '';
   collapsed = true;
@@ -24,7 +24,13 @@ export class TopNavigationComponent implements OnInit {
   isSearch: Promise<boolean> = Promise.resolve(false);
 
 
-  constructor(private authService: AuthService, private titleService: Title, private router: Router, private currentRoute: ActivatedRoute) {
+  constructor(
+      private authService: AuthService,
+      private titleService: Title,
+      private router: Router,
+      private currentRoute: ActivatedRoute,
+      private formBuilder: FormBuilder
+  ) {
     this.authService.getLoginStatus().subscribe((status: boolean) => this.isLoggedIn = status);
 
     router.events.subscribe(event => {
@@ -61,6 +67,10 @@ export class TopNavigationComponent implements OnInit {
         } else if (res.username) {
           this.username = res.username;
         }
+      });
+
+      this.searchInput = this.formBuilder.group({
+        search: new FormControl('', Validators.required)
       });
     }
 

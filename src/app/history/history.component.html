@@ -1,0 +1,28 @@
+<mat-progress-bar mode="indeterminate" color="warn" *ngIf="!(dataLoaded | async)"></mat-progress-bar>
+
+<div *ngIf="dataLoaded | async" class="container py-4">
+  <h1 class="pb-2 text-center">Your videos watching history</h1>
+
+
+  <div class="videos">
+    <mat-card class="history-video-card" *ngFor="let video of videosHistory">
+      <mat-card-header>
+        <mat-card-title>{{ video['title'] }}</mat-card-title>
+        <mat-card-subtitle>Watched on {{ video['viewDate'] }}</mat-card-subtitle>
+      </mat-card-header>
+      <img mat-card-image [src]="BASE_URL + VIDEOS_URL + '/' + video['_id'] + '/poster?token=' + token" [alt]="video['title'] + ' cover image'">
+      <mat-card-content>
+        <p>
+          {{ video['desc'] }}
+        </p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-stroked-button color="accent" (click)="play(video['_id'])">PLAY</button>
+        <button mat-stroked-button color="warn">DELETE FROM HISTORY</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+
+  <mat-paginator color="accent" #historyPaginator [pageSizeOptions]="[5, 10, 15]" showFirstLastButtons></mat-paginator>
+</div>

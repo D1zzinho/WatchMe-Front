@@ -40,7 +40,7 @@
     "plyr": "^3.6.8",
     "rxjs": "^6.5.3",
     "tslib": "^2.2.0",
-    "zone.js": "^0.11.4"
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^12.1.0",
