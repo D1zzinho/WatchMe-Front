@@ -99,6 +99,8 @@ export class VideosComponent implements OnInit, OnDestroy {
 
 
   private showVideos(): void {
+    this.http.get(`http://watchme.test/api/videos/public`).subscribe(videos => console.log(videos));
+
     this.authService.getResource(`${this.VIDEOS_URL}/`).subscribe(videos => {
       this.videos = videos;
       this.videosLength = videos.length;

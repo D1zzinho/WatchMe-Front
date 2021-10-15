@@ -94,15 +94,16 @@
           </mat-slide-toggle>
         </div>
 
-        <div class="selected-video-section" *ngIf="playlist === null && similarVideos.length > 0">
+        <div class="selected-video-section menu-on-hover" *ngIf="playlist === null && similarVideos.length > 0">
           <div [ngStyle]="autoPlayNext ? { 'background-color':'#69f0aaaa' } : {}" class="suggestedVideo" (click)="play(similarVideos[0]._id)" matTooltip="Play: {{ similarVideos[0].title }}" matTooltipPosition="before" matTooltipTouchGestures="auto">
             <div class="image-holder">
               <mat-spinner class="m-auto" *ngIf="!similarVideos[0].loaded" color="primary"></mat-spinner>
               <img [hidden]="!similarVideos[0].loaded" (load)="loadSimilarVideoThumb(similarVideos[0]._id)" [src]="baseUrl + '/videos/' + similarVideos[0]._id + '/poster?token=' + token" class="img-fluid" alt="{{ similarVideos[0].title }}">
             </div>
-            <div class="similar-movie-info">
-              <strong style="word-break: break-word;">{{ (similarVideos[0].title.length > 30 ? similarVideos[0].title.slice(0, 30) + '...' : similarVideos[0].title) }}</strong>
-              <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideos[0].visits }}">{{ similarVideos[0].visits }}</span>
+            <div class="similar-movie-info px-2">
+              <strong style="word-break: break-word;">{{ (similarVideos[0].title.length > 50 ? similarVideos[0].title.slice(0, 50) + '...' : similarVideos[0].title) }}</strong>
+<!--              <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideos[0].visits }}">{{ similarVideos[0].visits }}</span>-->
+              <p class="views-row" title="{{ similarVideos[0].visits }}">Views: {{ similarVideos[0].visits }}</p>
             </div>
           </div>
 
@@ -140,7 +141,7 @@
         <div class="font-weight-light">
           <div class="similar-container">
 
-            <div class="position-relative" *ngFor="let similarVideo of similarVideos.slice(1, similarOnPage)" title="Play: {{ similarVideo.title }}">
+            <div class="position-relative menu-on-hover" *ngFor="let similarVideo of similarVideos.slice(1, similarOnPage)" title="Play: {{ similarVideo.title }}">
 
               <div class="suggestedVideo" (click)="play(similarVideo._id)">
 
@@ -150,8 +151,9 @@
                 </div>
 
                 <div class="similar-movie-info">
-                  <strong style="font-size: 12px; word-break: break-word;">{{ (similarVideo.title.length > 30 ? similarVideo.title.slice(0, 30) + '...' : similarVideo.title) }}</strong>
-                  <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.visits }}">{{ similarVideo.visits }}</span>
+                  <strong style="font-size: 13px; word-break: break-word;">{{ (similarVideo.title.length > 50 ? similarVideo.title.slice(0, 50) + '...' : similarVideo.title) }}</strong>
+<!--                  <span style="font-size: 11px; color: rgba(50,170,255,0.8)" title="{{ similarVideo.visits }}">{{ similarVideo.visits }}</span>-->
+                  <p class="views-row" title="{{ similarVideo.visits }}">Views: {{ similarVideo.visits }}</p>
                 </div>
 
               </div>

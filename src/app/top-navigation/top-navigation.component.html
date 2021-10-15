@@ -29,7 +29,7 @@
           {{ username }}<span class="caret"></span></a>
         <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown dropdown-primary" role="menu">
           <a class="dropdown-item" [routerLink]="['/profile']">My profile</a>
-          <a class="dropdown-item" [routerLink]="['/activity']">My activity</a>
+          <a class="dropdown-item" [routerLink]="['/activity']" [queryParams]="{ page: 0 }">My activity</a>
           <a (click)="logout()" class="dropdown-item" href="#">Log out</a>
         </div>
       </li>

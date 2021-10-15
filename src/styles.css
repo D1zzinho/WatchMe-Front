@@ -37,6 +37,11 @@ button.navbar-toggler {
   padding: 0;
   text-align: center;
 }
+
+.suggestedVideo {
+  touch-action: pan-y !important;
+}
+
 /*.mat-menu-panel {*/
 /*  min-height: auto !important;*/
 /*}*/

@@ -3,6 +3,7 @@ import {AuthService} from '../auth.service';
 import {VideoDto} from '../models/VideoDto';
 import {environment} from '../../environments/environment';
 import {DomSanitizer} from '@angular/platform-browser';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,7 @@ export class HomeComponent implements OnInit, AfterContentInit {
 
   token: string;
 
-  constructor(private authService: AuthService, private sanitizer: DomSanitizer) {
+  constructor(private authService: AuthService, private sanitizer: DomSanitizer, private http: HttpClient, private sanitization: DomSanitizer) {
   }
 
 
@@ -33,6 +34,11 @@ export class HomeComponent implements OnInit, AfterContentInit {
       this.token = localStorage.getItem('token');
       this.authService.getResource(`${environment.baseUrl}/videos/latest?limit=${this.limit}`).subscribe(res => {
         this.latestVideos = res;
+        // res.forEach(video => {
+        //   this.authService.getResource(`http://192.168.3.130:8081/videos/check/${video._id}`).subscribe(blob => {
+        //     console.log(blob);
+        //   });
+        // });
         this.videosExist = Promise.resolve(true);
       });
 

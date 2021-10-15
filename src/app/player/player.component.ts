@@ -176,27 +176,27 @@ export class PlayerComponent implements OnInit, AfterContentInit, OnDestroy {
 
             if (this.error === null) {
               if (localStorage.getItem('token') !== null && localStorage.getItem('user') !== null) {
-                const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
-                if (watchedVideos !== null) {
-                  const result = watchedVideos.findIndex(v => v.vid === this.video._id);
-
-                  if (result === -1) {
-                    await this.authService.patchResource(
-                      `${this.VIDEOS_URL}/${videoId}/views`,
-                      null
-                    ).toPromise();
-                  }
-                }
-                else {
-                  await this.authService.patchResource(
+                // const watchedVideos = JSON.parse(localStorage.getItem('watchedVideos'));
+                // if (watchedVideos !== null) {
+                //   const result = watchedVideos.findIndex(v => v.vid === this.video._id);
+                //
+                //   if (result === -1) {
+                //     await this.authService.patchResource(
+                //       `${this.VIDEOS_URL}/${videoId}/views`,
+                //       null
+                //     ).toPromise();
+                //   }
+                // }
+                // else {
+                const r = await this.authService.patchResource(
                     `${this.VIDEOS_URL}/${videoId}/views`,
                     null
                   ).toPromise();
-                }
+                // }
               }
             }
 
-            this.titleService.setTitle(res.title + ' - WatchMe');
+            this.titleService.setTitle(res.title + ' | Player | WatchMe');
             this.videoLoaded = Promise.resolve(true);
           }
         }

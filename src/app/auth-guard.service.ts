@@ -21,6 +21,5 @@ export class AuthGuardService {
     return this.loggedIn;
   }
 
-
 }
 

@@ -46,12 +46,10 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
   options: any;
   player: any;
   muted = true;
+  sources = new Array<any>();
 
   interval: any;
   timeout: any;
-
-  // mimeType = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
-
 
   @ViewChild('video') videoElement: ElementRef;
   @ViewChild('source') sourceElement: ElementRef;
@@ -72,8 +70,44 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const token = localStorage.getItem('token');
-    this.videoBlobSource = `${this.baseUrl}/videos/${this.video._id}/stream?token=` + token;
-    this.videoBlobPoster = `${this.baseUrl}/videos/${this.video._id}/poster?token=` + token;
+    this.videoBlobSource = `${this.baseUrl}/videos/${this.video._id}/source/stream?token=${token}`;
+    this.videoBlobPoster = `${this.baseUrl}/videos/${this.video._id}/poster?token=${token}`;
+
+    this.sources.push({
+      src: this.videoBlobSource,
+      type: 'video/mp4',
+      size: this.video.height
+    });
+    if (this.video.sources) {
+      if (this.video.sources.length > 0) {
+        this.sources.push({
+          src: `${this.baseUrl}/videos/${this.video._id}/360/stream?token=${token}`,
+          type: 'video/mp4',
+          size: 360
+        });
+        if (this.video.sources[1]) {
+          this.sources.push({
+            src: `${this.baseUrl}/videos/${this.video._id}/480/stream?token=${token}`,
+            type: 'video/mp4',
+            size: 480
+          });
+        }
+        if (this.video.sources[2]) {
+          this.sources.push({
+            src: `${this.baseUrl}/videos/${this.video._id}/720/stream?token=${token}`,
+            type: 'video/mp4',
+            size: 720
+          });
+        }
+        if (this.video.sources[3]) {
+          this.sources.push({
+            src: `${this.baseUrl}/videos/${this.video._id}/1080/stream?token=${token}`,
+            type: 'video/mp4',
+            size: 1080
+          });
+        }
+      }
+    }
 
     // this.videoBlobSource = `${this.baseUrl}/${this.video.path}`;
     // this.videoBlobPoster = `${this.baseUrl}/${this.video.cover}`;
@@ -113,14 +147,14 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.player.pip) {
         this.player.pip = false;
       }
+    }
 
-      if (this.interval) {
-        clearInterval(this.interval);
-      }
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
 
-      if (this.timeout) {
-        clearTimeout(this.timeout);
-      }
+    if (this.timeout) {
+      clearTimeout(this.timeout);
     }
   }
 
@@ -132,6 +166,13 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
       ratio: '16:9',
       keyboard: { focused: false, global: true }
     });
+
+    this.player.source = {
+      type: 'video',
+      title: this.video.title,
+      sources: this.sources,
+      poster: this.videoBlobPoster
+    };
 
     // if ('MediaSource' in window && MediaSource.isTypeSupported(this.mimeType)) {
     //   console.log('supported');
@@ -155,17 +196,14 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
     this.preventDefaultKeyAction();
     this.videoReady.emit(true);
 
-    if (this.player.muted) {
-      this.player.play();
-    }
-    else {
-      const video = document.getElementById('player') as HTMLVideoElement;
-      video.play().then(() => {
-
-      }).catch(() => {
-
-      });
-    }
+    this.player.play();
+    // if (this.player.muted) {
+    //
+    // }
+    // else {
+    //   //const video = document.getElementById('player') as HTMLVideoElement;
+    //
+    // }
     // this.player.ready(() => {
     //   if (this.list !== null) {
     //     const playlist = new Array<any>();
@@ -387,9 +425,9 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private playNextVideo(autoPlayNext: boolean, video: any): void {
-    const height = document.getElementById('player').offsetHeight;
+    const height = document.querySelector('video').offsetHeight;
     this.player.destroy();
-    document.getElementById('player').remove();
+    document.querySelector('video').remove();
 
     const token = localStorage.getItem('token');
     const info = document.createElement('h2');

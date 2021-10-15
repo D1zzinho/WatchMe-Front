@@ -2,9 +2,11 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import {VideoDto} from '../models/VideoDto';
+import {Subscription} from 'rxjs';
+import {PageEvent} from '@angular/material/paginator';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-history',
@@ -24,16 +26,26 @@ export class HistoryComponent implements OnInit {
   BASE_URL = environment.baseUrl;
   VIDEOS_URL = '/videos';
 
+  pageEvent: void;
+  queryParamsSub: Subscription;
+  videosHistory: Array<any> = new Array<any>();
+  videosOnPage: Array<VideoDto> = new Array<VideoDto>();
+  videosLength = 0;
+  currentPage = 0;
+  videosPerPage = 20;
+  pageSizeOptions: number[] = [5, 10, 15, 20, 50, 70];
+
   token: string;
 
   dataLoaded: Promise<boolean>;
-  videosHistory: Array<any>;
 
+  isAdmin: boolean;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private toastService: ToastrService
   ) { }
 
 
@@ -41,10 +53,34 @@ export class HistoryComponent implements OnInit {
     this.token = localStorage.getItem('token');
     this.dataLoaded = Promise.resolve(false);
 
-    this.authService.getResource(`${this.BASE_URL}${this.VIDEOS_URL}/watchingHistory`).subscribe(videosHistory => {
-      if (videosHistory.length > 0) {
-        this.videosHistory = videosHistory;
+    this.isAdmin = this.authService.isAdmin();
+
+    this.queryParamsSub = this.activatedRoute.queryParams.subscribe(params => {
+      if (params.limit) {
+        if (params.limit < 0) {
+          this.videosPerPage = 1;
+        }
+        else if (params.limit > 500) {
+          this.videosPerPage = 64;
+        }
+        else {
+          this.videosPerPage = params.limit;
+        }
       }
+
+      if (params.page) {
+        this.currentPage = Number(params.page);
+      }
+
+
+      this.authService.getResource(`${this.BASE_URL}${this.VIDEOS_URL}/watchingHistory`).subscribe(videosHistory => {
+        if (videosHistory.length > 0) {
+          this.videosHistory = videosHistory;
+          this.videosLength = videosHistory.length;
+        }
+
+        this.iterator();
+      });
 
       this.dataLoaded = Promise.resolve(true);
     }, err => {
@@ -58,4 +94,37 @@ export class HistoryComponent implements OnInit {
     this.router.navigate(['/player'], { queryParams: { vid: videoId }});
   }
 
+
+  delete(videoId: string): void {
+    this.authService.deleteResource(`${this.BASE_URL}${this.VIDEOS_URL}/watchingHistory/${videoId}`).subscribe(res => {
+      this.toastService.success(res.message);
+      document.getElementById(videoId).remove();
+    }, err => {
+      this.toastService.error(err.message);
+    });
+  }
+
+
+  handlePage(e: PageEvent): void {
+    this.currentPage = e.pageIndex;
+    this.videosPerPage = e.pageSize;
+
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: {
+        limit: e.pageSize,
+        page: e.pageIndex
+      },
+      queryParamsHandling: 'merge'
+    });
+
+    this.iterator();
+  }
+
+
+  private iterator(): void {
+    const end = (this.currentPage + 1) * this.videosPerPage;
+    const start = this.currentPage * this.videosPerPage;
+    this.videosOnPage = this.videosHistory.slice(start, end);
+  }
 }
