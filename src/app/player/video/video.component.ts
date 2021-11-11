@@ -196,7 +196,11 @@ export class VideoComponent implements OnInit, AfterViewInit, OnDestroy {
     this.preventDefaultKeyAction();
     this.videoReady.emit(true);
 
-    this.player.play();
+    try {
+      this.player.play();
+    } catch (err) {
+      console.log(err);
+    }
     // if (this.player.muted) {
     //
     // }

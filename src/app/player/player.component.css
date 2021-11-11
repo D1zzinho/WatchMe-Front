@@ -564,8 +564,8 @@ a.tag {
   display: grid;
   grid-template-columns: repeat(1,1fr);
   grid-template-rows: auto;
-  grid-gap: 15px;
-  margin-bottom: 25px;
+  grid-gap: 5px;
+  padding-bottom: 25px;
 }
 
 /*@media screen and (min-width: 1200px) {*/
@@ -574,7 +574,7 @@ a.tag {
 /*  }*/
 /*}*/
 
-@media screen and (min-width: 480px) {
+@media screen and (min-width: 340px) {
   .similar-container {
     grid-template-columns: repeat(2,1fr);
   }
