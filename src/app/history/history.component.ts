@@ -104,6 +104,17 @@ export class HistoryComponent implements OnInit {
     });
   }
 
+  clearHistory(): void {
+    this.authService.deleteResource(`${this.BASE_URL}${this.VIDEOS_URL}/watchingHistory`).subscribe(res => {
+      this.toastService.success(res.message);
+      this.videosHistory = new Array<any>();
+      this.videosOnPage =  new Array<VideoDto>();
+      this.videosLength = 0;
+      this.currentPage = 0;
+    }, err => {
+      this.toastService.error(err.message);
+    });
+  }
 
   handlePage(e: PageEvent): void {
     this.currentPage = e.pageIndex;

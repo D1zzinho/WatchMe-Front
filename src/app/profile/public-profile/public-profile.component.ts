@@ -90,8 +90,8 @@ export class PublicProfileComponent implements OnInit {
     if (this.uid !== '') {
       this.authService.getResource(`${this.baseUrl}/users/${this.uid}/profile`).subscribe(res => {
         if (res.playlists.length > 0) {
-          this.userProfilePlaylists = res.playlists;
-          this.playlistsDataSource = new MatTableDataSource(res.playlists);
+          this.userProfilePlaylists = res.playlists.filter(playlist => !playlist.isPrivate);
+          this.playlistsDataSource = new MatTableDataSource(res.playlists.filter(playlist => !playlist.isPrivate));
         }
         if (res.videos.length > 0) {
           this.userProfileVideos = res.videos.sort((a, b) => {

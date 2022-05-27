@@ -6,7 +6,18 @@
   <div class="container my-2" *ngIf="dataLoaded | async">
 
     <div class="profile-header ml-2 mb-2 mt-4">
-      <img (click)="showPublicProfile()" class="header-avatar rounded-circle" src="{{ avatar }}" alt="Avatar">
+      <div
+        class="profile-avatar"
+        style=" width: 120px;
+              background-size: cover;
+              background-position: center;
+              height: 120px;
+              margin-right: 20px;
+              border-radius: 100px;
+              cursor: pointer;
+              {{ 'background: url(' + avatar + ');' }}"
+        (click)="showPublicProfile()"
+      ></div>
 
       <div class="user-meta">
         <h2 class="header-username">{{ username }}</h2>

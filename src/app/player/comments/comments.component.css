@@ -60,6 +60,7 @@
 
 .avatar {
   width: 45px;
+  height: 45px;
   vertical-align: bottom;
   margin-right: 15px;
   cursor: pointer;
